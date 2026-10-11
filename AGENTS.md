@@ -2,17 +2,17 @@
 
 Agent guidance for **PokeXYZ-RDComp** — the combined Rust toolkit for the
 Pokémon X/Y native-recomp + decomp project: format extraction & conversion
-(the `xy` CLI), static recompilation (`xy-recomp/`: 3dsrecomp + Zakuro
-under `.thirdparty/`), matching decompilation (`xy-decomp/`:
-3DS-Decomp-Pipeline + objdiff + Ghidra automation), and the native runtime
-track (`xy-runtime/`, zakuro-based). Python appears only as helper scripts
-under `scripts/`; Rust is the daily driver.
+(`xy-extraction/` — the `xy` CLI), static recompilation (`xy-recomp/`:
+3dsrecomp + Zakuro under `.thirdparty/`), matching decompilation
+(`xy-decomp/`: 3DS-Decomp-Pipeline + objdiff + Ghidra automation), and the
+native runtime track (`xy-runtime/`, zakuro-based). Python appears only as
+helper scripts under `scripts/`; Rust is the daily driver.
 
 ## Repo layout
 
 | Path | Contents |
 |---|---|
-| `crates/` + `src/` | the `xy` toolkit workspace (8 domain crates + unified CLI) |
+| `xy-extraction/` + `src/` | the extraction toolkit — 8 domain crates (`xy-core/archive/audio/gfx/script/battle/curate/convert`) behind the unified `xy` CLI: unpack → curate → convert |
 | `xy-recomp/` | recomp track: `build.sh` port builder, C `overrides/` |
 | `xy-decomp/` | matching-decomp track: `ghidra/` (patched 3ds suite + PyGhidra driver + symbol exporter), track README |
 | `xy-runtime/` | runtime track: zakuro-based native runtime (working clone gitignored, README tracked) |
@@ -25,8 +25,9 @@ under `scripts/`; Rust is the daily driver.
 **Directory convention:** dot-prefixed top-level dirs (`.Data/`,
 `.thirdparty/`) are machine-local workspace material ("agentic
 references") — never committed except their README/index files; non-dot
-dirs are repo content. Game tracks are `xy-`-prefixed (`xy-recomp/`,
-`xy-decomp/`, `xy-runtime/`); the `xy` toolkit lives at the repo root.
+dirs are repo content. Game tracks are `xy-`-prefixed (`xy-extraction/`,
+`xy-recomp/`, `xy-decomp/`, `xy-runtime/`); the extraction toolkit's CLI
+package (`src/` + root `Cargo.toml`) lives at the repo root.
 
 ### Key data landmarks (under `.Data/`)
 
@@ -71,18 +72,18 @@ Romfs quick map (Pokémon X/Y):
   game-agnostic. Do not hardcode title IDs in library code.
 - Cargo **workspace**, eight domain crates + a root CLI package (subcommand
   groups map 1:1 onto crates):
-  - `crates/xy-core` — shared primitives (typed errors, bounds-checked reads,
+  - `xy-extraction/xy-core` — shared primitives (typed errors, bounds-checked reads,
     LZ10/LZ11, `sniff()` magic identification, `json_escape`);
-  - `crates/xy-archive` — containers (RomFS, BCMA/DARC, GARC, CRO);
-  - `crates/xy-audio` — sound (BCWAV + WAV writer);
-  - `crates/xy-gfx` — graphics (SMDH, PICA textures, CGFX, BCH, PC/PF/PT,
+  - `xy-extraction/xy-archive` — containers (RomFS, BCMA/DARC, GARC, CRO);
+  - `xy-extraction/xy-audio` — sound (BCWAV + WAV writer);
+  - `xy-extraction/xy-gfx` — graphics (SMDH, PICA textures, CGFX, BCH, PC/PF/PT,
     OBJ export, **GLB/glTF 2.0 export**);
-  - `crates/xy-script`, `crates/xy-battle` — text banks landed / battle stub;
-  - `crates/xy-curate` — the curated-tree pipeline as a **library**
+  - `xy-extraction/xy-script`, `xy-extraction/xy-battle` — text banks landed / battle stub;
+  - `xy-extraction/xy-curate` — the curated-tree pipeline as a **library**
     (extracted 2026-10-06 from `src/curate.rs` so the CLI and any future
     front-end share one implementation; `build_with_progress` reports
     progress + honors a cancellation flag, `manifest` reads trees back);
-  - `crates/xy-convert` — viewer/inspector/convert backend: kind detection
+  - `xy-extraction/xy-convert` — viewer/inspector/convert backend: kind detection
     (`detect_kind` → `FileKind`; runs on full buffers for GF containers,
     whose entry tables validate against the file length), whole-model
     intermediate (`model::SceneModel` from BCH/CGFX/containers), one-shot
@@ -205,23 +206,23 @@ reconstruction — the decompiled C under `code/decomp/` stays authoritative.
 ```
 Cargo.toml               # workspace root + root package `xy` (unified CLI)
 src/main.rs              # clap CLI (xy): info | core | archive | audio | gfx
-crates/xy-core/src/
+xy-extraction/xy-core/src/
   lib.rs                 # sniff() magic identification
   error.rs               # shared Error/Result (thiserror)
   util.rs                # bounds-checked *_le reads, UTF-16LE decode
   lz10.rs                # Nintendo LZ10/LZ11 decompressor
-crates/xy-archive/src/
+xy-extraction/xy-archive/src/
   romfs.rs               # RomFS/NCCH/CCI extraction
   bcma.rs                # XY e-manual DARC variant (12-byte nodes) — see module docs
   garc.rs                # GARC v4 game archives (CRAG/OTAF/BTAF/BMIF)
   lzss.rs                # LZ-0x11 payload decoder (dsdecmp flavor, pk3DS port)
   cro.rs                 # CRO0 code modules (info/extract; plaintext, magic @0x80)
-crates/xy-archive/tests/
+xy-extraction/xy-archive/tests/
   garc_golden.rs          # golden tests vs .Data/3ds_extracted/romfs (skips if absent)
-crates/xy-audio/src/
+xy-extraction/xy-audio/src/
   bcwav.rs               # CWAV parser (both layout variants) + DSP-ADPCM decoder
   wav.rs                 # canonical RIFF/WAV writer
-crates/xy-gfx/src/
+xy-extraction/xy-gfx/src/
   error.rs               # gfx error (wraps xy-core Error + png)
   smdh.rs                # home-menu icon + title metadata
   texture.rs             # PICA200 texture decoder (all 14 formats, Morton,
@@ -236,11 +237,11 @@ crates/xy-gfx/src/
   gf_model.rs            # Sun/Moon-era GfModel + PICA command reader (port;
                          # XY itself uses CGFX+BCH — see PLAN.md Phase 2)
   obj.rs                 # Wavefront OBJ (+MTL for BCH) export
-crates/xy-script/src/
+xy-extraction/xy-script/src/
   textfile.rs             # Gen6 text banks (XOR line crypt + VAR codes, pk3DS port)
-crates/xy-script/tests/
+xy-extraction/xy-script/tests/
   textfile_golden.rs       # golden vs src_extracted/garc/a/0/7/* (skips if absent)
-crates/xy-gfx/tests/
+xy-extraction/xy-gfx/tests/
   smdh_golden.rs           # icon pixels vs src_extracted/icon.png
   bcres_golden.rs          # model container vs src_extracted/garc/a/0/0/1
   cgfx_golden.rs           # CGFX textures/materials vs garc/a/0/0/7 (0001/0004)
@@ -251,14 +252,14 @@ xy-decomp/ghidra/
 scripts/
   heatmap.py, rebuild_v2.sh  # cross-cutting: decomp↔recomp status heatmap,
                            # full clean-slate re-dump of .Data/src_extracted
-crates/xy-curate/src/
+xy-extraction/xy-curate/src/
   lib.rs                 # `xy curate` pipeline (stages, manifest, validation,
                          # progress + cancellation) — real files only, never
                          # symlinks; CLI calls xy_curate::build
   manifest.rs            # read manifest.tsv / validation.tsv back (provenance)
   gfx_convert.rs         # pokemon stage: 8-file families, OBJ+MTL + PNG conversion
   csharp.rs              # C→C# deobfuscation pipeline (see its section above)
-crates/xy-convert/src/
+xy-extraction/xy-convert/src/
   lib.rs                 # FileKind detection (magic + GF-container probing)
   model.rs               # SceneModel intermediate (BCH/CGFX/PC -> meshes/
                          # materials/bones/decoded textures) + texture collection
@@ -267,16 +268,16 @@ crates/xy-convert/src/
   media.rs               # ffprobe JSON parsing + ffmpeg decode/convert/frames
   render.rs              # headless z-buffered rasterizer (textured|material|
                          # wireframe|normals|skeleton; turntable) -> PNG
-crates/xy-gfx/src/gltf.rs  # glTF 2.0 (GLB) export: GltfScene neutral input,
+xy-extraction/xy-gfx/src/gltf.rs  # glTF 2.0 (GLB) export: GltfScene neutral input,
                          # from_bch/from_cgfx mappers, embedded PNG textures,
                          # skin + inverse-bind matrices (Gauss-Jordan inverse),
                          # TRS bone nodes (quat-from-euler parity-tested vs the
                          # matrix path) + CANM skeletal-animation channels
-crates/xy-convert/src/glb_check.rs  # GLB validator (gltf crate): schema +
+xy-extraction/xy-convert/src/glb_check.rs  # GLB validator (gltf crate): schema +
                          # accessor/image/skin/animation decoding — the
                          # "will Blender load it" gate; wired into
                          # `xy convert glb --validate` and `xy inspect *.glb`
-crates/xy-battle/        # stub — stats / encounters / trainers (data now reachable: a/2/1/*)
+xy-extraction/xy-battle/        # stub — stats / encounters / trainers (data now reachable: a/2/1/*)
 ```
 
 ### Conventions (enforced in review)
@@ -292,7 +293,7 @@ crates/xy-battle/        # stub — stats / encounters / trainers (data now reac
 - **Validate parsers against real assets** before merging: decode a real file
   and sanity-check (duration, sample rate, peak level, not-silence), plus a
   byte-parity golden test where a reference exists (see
-  `crates/xy-audio/tests/bcwav_golden.rs`; must skip cleanly when the asset
+  `xy-extraction/xy-audio/tests/bcwav_golden.rs`; must skip cleanly when the asset
   is missing).
 - Conversions must be **byte-for-byte reproducible** against the reference
   implementations we ported from (see Provenance below).
@@ -335,7 +336,7 @@ crates/xy-battle/        # stub — stats / encounters / trainers (data now reac
 
 ### Adding a new tool
 
-1. New module `crates/<domain>/src/<format>.rs`: `parse()` → typed struct,
+1. New module `xy-extraction/<domain>/src/<format>.rs`: `parse()` → typed struct,
    then a `decode()`/`extract()` method. Document the binary layout in the
    module docs with an offset table. Pick the domain crate that matches the
    CLI group the command will live under.

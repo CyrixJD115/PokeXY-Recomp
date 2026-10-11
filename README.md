@@ -12,7 +12,7 @@ shows up only as helper scripts under `scripts/` (heatmap, rebuild glue).
 
 | Path | What it is |
 |---|---|
-| `crates/` + `src/` | the `xy` toolkit — 8 domain crates (`xy-core/archive/audio/gfx/script/battle/curate/convert`) behind one unified CLI |
+| `xy-extraction/` + `src/` | the extraction toolkit — 8 domain crates (`xy-core/archive/audio/gfx/script/battle/curate/convert`) behind the unified `xy` CLI: unpack → curate → convert |
 | `xy-recomp/` | static-recomp track: `build.sh` port builder, C override shims |
 | `xy-decomp/` | matching-decomp track: patched 3DS Ghidra suite + PyGhidra driver + symbol exporter |
 | `xy-runtime/` | runtime track: zakuro-based native runtime (working clone gitignored) |

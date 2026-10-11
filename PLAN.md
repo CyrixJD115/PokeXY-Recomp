@@ -36,13 +36,13 @@ textures, scripts, encounter data — inside Gamefreak GARC containers.
    identify the file"; runs only with `DOTNET_ROLL_FORWARD=LatestMajor`, and
    mangles `/mnt/...` paths). Reference is pk3DS `GARC.cs` semantics +
    the container's self-describing cross-checks instead (see garc_golden).
-2. **Document the layout** ✅ in `crates/xy-archive/src/garc.rs` module docs
+2. **Document the layout** ✅ in `xy-extraction/xy-archive/src/garc.rs` module docs
    (magic `CRAG`, OTAF/BTAF/BMIF, verified against `a/0/0/1` + `btl_ai.garc`).
 3. **Implement `garc.rs`** ✅: `parse()` (validates fileSize, FATO↔FATB
    consistency, FIMB bounds, per-subentry ranges), `subfile()` by vector
    bit id. Corpus check: **255/255 GARCs under `romfs/a/` (< 6 MB each)
    parse and extract cleanly.**
-4. **Inner compression** ✅: `crates/xy-archive/src/lzss.rs` — LZ-0x11 in
+4. **Inner compression** ✅: `xy-extraction/xy-archive/src/lzss.rs` — LZ-0x11 in
    the **dsdecmp indicator mapping** (S≥2: 2-byte; S==0: 3-byte +0x11;
    S==1: 4-byte +0x111), ported from pk3DS `LZSS.cs`. Empirically pinned:
    ~4,600 subfiles decode to their exact declared size, with coherent
@@ -167,7 +167,7 @@ files), `a/0/1/3` 49 MB (171 files). Text banks: `a/0/1/0-9` BCLAN,
 
 ## Phase 3 — sound archive ⬜
 
-- [ ] `crates/xy-audio/src/bcsar.rs` — `sound/xy_sound.bcsar` (21 MB: SEQ/
+- [ ] `xy-extraction/xy-audio/src/bcsar.rs` — `sound/xy_sound.bcsar` (21 MB: SEQ/
       BANK/WAV collections). The CWAV-in-CSAR entries should reuse
       `xy-audio/src/bcwav.rs` types; DSP-ADPCM decode is already done.
       Priority only after GARCs, since BGM/SFX already lives in `sound/*.aac`.

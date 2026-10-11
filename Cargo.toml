@@ -1,14 +1,14 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/xy-core",
-    "crates/xy-archive",
-    "crates/xy-audio",
-    "crates/xy-gfx",
-    "crates/xy-script",
-    "crates/xy-battle",
-    "crates/xy-curate",
-    "crates/xy-convert",
+    "xy-extraction/xy-core",
+    "xy-extraction/xy-archive",
+    "xy-extraction/xy-audio",
+    "xy-extraction/xy-gfx",
+    "xy-extraction/xy-script",
+    "xy-extraction/xy-battle",
+    "xy-extraction/xy-curate",
+    "xy-extraction/xy-convert",
 ]
 
 [workspace.package]
@@ -27,14 +27,14 @@ license.workspace = true
 authors.workspace = true
 
 [dependencies]
-xy-core = { path = "crates/xy-core" }
-xy-archive = { path = "crates/xy-archive" }
-xy-audio = { path = "crates/xy-audio" }
-xy-gfx = { path = "crates/xy-gfx" }
-xy-script = { path = "crates/xy-script" }
-xy-battle = { path = "crates/xy-battle" }
-xy-curate = { path = "crates/xy-curate" }
-xy-convert = { path = "crates/xy-convert" }
+xy-core = { path = "xy-extraction/xy-core" }
+xy-archive = { path = "xy-extraction/xy-archive" }
+xy-audio = { path = "xy-extraction/xy-audio" }
+xy-gfx = { path = "xy-extraction/xy-gfx" }
+xy-script = { path = "xy-extraction/xy-script" }
+xy-battle = { path = "xy-extraction/xy-battle" }
+xy-curate = { path = "xy-extraction/xy-curate" }
+xy-convert = { path = "xy-extraction/xy-convert" }
 clap = { version = "4", features = ["derive"] }
 thiserror = "2"
 
