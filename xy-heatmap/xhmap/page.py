@@ -1,6 +1,12 @@
-"""Emit the single-page dashboard: heatmap.html (self-contained, data
+"""Emit the dashboard: heatmap.html (tabbed, self-contained, data
 embedded, works from file://), heatmap_data.json (live-poll payload) and
-summary.md (plain-text table)."""
+summary.md (plain-text table).
+
+Tabs: Overview (progress + central treemap) · Modules (per-module
+address-ordered grids + import graph) · Namespaces (identified symbols).
+The central treemap layout comes embedded in the data (computed by
+xhmap.assets.treemap_layout) — the canvas and the committed README SVG
+consume the same rects."""
 import json
 import os
 
@@ -38,9 +44,20 @@ header h1 small{color:var(--dim);font-weight:400;margin-left:8px}
 .live .dot{width:8px;height:8px;border-radius:50%;background:#555;transition:.3s}
 .live.on .dot{background:#2ecc71;box-shadow:0 0 6px #2ecc71;animation:pulse 2s infinite}
 @keyframes pulse{50%{opacity:.5}}
-#layout{display:flex;min-height:calc(100vh - 58px)}
-#side{width:270px;min-width:270px;border-right:1px solid var(--border);
-  padding:12px;position:sticky;top:58px;height:calc(100vh - 58px);overflow-y:auto}
+#tabbar{position:sticky;top:57px;z-index:49;background:#12151a;
+  border-bottom:1px solid var(--border);padding:0 18px;display:flex;gap:2px}
+#tabbar button{background:none;border:none;border-bottom:2px solid transparent;
+  color:var(--dim);font:600 13px/1 "Segoe UI",system-ui,sans-serif;
+  padding:11px 16px;cursor:pointer;letter-spacing:.3px}
+#tabbar button:hover{color:var(--text)}
+#tabbar button.on{color:var(--accent);border-bottom-color:var(--accent)}
+.pane{display:none;padding:16px 20px 60px;max-width:1240px}
+body[data-tab=overview] #pane-overview{display:block}
+body[data-tab=modules] #pane-modules{display:flex;gap:18px;max-width:none;
+  padding-right:20px}
+body[data-tab=namespaces] #pane-namespaces{display:block}
+#side{width:270px;min-width:270px;position:sticky;top:104px;
+  height:calc(100vh - 120px);overflow-y:auto}
 #side input,#side select{width:100%;background:var(--panel2);color:var(--text);
   border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:12px;
   margin-bottom:8px}
@@ -53,24 +70,24 @@ header h1 small{color:var(--dim);font-weight:400;margin-left:8px}
 .bar{height:4px;border-radius:2px;background:var(--c-raw);overflow:hidden;
   display:flex;margin-top:3px;flex-basis:100%}
 .bar i{display:block;height:100%}
-main{flex:1;padding:16px 20px 60px;max-width:1200px}
+#modcol{flex:1;min-width:0;max-width:1060px}
 h2{font-size:13px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;
-  margin:22px 0 8px}
-#overview .stackbar{display:flex;height:22px;border-radius:5px;overflow:hidden;
+  margin:20px 0 8px}
+#overview .stackbar{display:flex;height:24px;border-radius:5px;overflow:hidden;
   border:1px solid var(--border)}
 #overview .stackbar i{display:block;height:100%}
-#overview .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:12px;
-  color:var(--dim)}
+#overview .legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;
+  font-size:12px;color:var(--dim)}
 #overview .legend .sw{display:inline-block;width:10px;height:10px;
   border-radius:2px;margin-right:5px;vertical-align:-1px}
-#central{border:1px solid var(--border);border-radius:10px;background:var(--panel);
-  padding:14px;display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
-#central .cwrap{flex:0 1 620px;min-width:340px}
-#radial{width:100%;max-width:620px;height:auto;display:block;cursor:crosshair}
-#central .cmeta{flex:1 1 300px;min-width:260px;font-size:12px;color:var(--dim);
+#treecard{border:1px solid var(--border);border-radius:10px;background:var(--panel);
+  padding:14px;display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;margin-top:10px}
+#treecard .twrap{flex:1 1 640px;min-width:340px}
+#treemap{width:100%;height:auto;display:block;cursor:crosshair;border-radius:4px}
+#treecard .tmeta{flex:0 1 300px;min-width:250px;font-size:12px;color:var(--dim);
   line-height:1.6}
-#central .cmeta h3{margin:0 0 6px;font-size:14px;color:var(--text)}
-#central .cmeta .btns{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+#treecard .tmeta h3{margin:0 0 6px;font-size:14px;color:var(--text)}
+#treecard .tmeta .btns{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
 #nslist{display:flex;flex-wrap:wrap;gap:6px}
 .nschip{background:var(--panel2);border:1px solid var(--border);border-radius:14px;
   padding:3px 11px;font-size:12px;cursor:pointer;color:var(--dim)}
@@ -78,6 +95,12 @@ h2{font-size:13px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;
 .nschip.sel{border-color:#2ecc71;color:#2ecc71}
 #nsfilter{display:none;margin:8px 0;padding:7px 12px;background:#182417;
   border:1px solid #2e5b2e;border-radius:6px;font-size:12px}
+#nstable{width:100%;border-collapse:collapse;margin-top:14px;font-size:12px}
+#nstable th,#nstable td{text-align:left;padding:6px 10px;border-bottom:
+  1px solid var(--border)}
+#nstable th{color:var(--dim);font-weight:600;font-size:11px;
+  text-transform:uppercase;letter-spacing:.6px}
+#nstable td .imp{margin:1px 3px 1px 0;display:inline-block}
 section.mod{margin-bottom:26px;border:1px solid var(--border);border-radius:10px;
   background:var(--panel);overflow:hidden}
 section.mod>header{position:static;background:var(--panel2);border-bottom:
@@ -101,7 +124,7 @@ footer{color:var(--dim);font-size:11px;margin-top:30px;border-top:
 @media(max-width:860px){#side{display:none}}
 </style>
 </head>
-<body>
+<body data-tab="overview">
 <header>
   <h1>PokeXYZ-RDComp heatmap<small class="mono" id="game"></small></h1>
   <div class="chips" id="stats"></div>
@@ -109,10 +132,43 @@ footer{color:var(--dim);font-size:11px;margin-top:30px;border-top:
   <span class="live" id="live"><span class="dot"></span><span id="livetxt">
     static</span></span>
   <span class="chip mono" id="stamp"></span>
-  <button class="btn" id="expSvgAll">Export SVG (all)</button>
-  <button class="btn" id="expPngAll">Export PNG (all)</button>
+  <button class="btn" id="expStripSvg">Export SVG (modules)</button>
+  <button class="btn" id="expStripPng">Export PNG (modules)</button>
 </header>
-<div id="layout">
+<nav id="tabbar">
+  <button data-tab="overview" class="on">Overview</button>
+  <button data-tab="modules">Modules</button>
+  <button data-tab="namespaces">Namespaces</button>
+</nav>
+
+<div class="pane" id="pane-overview">
+  <div id="overview">
+    <div class="stackbar" id="stackbar"></div>
+    <div class="legend" id="legend"></div>
+  </div>
+  <h2>Central treemap — every module a box of one canvas</h2>
+  <div id="treecard">
+    <div class="twrap"><canvas id="treemap" width="1000" height="640"></canvas></div>
+    <div class="tmeta">
+      <h3>How to read it</h3>
+      Box area ∝ function count. Each box carries its functions in
+      <b>address order</b> (left→right, top→bottom); colour = highest
+      achieved stage: dark grey raw → teal decompiled → green identified →
+      gold verified; red = interpreted at runtime. Hover for
+      module/address/symbol; click a box to open it in the Modules tab.
+      <div class="btns">
+        <button class="btn" id="expTreeSvg">Export treemap SVG</button>
+        <button class="btn" id="expTreePng">Export treemap PNG</button>
+      </div>
+    </div>
+  </div>
+  <footer>Cell = one function. Sources: 3dsrecomp port headers ·
+    pipeline symbol CSVs · CRO/static export tables · Ghidra decomp
+    corpus · pipeline byte-identical relinks. Regenerate with
+    <span class="mono">xy-heatmap/heatmap.py</span>.</footer>
+</div>
+
+<div class="pane" id="pane-modules">
   <aside id="side">
     <input id="q" placeholder="filter modules…" spellcheck="false">
     <select id="sort">
@@ -123,41 +179,19 @@ footer{color:var(--dim);font-size:11px;margin-top:30px;border-top:
     </select>
     <div id="modlist"></div>
   </aside>
-  <main>
-    <div id="overview">
-      <div class="stackbar" id="stackbar"></div>
-      <div class="legend" id="legend"></div>
-    </div>
-    <h2>Central heatmap — every module a sector of one canvas</h2>
-    <div id="central">
-      <div class="cwrap"><canvas id="radial" width="940" height="940"></canvas></div>
-      <div class="cmeta">
-        <h3>How to read it</h3>
-        Sector angle ∝ function count (12 o'clock, clockwise, alphabetical).
-        Cells fill each sector from the center outward in <b>address
-        order</b> — inner rings are the module's lowest addresses. Colour =
-        highest achieved stage: dark grey raw → teal decompiled → green
-        identified → gold verified; red = interpreted at runtime.
-        Hover any cell for module/address/symbol; click a sector to jump to
-        its detail grid below. The center disc carries the corpus totals.
-        <div class="btns">
-          <button class="btn" id="expSvgRad">Export radial SVG</button>
-          <button class="btn" id="expPngRad">Export radial PNG</button>
-        </div>
-      </div>
-    </div>
-    <h2>Namespaces (identified symbols)</h2>
-    <div id="nsfilter"></div>
-    <div id="nslist"></div>
-    <h2>Modules — address-ordered function grid</h2>
-    <div id="mods"></div>
-    <footer>Cell = one function. Grid cells: address order left→right,
-      top→bottom. Sources: 3dsrecomp port headers · pipeline symbol CSVs ·
-      CRO/static export tables · Ghidra decomp corpus · pipeline
-      byte-identical relinks. Regenerate with
-      <span class="mono">xy-heatmap-py/heatmap.py</span>.</footer>
-  </main>
+  <div id="modcol"><div id="mods"></div></div>
 </div>
+
+<div class="pane" id="pane-namespaces">
+  <h2>Namespaces (identified symbols)</h2>
+  <div id="nsfilter"></div>
+  <div id="nslist"></div>
+  <table id="nstable">
+    <thead><tr><th>namespace</th><th>functions</th><th>modules</th></tr></thead>
+    <tbody id="nsbody"></tbody>
+  </table>
+</div>
+
 <div id="tooltip"></div>
 <script>
 "use strict";
@@ -226,189 +260,95 @@ function renderHeader(){
   }
 }
 
-/* ---- central radial heatmap ---- */
-const RAD={size:940, r0:104, dr:0, pad:70};
-let RL=null;            /* radial layout */
+/* ---- tabs ---- */
+function activateTab(name){
+  document.body.dataset.tab=name;
+  for(const b of document.querySelectorAll("#tabbar button"))
+    b.classList.toggle("on", b.dataset.tab===name);
+  if(name==="modules") setTimeout(rerenderCanvases, 30);
+}
+for(const b of document.querySelectorAll("#tabbar button"))
+  b.onclick=()=>activateTab(b.dataset.tab);
+function jumpToModule(name){
+  activateTab("modules");
+  setTimeout(()=>jumpTo(cssId(name)), 30);
+}
 
-function buildRadialLayout(){
-  const N=DATA.totals.functions, K=M.length;
-  const minA=0.006;                       /* ~0.34° floor so tiny modules show */
-  const maxR=RAD.size/2-RAD.pad;
-  /* one global ring thickness: the largest module must fit inside maxR.
-     sum_k dA*(r0+k*dr) ≈ dA*(r0*rows + dr*rows²/2) = n  ->  solve dr */
-  const big=M.reduce((a,b)=>a.n>b.n?a:b);
-  const dAmax=minA+(2*Math.PI-K*minA)*(big.n/N);
-  RAD.dr=Math.max(3.2,(maxR-RAD.r0)*Math.sqrt(dAmax/(2*big.n)));
-  let a=-Math.PI/2;                        /* 12 o'clock, clockwise */
-  const mods=[];
-  const list=M.slice().sort((x,y)=>x.name.localeCompare(y.name));
-  for(const m of list){
-    const dA=minA+(2*Math.PI-K*minA)*(m.n/N);
-    const rings=[]; let off=0,k=0;
-    while(off<m.n){
-      const rMid=RAD.r0+(k+0.5)*RAD.dr;
-      const cap=Math.max(1,Math.floor(dA*rMid/RAD.dr));
-      rings.push({r1:RAD.r0+k*RAD.dr, r2:RAD.r0+(k+1)*RAD.dr, cap, off});
-      off+=Math.min(cap,m.n-off); k++;
-    }
-    mods.push({m,a0:a,dA,rings});
-    a+=dA;
-  }
-  RL={mods,maxR};
+/* ---- central treemap (layout arrives precomputed in DATA.treemap) ---- */
+const TREE={cv:null, dpr:1};
+let TREEL=null;
+function decodeTree(){
+  TREEL = DATA.treemap || {width:1000,height:640,rects:[]};
+  TREEL.byName = {};
+  for(const r of TREEL.rects) TREEL.byName[r.name]=r;
 }
-function wedge(g,cx,cy,r1,r2,a1,a2){
-  g.beginPath();
-  g.arc(cx,cy,r2,a1,a2);
-  g.arc(cx,cy,r1,a2,a1,true);
-  g.closePath(); g.fill();
+function treeRectOf(m){
+  return TREEL && TREEL.byName ? TREEL.byName[m.name] : null;
 }
-function drawRadial(){
-  const cv=document.getElementById("radial");
+function treeCellColor(st){
+  const base=clsOf(st).color;
+  if(nsFilter) return shade(base,0.22);   /* treemap: dim all while filtering */
+  return base;
+}
+function drawTreemap(){
+  const cv=document.getElementById("treemap");
   const dpr=window.devicePixelRatio||1;
-  cv.width=RAD.size*dpr; cv.height=RAD.size*dpr;
+  cv.width=TREEL.width*dpr; cv.height=TREEL.height*dpr;
   const g=cv.getContext("2d"); g.scale(dpr,dpr);
-  const c=RAD.size/2;
-  g.fillStyle="#101216"; g.fillRect(0,0,RAD.size,RAD.size);
-  for(const sec of RL.mods){
-    const m=sec.m;
-    for(const ring of sec.rings){
-      const inRing=Math.min(ring.cap,m.n-ring.off);
-      const cellA=sec.dA/ring.cap;
-      const gap=Math.min(0.3*cellA,0.004);
-      let run=null;                        /* run-length wedges */
-      const flush=()=>{
-        if(!run) return;
-        wedge(g,c,c,ring.r1+0.5,ring.r2-0.5,
-          sec.a0+run.j0*cellA+gap, sec.a0+(run.j1+1)*cellA-gap);
-        run=null;
-      };
-      for(let j=0;j<inRing;j++){
-        const col=cellColor(m,ring.off+j);
-        if(run && run.col===col && run.j1===j-1){ run.j1=j; }
-        else{ flush(); run={col,j0:j,j1:j}; }
+  g.fillStyle="#101216"; g.fillRect(0,0,TREEL.width,TREEL.height);
+  for(const r of TREEL.rects){
+    const m=M.find(x=>x.name===r.name); if(!m) continue;
+    g.fillStyle="#181b21"; g.strokeStyle="#23262d";
+    g.fillRect(r.x,r.y,r.w,r.h); g.strokeRect(r.x+.5,r.y+.5,r.w-1,r.h-1);
+    for(let i=0;i<m.n;i++){
+      const row=Math.floor(i/r.cols), col=i%r.cols;
+      const cx=r.x+2+col*r.cell_w, cy=r.y+r.strip+row*r.cell_h;
+      if(cy+r.cell_h>r.y+r.h) break;
+      g.fillStyle=treeCellColor(m.st[i]);
+      g.fillRect(cx,cy,r.cell_w-1,r.cell_h-1);
+    }
+    if(r.strip && r.w>=44){
+      g.fillStyle="#c9ced6"; g.font="9px ui-monospace,Consolas,monospace";
+      g.textAlign="left";
+      let nm=m.name; const mc=Math.max(3,Math.floor((r.w-10)/5.6));
+      if(nm.length>mc) nm=nm.slice(0,mc-1)+"…";
+      g.fillText(nm, r.x+4, r.y+r.strip-3);
+      if(r.w>=110){
+        g.fillStyle="#79818c"; g.textAlign="right";
+        g.fillText(fmt(m.n), r.x+r.w-4, r.y+r.strip-3);
+        g.textAlign="left";
       }
-      flush();
     }
   }
-  /* sector separators */
-  g.strokeStyle="#1c1f26"; g.lineWidth=1;
-  for(const sec of RL.mods){
-    const depth=RAD.r0+sec.rings.length*RAD.dr;
-    g.beginPath();
-    g.moveTo(c+Math.cos(sec.a0)*RAD.r0, c+Math.sin(sec.a0)*RAD.r0);
-    g.lineTo(c+Math.cos(sec.a0)*depth, c+Math.sin(sec.a0)*depth);
-    g.stroke();
-  }
-  /* outer labels: sectors wide enough to fit a name */
-  g.fillStyle="#8b929c"; g.font="9px ui-monospace,Consolas,monospace";
-  for(const sec of RL.mods){
-    if(sec.dA<0.055) continue;
-    const depth=RAD.r0+sec.rings.length*RAD.dr+8;
-    const mid=sec.a0+sec.dA/2;
-    const x=c+Math.cos(mid)*depth, y=c+Math.sin(mid)*depth;
-    g.save(); g.translate(x,y); g.rotate(mid);
-    if(mid>Math.PI/2&&mid<Math.PI*1.5){ g.rotate(Math.PI); g.textAlign="right"; }
-    else g.textAlign="left";
-    let nm=sec.m.name; if(nm.length>22) nm=nm.slice(0,21)+"…";
-    g.fillText(nm, mid>Math.PI/2&&mid<Math.PI*1.5?-3:3, 3);
-    g.restore();
-  }
-  /* center disc with totals */
-  g.beginPath(); g.arc(c,c,RAD.r0-8,0,2*Math.PI);
-  g.fillStyle="#14161a"; g.fill();
-  g.strokeStyle="#23262d"; g.stroke();
   const t=DATA.totals;
-  g.fillStyle="#e8e8e8"; g.textAlign="center";
-  g.font="600 26px ui-monospace,Consolas,monospace";
-  g.fillText(fmt(t.functions),c,c-14);
-  g.font="11px ui-monospace,Consolas,monospace"; g.fillStyle="#9aa0aa";
-  g.fillText("functions · "+t.modules+" modules",c,c+8);
-  g.fillText("identified "+(100*t.named/Math.max(t.functions,1)).toFixed(1)
-    +"%",c,c+24);
+  g.fillStyle="#79818c"; g.font="10px ui-monospace,Consolas,monospace";
+  g.textAlign="right";
+  g.fillText(`${fmt(t.functions)} functions · ${t.modules} modules · identified `+
+    `${(100*t.named/Math.max(t.functions,1)).toFixed(1)}% · ${DATA.generated}`,
+    TREEL.width-4, TREEL.height-4);
+  g.textAlign="left";
 }
-function radialHit(e){
-  const cv=e.target;
-  const r=cv.getBoundingClientRect();
-  const sx=RAD.size/r.width;               /* css -> layout scale */
-  const dx=(e.clientX-r.left)*sx-RAD.size/2;
-  const dy=(e.clientY-r.top)*sx-RAD.size/2;
-  const rad=Math.hypot(dx,dy);
-  let ang=Math.atan2(dy,dx)+Math.PI/2;     /* 0 at 12 o'clock, cw */
-  if(ang<0) ang+=2*Math.PI;
-  for(const sec of RL.mods){
-    if(ang<sec.a0+Math.PI/2||ang>=sec.a0+sec.dA+Math.PI/2) continue;
-    const k=Math.floor((rad-RAD.r0)/RAD.dr);
-    const ring=sec.rings[k];
-    if(!ring) return null;
-    const inRing=Math.min(ring.cap,sec.m.n-ring.off);
-    const j=Math.min(inRing-1,
-      Math.floor((ang-(sec.a0+Math.PI/2))/sec.dA*ring.cap));
-    if(j<0) return null;
-    return {m:sec.m,i:ring.off+j,sec};
+function treeHit(e){
+  const cv=e.target, r=cv.getBoundingClientRect();
+  const sx=TREEL.width/r.width, sy=TREEL.height/r.height;
+  const x=(e.clientX-r.left)*sx, y=(e.clientY-r.top)*sy;
+    for(const rc of TREEL.rects){
+    if(x>=rc.x&&x<rc.x+rc.w&&y>=rc.y&&y<rc.y+rc.h){
+      const m=M.find(v=>v.name===rc.name); if(!m) return null;
+      const col=Math.floor((x-rc.x-2)/rc.cell_w);
+      const row=Math.floor((y-rc.y-rc.strip)/rc.cell_h);
+      const i=row*rc.cols+col;
+      if(i>=0&&i<m.n) return {m,i};
+      return {m,i:null};
+    }
   }
   return null;
 }
-function onRadialMove(e){
-  const hit=radialHit(e);
-  if(!hit) return hideTip();
+function onTreeMove(e){
+  const hit=treeHit(e);
+  if(!hit){ hideTip(); return; }
+  if(hit.i===null){ hideTip(); return; }
   showTipFor(hit.m,hit.i,e);
-}
-function radialSvg(){
-  const s=RAD.size,c=s/2;
-  const P=[]; const pol=(r,a)=>[c+r*Math.cos(a),c+r*Math.sin(a)];
-  P.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">`,
-    `<rect width="100%" height="100%" fill="#101216"/>`);
-  for(const sec of RL.mods){
-    const m=sec.m;
-    for(const ring of sec.rings){
-      const inRing=Math.min(ring.cap,m.n-ring.off);
-      const cellA=sec.dA/ring.cap;
-      const gap=Math.min(0.3*cellA,0.004);
-      let run=null;
-      const flush=()=>{
-        if(!run) return;
-        const a1=sec.a0+run.j0*cellA+gap, a2=sec.a0+(run.j1+1)*cellA-gap;
-        const [x1,y1]=pol(ring.r2,a1),[x2,y2]=pol(ring.r2,a2);
-        const [x3,y3]=pol(ring.r1,a2),[x4,y4]=pol(ring.r1,a1);
-        P.push(`<path d="M ${x1.toFixed(1)} ${y1.toFixed(1)} `+
-          `A ${ring.r2} ${ring.r2} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)} `+
-          `L ${x3.toFixed(1)} ${y3.toFixed(1)} `+
-          `A ${ring.r1} ${ring.r1} 0 0 0 ${x4.toFixed(1)} ${y4.toFixed(1)} Z" `+
-          `fill="${run.col}"/>`);
-        run=null;
-      };
-      for(let j=0;j<inRing;j++){
-        const col=cellColor(m,ring.off+j);
-        if(run && run.col===col && run.j1===j-1){ run.j1=j; }
-        else{ flush(); run={col,j0:j,j1:j}; }
-      }
-      flush();
-    }
-  }
-  for(const sec of RL.mods){
-    const depth=RAD.r0+sec.rings.length*RAD.dr;
-    const [x1,y1]=pol(RAD.r0,sec.a0),[x2,y2]=pol(depth,sec.a0);
-    P.push(`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" `+
-      `x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#1c1f26"/>`);
-    if(sec.dA>=0.055){
-      const mid=sec.a0+sec.dA/2, lr=depth+10;
-      let nm=esc(sec.m.name); if(nm.length>22) nm=nm.slice(0,21)+"…";
-      const [lx,ly]=pol(lr,mid);
-      const deg=mid*180/Math.PI;
-      const flip=mid>Math.PI/2&&mid<Math.PI*1.5;
-      P.push(`<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" fill="#8b929c" `+
-        `font-family="monospace" font-size="9" text-anchor="${flip?"end":"start"}" `+
-        `transform="rotate(${(flip?deg+180:deg).toFixed(1)} ${lx.toFixed(1)} ${ly.toFixed(1)})">`+
-        `${nm}</text>`);
-    }
-  }
-  const t=DATA.totals;
-  P.push(`<circle cx="${c}" cy="${c}" r="${RAD.r0-8}" fill="#14161a" stroke="#23262d"/>`,
-    `<text x="${c}" y="${c-6}" fill="#e8e8e8" font-family="monospace" font-size="26" text-anchor="middle" font-weight="600">${fmt(t.functions)}</text>`,
-    `<text x="${c}" y="${c+12}" fill="#9aa0aa" font-family="monospace" font-size="11" text-anchor="middle">functions · ${t.modules} modules</text>`,
-    `<text x="${c}" y="${c+28}" fill="#9aa0aa" font-family="monospace" font-size="11" text-anchor="middle">identified ${(100*t.named/Math.max(t.functions,1)).toFixed(1)}% · ${DATA.generated}</text>`,
-    `</svg>`);
-  return P.join("\n");
 }
 
 /* ---- sidebar ---- */
@@ -434,10 +374,15 @@ function renderSide(){
       `<i style="width:${100*nNamed/m.n}%;background:${colorOf("named")}"></i>`+
       `<i style="width:${100*c.decomp/m.n}%;background:${colorOf("decomp")}"></i>`+
       `<i style="width:${100*c.raw/m.n}%;background:${colorOf("raw")}"></i></div>`;
-    row.onclick=()=>jumpTo(cssId(m.name));
+    row.onclick=()=>jumpToModule(m.name);
     box.appendChild(row);
   }
 }
+function namedN(m){ let n=0; for(const s of m.st) if(s&1)n++; return n; }
+function pct(m){ return 100*namedN(m)/Math.max(m.n,1); }
+function colorOf(k){ return STAGES.find(s=>s.key===k).color; }
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+function cssId(s){ return "mod-"+s.replace(/[^A-Za-z0-9_-]/g,"_"); }
 function jumpTo(id){
   const t=document.getElementById(id);
   if(!t) return;
@@ -449,31 +394,45 @@ function jumpTo(id){
       t.scrollIntoView({behavior:"auto",block:"start"});
   },350);
 }
-function namedN(m){ let n=0; for(const s of m.st) if(s&1)n++; return n; }
-function pct(m){ return 100*namedN(m)/Math.max(m.n,1); }
-function colorOf(k){ return STAGES.find(s=>s.key===k).color; }
-function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
-function cssId(s){ return "mod-"+s.replace(/[^A-Za-z0-9_-]/g,"_"); }
 
 /* ---- namespaces ---- */
 function renderNs(){
   const box=document.getElementById("nslist"); box.innerHTML="";
+  const body=document.getElementById("nsbody"); body.innerHTML="";
   const top=DATA.namespaces.slice(0,30);
   if(!top.length){ box.innerHTML=
     `<span class="chip">no mangled-namespace symbols found</span>`; return; }
+  /* module breakdown per ns */
+  const perNs={};
+  for(const m of M){
+    for(const k in m.ns){
+      const ns=DATA.nsIndex[m.ns[k]];
+      (perNs[ns]=perNs[ns]||{})[m.name]=(perNs[ns][m.name]||0)+1;
+    }
+  }
   for(const rec of top){
     const chip=document.createElement("span"); chip.className="nschip mono";
     chip.textContent=`${rec.ns} · ${rec.count}`;
     if(nsFilter===rec.ns) chip.classList.add("sel");
     chip.onclick=()=>{ nsFilter=(nsFilter===rec.ns)?null:rec.ns;
-      renderNs(); rerenderCanvases(); drawRadial(); };
+      renderNs(); rerenderCanvases(); drawTreemap(); };
     box.appendChild(chip);
+    const tr=document.createElement("tr");
+    const mods=Object.entries(perNs[rec.ns]||{})
+      .sort((a,b)=>b[1]-a[1]);
+    tr.innerHTML=`<td class="mono">${esc(rec.ns)}</td>`+
+      `<td class="mono">${fmt(rec.count)}</td><td>`+
+      mods.map(([mn,c])=>`<span class="imp mono" data-mod="${esc(mn)}">`+
+        `${esc(mn)} (${c})</span>`).join("")+`</td>`;
+    body.appendChild(tr);
   }
+  for(const el of body.querySelectorAll("[data-mod]"))
+    el.onclick=()=>jumpToModule(el.dataset.mod);
   const flt=document.getElementById("nsfilter");
   if(nsFilter){ flt.style.display="block";
     flt.innerHTML=`namespace filter: <b class="mono">${esc(nsFilter)}</b> — `+
       `non-matching cells dimmed · <a href="#" onclick="nsFilter=null;`+
-      `renderNs();rerenderCanvases();drawRadial();return false">clear</a>`;
+      `renderNs();rerenderCanvases();drawTreemap();return false">clear</a>`;
   } else flt.style.display="none";
 }
 function nsOfCell(m,i){
@@ -511,7 +470,7 @@ function renderMods(){
       for(const dep of m.imports.slice(0,40)){
         const d=document.createElement("span"); d.className="imp mono";
         d.textContent=dep;
-        d.onclick=()=>jumpTo(cssId(dep));
+        d.onclick=()=>jumpToModule(dep);
         im.appendChild(d);
       }
       if(m.imports.length>40){ const more=document.createElement("span");
@@ -525,7 +484,7 @@ function renderMods(){
         for(const dep of impBy.slice(0,20)){
           const d=document.createElement("span"); d.className="imp mono";
           d.textContent=dep;
-          d.onclick=()=>jumpTo(cssId(dep));
+          d.onclick=()=>jumpToModule(dep);
           im.appendChild(d);
         }
       }
@@ -638,6 +597,33 @@ function stamp(){
 }
 function svgEsc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
 
+function treemapSvg(){
+  const w=TREEL.width, h=TREEL.height;
+  const P=[`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`,
+    `<rect width="${w}" height="${h}" fill="#101216"/>`];
+  for(const r of TREEL.rects){
+    const m=M.find(x=>x.name===r.name); if(!m) continue;
+    P.push(`<rect x="${r.x}" y="${r.y}" width="${+r.w.toFixed(1)}" height="${+r.h.toFixed(1)}" fill="#181b21" stroke="#23262d"/>`);
+    for(let i=0;i<m.n;i++){
+      const row=Math.floor(i/r.cols), col=i%r.cols;
+      const cx=r.x+2+col*r.cell, cy=r.y+r.strip+row*r.cell;
+      if(cy+r.cell>r.y+r.h) break;
+      let fill=treeCellColor(m.st[i]);
+      P.push(`<rect x="${+cx.toFixed(1)}" y="${+cy.toFixed(1)}" width="${r.cell-1}" height="${r.cell-1}" fill="${fill}"/>`);
+    }
+    if(r.strip && r.w>=44){
+      let nm=svgEsc(m.name); const mc=Math.max(3,Math.floor((r.w-10)/5.6));
+      if(m.name.length>mc) nm=svgEsc(m.name.slice(0,mc-1))+"…";
+      P.push(`<text x="${+(r.x+4).toFixed(1)}" y="${+(r.y+r.strip-3).toFixed(1)}" fill="#c9ced6" font-family="monospace" font-size="9">${nm}</text>`);
+      if(r.w>=110) P.push(`<text x="${+(r.x+r.w-4).toFixed(1)}" y="${+(r.y+r.strip-3).toFixed(1)}" fill="#79818c" font-family="monospace" font-size="9" text-anchor="end">${fmt(m.n)}</text>`);
+    }
+  }
+  const t=DATA.totals;
+  P.push(`<text x="${w-4}" y="${h-4}" fill="#79818c" font-family="monospace" font-size="10" text-anchor="end">${fmt(t.functions)} functions · ${t.modules} modules · identified ${(100*t.named/Math.max(t.functions,1)).toFixed(1)}% · ${DATA.generated}</text>`);
+  P.push("</svg>");
+  return P.join("\n");
+}
+
 function moduleSvg(m,cell,withHeader=true){
   const cols=Math.min(COLS,m.n), rows=Math.ceil(m.n/cols);
   const pad=cell===CELL?PAD:12;
@@ -699,6 +685,14 @@ function allSvg(){
   return {svg:parts.join("\n"), w, h:y};
 }
 
+function exportTreemapSvg(){
+  download(`heatmap-treemap-${stamp()}.svg`,
+    new Blob([treemapSvg()],{type:"image/svg+xml"}));
+}
+function exportTreemapPng(){
+  const cv=document.getElementById("treemap");
+  cv.toBlob(b=>download(`heatmap-treemap-${stamp()}.png`,b));
+}
 function exportModuleSvg(m){
   download(`heatmap-${m.name.replace(/[^\w.-]/g,"_")}-${stamp()}.svg`,
     new Blob([moduleSvg(m,7)],{type:"image/svg+xml"}));
@@ -710,7 +704,7 @@ function exportModulePng(m){
       `heatmap-${m.name.replace(/[^\w.-]/g,"_")}-${stamp()}.png`,b)));
 }
 function exportAllSvg(){
-  download(`pokexyz-heatmap-${stamp()}.svg`,
+  download(`pokexyz-heatmap-modules-${stamp()}.svg`,
     new Blob([allSvg().svg],{type:"image/svg+xml"}));
 }
 function exportAllPng(){
@@ -719,15 +713,7 @@ function exportAllPng(){
   let scale=2;
   if(w*h*scale*scale>maxArea) scale=Math.sqrt(maxArea/(w*h));
   rasterize(svg,scale).then(canvas=>
-    canvas.toBlob(b=>download(`pokexyz-heatmap-${stamp()}.png`,b)));
-}
-function exportRadialSvg(){
-  download(`pokexyz-radial-${stamp()}.svg`,
-    new Blob([radialSvg()],{type:"image/svg+xml"}));
-}
-function exportRadialPng(){
-  rasterize(radialSvg(),3).then(canvas=>
-    canvas.toBlob(b=>download(`pokexyz-radial-${stamp()}.png`,b)));
+    canvas.toBlob(b=>download(`pokexyz-heatmap-modules-${stamp()}.png`,b)));
 }
 function rasterize(svgStr,scale){
   return new Promise((res,rej)=>{
@@ -747,10 +733,10 @@ function rasterize(svgStr,scale){
     img.src=url;
   });
 }
-document.getElementById("expSvgAll").onclick=exportAllSvg;
-document.getElementById("expPngAll").onclick=exportAllPng;
-document.getElementById("expSvgRad").onclick=exportRadialSvg;
-document.getElementById("expPngRad").onclick=exportRadialPng;
+document.getElementById("expStripSvg").onclick=exportAllSvg;
+document.getElementById("expStripPng").onclick=exportAllPng;
+document.getElementById("expTreeSvg").onclick=exportTreemapSvg;
+document.getElementById("expTreePng").onclick=exportTreemapPng;
 
 /* ---- live polling ---- */
 function goLive(){
@@ -769,8 +755,8 @@ function goLive(){
       const d=await r.json();
       if(d.generated!==DATA.generated){
         Object.assign(DATA,d);
-        decode(); renderHeader(); renderSide(); renderNs();
-        buildRadialLayout(); drawRadial(); renderMods();
+        decode(); decodeTree(); renderHeader(); renderSide(); renderNs();
+        drawTreemap(); renderMods();
       } else {
         document.getElementById("stamp").textContent=d.generated;
       }
@@ -781,18 +767,18 @@ function goLive(){
 /* ---- boot ---- */
 document.getElementById("q").addEventListener("input",renderSide);
 document.getElementById("sort").addEventListener("change",renderSide);
-const radCv=document.getElementById("radial");
-radCv.addEventListener("mousemove",onRadialMove);
-radCv.addEventListener("mouseleave",hideTip);
-radCv.addEventListener("click",e=>{
-  const hit=radialHit(e);
-  if(hit) jumpTo(cssId(hit.m.name));
+const treeCv=document.getElementById("treemap");
+treeCv.addEventListener("mousemove",onTreeMove);
+treeCv.addEventListener("mouseleave",hideTip);
+treeCv.addEventListener("click",e=>{
+  const hit=treeHit(e);
+  if(hit) jumpToModule(hit.m.name);
 });
 let rszT=null;
 window.addEventListener("resize",()=>{ clearTimeout(rszT);
   rszT=setTimeout(rerenderCanvases,150); });
-decode(); renderHeader(); renderSide(); renderNs();
-buildRadialLayout(); drawRadial(); renderMods(); goLive();
+decode(); decodeTree(); renderHeader(); renderSide(); renderNs();
+drawTreemap(); renderMods(); activateTab("overview"); goLive();
 </script>
 </body>
 </html>

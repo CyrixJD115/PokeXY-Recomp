@@ -6,7 +6,7 @@ turns a decrypted dump into a native Linux binary, the `xy` CLI extracts and
 converts every game format, a matching-decompilation loop
 (3DS-Decomp-Pipeline + objdiff) rebuilds the original code byte-for-byte,
 and a zakuro-based runtime track carries the HLE runtime layer. Python
-shows up only as helper scripts under `scripts/` (heatmap, rebuild glue).
+shows up only as helper scripts under `xy-heatmap/` (heatmap, rebuild glue).
 
 ## Layout
 
@@ -16,8 +16,9 @@ shows up only as helper scripts under `scripts/` (heatmap, rebuild glue).
 | `xy-recomp/` | static-recomp track: `build.sh` port builder, C override shims |
 | `xy-decomp/` | matching-decomp track: patched 3DS Ghidra suite + PyGhidra driver + symbol exporter |
 | `xy-runtime/` | runtime track: zakuro-based native runtime (working clone gitignored) |
+| `xy-heatmap/` | progress-heatmap toolkit: live tabbed dashboard + `readme` asset generator (`xhmap/` Python package) |
+| `xy-viz/` | charming (ECharts) renderer that turns `heatmap_data.json` into the committed README assets below |
 | `.thirdparty/` | upstream checkouts (3dsrecomp, zakuro, 3DS-Decomp-Pipeline, objdiff) + `reference/` clones — machine-local; `fetch.sh` recreates the four |
-| `scripts/` | cross-cutting helpers: RDComp heatmap, full rebuild glue |
 | `docs/` | the research log (map in its `README.md`): `general/findings.md` (recomp metrics, gotchas, round-trip results), `decomp/ghidra-scripts.md`, `runtime/runtime-architecture.md`, per-topic folders |
 | `.Data/` | **your** game-derived material — dumps, extracts, generated code, ports. Machine-local by convention; never commit or share |
 
@@ -39,6 +40,17 @@ cargo build --release
 ```
 
 ## Status
+
+![recomp/decomp progress](docs/assets/heatmap-progress.svg)
+
+![central treemap — every module a box](docs/assets/heatmap-treemap.svg)
+
+The treemap: one box per CRO module (area ∝ function count), subdivided
+into status tiers — dark grey **raw** → teal **decompiled to C** → green
+**identified/named** → gold **natively verified**. Regenerate both with
+`python3 xy-heatmap/heatmap.py readme`; the interactive tabbed dashboard
+(Overview / Modules / Namespaces) lives at
+`python3 xy-heatmap/heatmap.py serve --watch`.
 
 - **X v1.0 recomp**: 71,163/74,340 functions reached (95.7%), 0 verify
   mismatches; standalone binary runs natively on Linux (X and Y).

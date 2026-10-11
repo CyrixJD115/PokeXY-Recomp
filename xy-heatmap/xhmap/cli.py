@@ -27,7 +27,7 @@ import sys
 from . import DEFAULT_OUT, DEFAULT_SRC, ROOT, __version__
 from . import collect, page, romdetect
 
-COMMANDS = ("build", "serve", "summary", "roms")
+COMMANDS = ("build", "serve", "summary", "roms", "readme")
 
 
 def build_parser():
@@ -54,12 +54,15 @@ def build_parser():
                     "natively verified functions")
     ap.add_argument("--port", type=int, default=8765,
                     help="port for `serve` (default: 8765)")
+    ap.add_argument("--assets-dir", metavar="DIR",
+                    help="output dir for `readme` "
+                         "(default: <repo>/docs/assets)")
     ap.add_argument("--watch", action="store_true",
                     help="with `serve`: rebuild when inputs change")
     ap.add_argument("--version", action="version",
                     version=f"%(prog)s {__version__}")
     ap.add_argument("command", nargs="?", choices=COMMANDS,
-                    help="build (default) | serve | summary | roms")
+                    help="build (default) | serve | summary | roms | readme")
     return ap
 
 
@@ -82,11 +85,46 @@ def resolve_rom(args):
 
 
 def rebuild(args):
-    """collect + write outputs; returns the data dict."""
+    """collect + treemap layout + write outputs; returns the data dict."""
+    from . import assets
     rom = resolve_rom(args)
     data = collect.collect(args, rom=rom)
+    data["treemap"] = assets.treemap_layout(data)
     page.build(data, args.out)
     return data
+
+
+def cmd_readme(args):
+    """Regenerate the committed README assets: refresh heatmap_data.json,
+    then shell out to the xy-viz crate (charming/ECharts) to render the
+    central treemap + progress bar SVGs, and print the markdown snippet."""
+    import os
+    import subprocess
+    import sys
+
+    rom = resolve_rom(args)
+    data = collect.collect(args, rom=rom)
+    from . import assets
+    data["treemap"] = assets.treemap_layout(data)   # page canvas parity
+    page.build(data, args.out)
+
+    out_dir = args.assets_dir or os.path.join(ROOT, "docs", "assets")
+    bin_path = os.path.join(ROOT, "target", "release", "xy-viz")
+    if not os.path.exists(bin_path):
+        print("building xy-viz (first time: compiles the charming "
+              "renderer)…", file=sys.stderr)
+        subprocess.run(["cargo", "build", "--release", "-p", "xy-viz"],
+                       cwd=ROOT, check=True)
+    subprocess.run(
+        [bin_path, "--data", os.path.join(args.out, "heatmap_data.json"),
+         "--out", out_dir], check=True)
+
+    rel = os.path.relpath(out_dir, ROOT)
+    print(f"\nREADME snippet:\n"
+          f"![recomp/decomp progress]({rel}/heatmap-progress.svg)\n"
+          f"![central treemap — every module a box]({rel}/"
+          f"heatmap-treemap.svg)")
+    return 0
 
 
 def cmd_roms(args):
@@ -117,6 +155,8 @@ def main(argv=None):
 
     if command == "roms":
         return cmd_roms(args)
+    if command == "readme":
+        return cmd_readme(args)
     if command == "summary":
         data = collect.collect(args, rom=resolve_rom(args))
         page.render_summary(data, stream=sys.stdout)

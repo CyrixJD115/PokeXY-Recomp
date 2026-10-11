@@ -9,6 +9,7 @@ members = [
     "xy-extraction/xy-battle",
     "xy-extraction/xy-curate",
     "xy-extraction/xy-convert",
+    "xy-viz",
 ]
 
 [workspace.package]

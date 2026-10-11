@@ -5,7 +5,7 @@ repo: 3dsrecomp port generated and linked (`xy-recomp/build.sh`), 134/134
 modules byte-identical relinks in the matching pipeline, 38,385 decompiled C
 functions in the Ghidra corpus, and the `xy-extraction` toolkit with
 validated decoders for every major asset family. Progress numbers below come
-from the live heatmap (`xy-heatmap-py/heatmap.py`).
+from the live heatmap (`xy-heatmap/heatmap.py`).
 
 ## 0. Where we stand (measured, not estimated)
 
@@ -253,7 +253,7 @@ Architecture:
 .Data/Source_Extracted/
   recomp/{entries.c,*_functions.h}     ┐
   pipeline/symbols/*.csv               │
-  cro_extracted/{*,static}/symbols.tsv ├─ xy-heatmap-py/heatmap.py ───→ heatmap.html
+  cro_extracted/{*,static}/symbols.tsv ├─ xy-heatmap/heatmap.py ───→ heatmap.html
   decomp/{code_c,cro_c}                │   (self-contained, data      heatmap_data.json
   pipeline/{orig,out} (link check)     ┘    embedded; zero deps)      summary.md
                                                                      ↑ polled every 3 s
@@ -262,14 +262,15 @@ Architecture:
                                             filter · import graph · PNG/SVG export
 ```
 
-- Run: `python3 xy-heatmap-py/heatmap.py serve --watch --port 8765`
+- Run: `python3 xy-heatmap/heatmap.py serve --watch --port 8765`
   (or `build` / `summary` / `roms [--rom <file>]` — the CLI identifies
   .3ds/.cxi dumps by title ID and labels the dashboard accordingly);
   or open `heatmap.html` directly from disk.
-- **Central radial canvas**: one disc, every module a sector (angle ∝
-  function count, alphabetical from 12 o'clock), cells filling outward in
-  address order — the whole corpus at a glance. Click a sector to jump to
-  its module grid; radial SVG/PNG export included.
+- **Central treemap**: one canvas, every module a box (area ∝ function
+  count), cells filling each box in address order — the whole corpus at a
+  glance. Hover for details, click a box to jump to its module grid;
+  treemap SVG/PNG export included. Tabbed page: Overview / Modules /
+  Namespaces.
 - Cell = one function (union inventory); colour = highest stage:
   dark grey raw → teal decompiled → green identified → gold verified;
   red overlay = interpreter hints. Recomp-coverage is a per-function bit

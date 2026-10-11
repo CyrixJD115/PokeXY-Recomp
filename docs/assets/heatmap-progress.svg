@@ -1,0 +1,43 @@
+<svg width="1000" height="190" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" baseProfile="full" viewBox="0 0 1000 190">
+<rect width="1000" height="190" x="0" y="0" fill="#0f1115"></rect>
+<path d="M16 64l7.9 0l0 80l-7.9 0Z" fill="#2ecc71" ecmeta_series_index="0" ecmeta_data_index="0" ecmeta_ssr_type="chart" class="zr0-cls-0"></path>
+<path d="M23.9 64l511 0l0 80l-511 0Z" fill="#2b6f8a" ecmeta_series_index="1" ecmeta_data_index="0" ecmeta_ssr_type="chart" class="zr0-cls-1"></path>
+<path d="M534.9 64l449.1 0l0 80l-449.1 0Z" fill="#414650" ecmeta_series_index="2" ecmeta_data_index="0" ecmeta_ssr_type="chart" class="zr0-cls-2"></path>
+<path d="M-5 -5l370.9 0l0 21l-370.9 0Z" transform="translate(5 174)" fill="rgb(0,0,0)" fill-opacity="0" stroke="#ccc" stroke-width="0" class="zr0-cls-3"></path>
+<path d="M2.3 0L11.8 0A2.3 2.3 0 0 1 14 2.2L14 6.8A2.3 2.3 0 0 1 11.8 9L2.3 9A2.3 2.3 0 0 1 0 6.8L0 2.3A2.3 2.3 0 0 1 2.2 0" transform="translate(5 175)" fill="#2ecc71" ecmeta_series_index="0" ecmeta_data_index="0" ecmeta_ssr_type="legend" ecmeta_silent="true" class="zr0-cls-3"></path>
+<text dominant-baseline="central" text-anchor="start" style="font-size:11px;font-family:sans-serif;" xml:space="preserve" x="19" y="4.5" transform="translate(5 175)" fill="#9aa0aa">Identified / Named</text>
+<path d="M0 -1l108.6 0l0 11l-108.6 0Z" transform="translate(5 175)" fill="transparent" ecmeta_series_index="0" ecmeta_data_index="0" ecmeta_ssr_type="legend" class="zr0-cls-4"></path>
+<path d="M2.3 0L11.8 0A2.3 2.3 0 0 1 14 2.2L14 6.8A2.3 2.3 0 0 1 11.8 9L2.3 9A2.3 2.3 0 0 1 0 6.8L0 2.3A2.3 2.3 0 0 1 2.2 0" transform="translate(123.65 175)" fill="#2b6f8a" ecmeta_series_index="1" ecmeta_data_index="1" ecmeta_ssr_type="legend" ecmeta_silent="true" class="zr0-cls-3"></path>
+<text dominant-baseline="central" text-anchor="start" style="font-size:11px;font-family:sans-serif;" xml:space="preserve" x="19" y="4.5" transform="translate(123.65 175)" fill="#9aa0aa">Decompiled to C (unnamed)</text>
+<path d="M0 -1l156.9 0l0 11l-156.9 0Z" transform="translate(123.65 175)" fill="transparent" ecmeta_series_index="1" ecmeta_data_index="1" ecmeta_ssr_type="legend" class="zr0-cls-4"></path>
+<path d="M2.3 0L11.8 0A2.3 2.3 0 0 1 14 2.2L14 6.8A2.3 2.3 0 0 1 11.8 9L2.3 9A2.3 2.3 0 0 1 0 6.8L0 2.3A2.3 2.3 0 0 1 2.2 0" transform="translate(290.59 175)" fill="#414650" ecmeta_series_index="2" ecmeta_data_index="2" ecmeta_ssr_type="legend" ecmeta_silent="true" class="zr0-cls-3"></path>
+<text dominant-baseline="central" text-anchor="start" style="font-size:11px;font-family:sans-serif;" xml:space="preserve" x="19" y="4.5" transform="translate(290.59 175)" fill="#9aa0aa">Raw Binary</text>
+<path d="M0 -1l75.3 0l0 11l-75.3 0Z" transform="translate(290.59 175)" fill="transparent" ecmeta_series_index="2" ecmeta_data_index="2" ecmeta_ssr_type="legend" class="zr0-cls-4"></path>
+<path d="M-5 -5l808.2 0l0 45l-808.2 0Z" transform="translate(5 5)" fill="rgb(0,0,0)" fill-opacity="0" stroke="#ccc" stroke-width="0" class="zr0-cls-3"></path>
+<text dominant-baseline="central" text-anchor="start" style="font-size:14px;font-family:sans-serif;font-weight:bold;" xml:space="preserve" y="7" transform="translate(5 5)" fill="#e8e8e8">Pokémon X · 0004000000055D00 (base) — recomp/decomp progress</text>
+<text dominant-baseline="central" text-anchor="start" style="font-size:11px;font-family:sans-serif;" xml:space="preserve" y="29.5" transform="translate(5 5)" fill="#9aa0aa">identified 592 (0.8%) · decompiled 38385 (53.0%) · raw 33441 (46.2%) · recomp-covered 69038 (95.3%) · link-ok 134/134 · generated 2026-10-11 17:25:03</text>
+<style ><![CDATA[
+.zr0-cls-0:hover {
+cursor:pointer;
+fill:rgba(50,224,124,1);
+}
+.zr0-cls-1:hover {
+cursor:pointer;
+fill:rgba(47,122,151,1);
+}
+.zr0-cls-2:hover {
+cursor:pointer;
+fill:rgba(71,77,88,1);
+}
+.zr0-cls-3:hover {
+pointer-events:none;
+}
+.zr0-cls-4:hover {
+cursor:pointer;
+fill:rgba(0,0,0,0);
+}
+
+]]>
+
+</style>
+</svg>
