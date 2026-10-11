@@ -4,8 +4,8 @@ Reference-only clones and binaries: the upstream implementations we ported
 from, study, or run occasionally — none of them are executed by this repo's
 build loops (those live in `.thirdparty/` proper: 3dsrecomp, zakuro,
 3DS-Decomp-Pipeline, objdiff). Original context:
-`docs/PokemonX_Decomport_Report.md` (the research report that seeded this
-toolchain). All are re-obtainable git clones/official binaries; pinned to
+`docs/general/PokemonX_Decomport_Report.md` (the research report that
+seeded this toolchain). All are re-obtainable git clones/official binaries; pinned to
 whatever was `main` on 2026-10-10.
 
 | Folder | Stage |

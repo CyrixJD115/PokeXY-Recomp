@@ -18,7 +18,7 @@ shows up only as helper scripts under `scripts/` (heatmap, rebuild glue).
 | `xy-runtime/` | runtime track: zakuro-based native runtime (working clone gitignored) |
 | `.thirdparty/` | upstream checkouts (3dsrecomp, zakuro, 3DS-Decomp-Pipeline, objdiff) + `reference/` clones — machine-local; `fetch.sh` recreates the four |
 | `scripts/` | cross-cutting helpers: RDComp heatmap, full rebuild glue |
-| `docs/` | `findings.md` (recomp metrics, gotchas, round-trip results), `ghidra-scripts.md` |
+| `docs/` | the research log (map in its `README.md`): `general/findings.md` (recomp metrics, gotchas, round-trip results), `decomp/ghidra-scripts.md`, `runtime/runtime-architecture.md`, per-topic folders |
 | `.Data/` | **your** game-derived material — dumps, extracts, generated code, ports. Machine-local by convention; never commit or share |
 
 **Convention:** dot-prefixed top-level dirs (`.Data/`, `.thirdparty/`) are
@@ -51,7 +51,7 @@ cargo build --release
   against them.
 
 Details and the full roadmap: [`AGENTS.md`](AGENTS.md),
-[`PLAN.md`](PLAN.md), [`docs/findings.md`](docs/findings.md).
+[`PLAN.md`](PLAN.md), [`docs/general/findings.md`](docs/general/findings.md).
 
 ## Legal
 

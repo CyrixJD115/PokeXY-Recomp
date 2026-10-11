@@ -1,8 +1,8 @@
 # docs/runtime/ — native runtime track
 
 Executing the two-track strategy from
-[../../runtime-architecture.md](../runtime-architecture.md): the Zakuro-fork
-track vs the full native runtime + asset bridge.
+[runtime-architecture.md](runtime-architecture.md) (this folder): the
+Zakuro-fork track vs the full native runtime + asset bridge.
 
 **In scope**
 - Runtime architecture decisions and their rationale (what was chosen, what
@@ -18,4 +18,6 @@ running logs; decisions get a date and a "revisit when" trigger.
 
 ## Files
 
-— none yet.
+- [runtime-architecture.md](runtime-architecture.md) — the two-track runtime
+  strategy (Zakuro fork vs full native runtime + asset bridge) and the
+  current measured state

@@ -60,5 +60,6 @@ Fetch the upstream suite, apply these fixes (all small):
   scripts anchor on (see #3)
 - `ExportSymbolsHeadless.py` writes the pipeline-format CSVs
   (`Location,Name,Namespace,Mode,Size,Segment`) for every program in the
-  project — see [findings.md](findings.md) for the coordinate-frame and
-  thunk-dedup gotchas before feeding them to 3DS-Decomp-Pipeline.
+  project — see [../general/findings.md](../general/findings.md) for the
+  coordinate-frame and thunk-dedup gotchas before feeding them to
+  3DS-Decomp-Pipeline.

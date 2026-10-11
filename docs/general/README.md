@@ -14,4 +14,9 @@ running logs.
 
 ## Files
 
-— none yet.
+- [findings.md](findings.md) — measured recomp/decomp/AMX results on real
+  dumps + version pinning (X v1.0 = 5,156,864 B `code.bin` — never mix with
+  v1.5); this is the run-metrics log the Documentation duty names
+- [PokemonX_Decomport_Report.md](PokemonX_Decomport_Report.md) — the Oct 10
+  2026 landscape survey that founded the project (external tooling, links,
+  legality framing)

@@ -29,18 +29,15 @@ Each folder's own `README.md` holds its detailed charter and file index —
 the summaries above are one-line pointers. If a note has an obvious
 single-topic home, it goes there; `general/` is the fallback, not the default.
 
-## Root-level documents (established, predate the folders)
+## Migration note (2026-10-11)
 
-| File | Contents |
-|---|---|
-| [findings.md](findings.md) | Measured recomp/decomp metrics + gotchas on real dumps; version pinning (X v1.0 = 5,156,864 B `code.bin` — never mix with v1.5) |
-| [ghidra-scripts.md](ghidra-scripts.md) | Running the 3DS Ghidra script suites under Ghidra 12 via PyGhidra (Jython-removal workaround + patches) |
-| [runtime-architecture.md](runtime-architecture.md) | Two-track runtime strategy (Zakuro fork vs full native runtime + asset bridge) and the current measured state |
-| [PokemonX_Decomport_Report.md](PokemonX_Decomport_Report.md) | The Oct 10 2026 landscape survey that founded the project (external tooling, links, legality framing) |
-
-These stay at the root: they are referenced from AGENTS.md and predate the
-folders. New topical notes go into the folders. Migrating a root doc into a
-folder is fine when it is substantially revised — leave a root pointer behind.
+The four original root-level docs were sorted into the folders:
+`findings.md` → [general/](general/) (it spans recomp + decomp + AMX
+measurements), `ghidra-scripts.md` → [decomp/](decomp/),
+`runtime-architecture.md` → [runtime/](runtime/), and
+`PokemonX_Decomport_Report.md` → [general/](general/). Nothing else moved;
+stale root links in old notes should be re-resolved through the folder
+indexes above.
 
 ## Writing conventions
 
@@ -103,8 +100,8 @@ notes belong; the pointers are starting points, not exhaustive briefs.
    XAMX dis/assembles them. Locate the payloads in XY's romfs and scope
    what they govern.
 10. **Zakuro runtime track** → `runtime/` — execute the two-track strategy
-    from [runtime-architecture.md](runtime-architecture.md): Zakuro fork +
-    asset bridge vs full native runtime.
+    from [runtime/runtime-architecture.md](runtime/runtime-architecture.md):
+    Zakuro fork + asset bridge vs full native runtime.
 11. **Y parity sweep** → `general/` — formats are shared by design; run the
     census/parity sweeps against the Y dump to prove nothing is X-specific
     in the parsers.

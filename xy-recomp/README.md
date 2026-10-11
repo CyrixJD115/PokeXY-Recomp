@@ -28,5 +28,5 @@ binary.
   5,169,152 bytes — updates landed at `.Data/Rom/{X,Y}/Upd/` before pointing any of this
   at an update dump.
 
-See `docs/findings.md` for the full metrics, gotchas (CRO address shift,
-thunk dedup) and the matching-decomp round-trip results.
+See `docs/general/findings.md` for the full metrics, gotchas (CRO address
+shift, thunk dedup) and the matching-decomp round-trip results.

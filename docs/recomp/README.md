@@ -14,7 +14,7 @@ the per-function verification harness.
 
 **Out of scope:** runtime architecture strategy (→ `../runtime/`); the
 matching-decomp track (→ `../decomp/`); headline metrics (→
-[../findings.md](../findings.md)).
+[../general/findings.md](../general/findings.md)).
 
 **Conventions:** kebab-case topical files; newest-first dated entries for
 running logs.

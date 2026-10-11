@@ -309,7 +309,8 @@ Everything moved (same filesystem, `mv` = rename, nothing copied):
   trees to `Data/ports/<name>/`, auto-finds the dump under `Data/`),
   `recomp/overrides/` slot for C shims.
 - **helpers**: `scripts/heatmap.py` (from the public repo),
-  `docs/findings.md` + `docs/ghidra-scripts.md`.
+  `docs/findings.md` + `docs/ghidra-scripts.md` (since sorted into
+  `docs/general/` + `docs/decomp/`, 2026-10-11).
 - **Path patches**: 10 golden tests `../../../Data` → `../../Data`
   (Data now sits beside `crates/`, not above the old workspace),
   `scripts/rebuild_v2.sh` re-pointed, GLB generator string updated.
@@ -320,7 +321,8 @@ Everything moved (same filesystem, `mv` = rename, nothing copied):
 - **Old project space retired (same session):** the remaining
   `Tools & Libs/` reference tree moved to `thirdparty/reference/`
   (index rewritten there) and the Hermes report moved to
-  `docs/PokemonX_Decomport_Report.md`; **deleted** as not needed:
+  `docs/PokemonX_Decomport_Report.md` (now
+  `docs/general/PokemonX_Decomport_Report.md`); **deleted** as not needed:
   `kuriimu2` binaries (rejects XY GARC v4; re-downloadable), `3ds_ida`
   (project is Ghidra-based), `MK7-Memory` (wrong game).
   `PokeXYZ-PC/` itself was then removed — RDComp is the only project

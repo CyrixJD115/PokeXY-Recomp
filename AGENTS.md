@@ -16,10 +16,10 @@ helper scripts under `xy-heatmap-py/`; Rust is the daily driver.
 | `xy-recomp/` | recomp track: `build.sh` port builder, C `overrides/` |
 | `xy-decomp/` | matching-decomp track: `ghidra/` (patched 3ds suite + PyGhidra driver + symbol exporter), track README |
 | `xy-runtime/` | runtime track: zakuro-based native runtime (working clone gitignored, README tracked) |
-| `xy-heatmap-py/` | the progress-heatmap toolkit: `heatmap.py` CLI (build/serve/summary/roms) over the `xhmap/` package (**central radial heatmap** + per-module grids, PNG/SVG export, ROM detection with `--rom`, live `serve --watch`; see `docs/runtime-architecture.md` §7) + `shell/rebuild_v2.sh` + `legacy/` (superseded v1 scripts) — README inside |
+| `xy-heatmap-py/` | the progress-heatmap toolkit: `heatmap.py` CLI (build/serve/summary/roms) over the `xhmap/` package (**central radial heatmap** + per-module grids, PNG/SVG export, ROM detection with `--rom`, live `serve --watch`; see `docs/runtime/runtime-architecture.md` §7) + `shell/rebuild_v2.sh` + `legacy/` (superseded v1 scripts) — README inside |
 | `.thirdparty/` | machine-local upstream checkouts (3dsrecomp, zakuro, 3DS-Decomp-Pipeline, objdiff) — `fetch.sh` recreates them |
 | `.Data/` | **machine-local, never share**: `Rom/` (dumps + keys + v1.5 update partitions), `Raw_Extracted/` (read-only sources), `Source_Extracted/` (all derived output — index: `.Data/Source_Extracted/MAP.md`), `Curated/` (final outputs: `ports/`) |
-| `docs/` | **the research log — every finding lands here** (see Documentation duty below; `docs/README.md` is the map + "what to explore" frontier list): topic folders `3ds/ formats/ knowledge/ dll/ decomp/ recomp/ runtime/ general/` + root `findings.md` (measured run metrics), `ghidra-scripts.md` (PyGhidra setup + patches), `runtime-architecture.md` (two-track runtime strategy), `PokemonX_Decomport_Report.md` (founding survey) |
+| `docs/` | **the research log — every finding lands here** (see Documentation duty below; `docs/README.md` is the map + "what to explore" frontier list): topic folders `3ds/ formats/ knowledge/ dll/ decomp/ recomp/ runtime/ general/` — incl. `general/findings.md` (measured run metrics), `decomp/ghidra-scripts.md` (PyGhidra setup + patches), `runtime/runtime-architecture.md` (two-track strategy), `general/PokemonX_Decomport_Report.md` (founding survey) |
 | `reference/` | early python prototypes kept for parity reference |
 
 **Directory convention:** dot-prefixed top-level dirs (`.Data/`,
@@ -95,7 +95,7 @@ before exploring, extend it when you learn something; it also carries the
   ways when both exist.
 - **Keep the map true.** Adding or repurposing a docs file or folder means
   updating `docs/README.md` (and that folder's README index) in the same
-  change. Root-level `findings.md` stays the run-metrics log for
+  change. `general/findings.md` stays the run-metrics log for
   recomp/decomp builds; new topical notes go to the folders.
 
 ## Goals & scope

@@ -23,8 +23,8 @@ hand-written C file has a hard parity gate. The loop:
 
 Gotchas: `--use-splits-only --objdiff` hits an upstream UnboundLocalError —
 use plain `--objdiff`; `getImageBase()` returns 0 for raw-binary imports
-(use `getMinAddress()`). Setup + patches: `docs/ghidra-scripts.md`;
-metrics: `docs/findings.md`.
+(use `getMinAddress()`). Setup + patches: `docs/decomp/ghidra-scripts.md`;
+metrics: `docs/general/findings.md`.
 
 Workspace (game-derived, machine-local): `.Data/Source_Extracted/pipeline/` —
 `orig/`, `symbols/`, `split/`, `out/`, `objdiff.json`. See
