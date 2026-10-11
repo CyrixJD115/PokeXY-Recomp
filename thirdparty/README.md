@@ -11,6 +11,6 @@ them; `./fetch.sh` recreates any missing checkout.
 | `3DS-Decomp-Pipeline` | AlgebraManiacABC/3DS-Decomp-Pipeline | see repo | split → compile → byte-compare → relink matching-decomp loop |
 | `objdiff` | encounter/objdiff | MIT | per-unit diff UI driven by this repo's `objdiff.json` |
 
-The rest of the ecosystem (emulator, format explorers, C#/.NET tools,
-Ghidra script suites) still lives in `../PokeXYZ-PC/Tools & Libs/` as
-reference material — that tree has its own README index.
+The rest of the ecosystem (emulator source, format references, C# tools,
+Ghidra script suites) lives in `reference/` — also gitignored, with its own
+README index.

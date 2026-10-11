@@ -32,7 +32,7 @@ Rust is the daily driver.
 | `Data/src_extracted/text/` | gametext/storytext JSON, 8 languages (4,600 banks) |
 | `Data/src_extracted/cro/` | The 133 plaintext `.cro` modules + `static.crs` (CRO0 magic at 0x80 — parser landed; **not** encrypted) |
 | `Data/update/` | v1.5 update dump slot — see its README before touching v1.5 |
-| `../PokeXYZ-PC/Tools & Libs/` | Third-party **reference** library (emulator, format explorers, C#/.NET tools, Ghidra script suites) — has its own README index; the four tools this repo executes directly moved into `thirdparty/` |
+| `thirdparty/reference/` | Third-party **reference** library (azahar source, CTR format tools, pk3DS/XAMX/Ohana3DS format references, Ghidra script suites incl. the RTTI lever) — gitignored, has its own README index; the four tools this repo executes directly are in `thirdparty/` proper. The old `PokeXYZ-PC/` project space was deleted 2026-10-11 — this repo is the only home. |
 
 
 Romfs quick map (Pokémon X/Y):

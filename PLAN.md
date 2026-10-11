@@ -269,6 +269,14 @@ Everything moved (same filesystem, `mv` = rename, nothing copied):
   key block (`otp.mem`, `firm0.bin`, …) and ignores `Data/**` +
   `thirdparty/**` with README/fetch carve-outs, plus `/exports/`.
   **Nothing game-derived or key-like is committable by construction.**
+- **Old project space retired (same session):** the remaining
+  `Tools & Libs/` reference tree moved to `thirdparty/reference/`
+  (index rewritten there) and the Hermes report moved to
+  `docs/PokemonX_Decomport_Report.md`; **deleted** as not needed:
+  `kuriimu2` binaries (rejects XY GARC v4; re-downloadable), `3ds_ida`
+  (project is Ghidra-based), `MK7-Memory` (wrong game).
+  `PokeXYZ-PC/` itself was then removed — RDComp is the only project
+  space; its pointer README and `.zcodeignore` went with it.
 - Gates at move time: `cargo test --workspace` **104/104 green** (up from
   the documented 65 because the Data goldens now *run* instead of
   skipping — romfs/garc/manual/cro/bch/bcwav/textfile/smdh/cgfx/bcres all

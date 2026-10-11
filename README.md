@@ -14,7 +14,7 @@ heatmap, analysis glue).
 |---|---|
 | `crates/` + `src/` | the `xy` toolkit — 8 domain crates (`xy-core/archive/audio/gfx/script/battle/curate/convert`) behind one unified CLI |
 | `recomp/` | static-recomp track: `build.sh` port builder, C override shims |
-| `thirdparty/` | upstream checkouts (3dsrecomp, zakuro, 3DS-Decomp-Pipeline, objdiff) — gitignored; `fetch.sh` recreates |
+| `thirdparty/` | upstream checkouts (3dsrecomp, zakuro, 3DS-Decomp-Pipeline, objdiff) + `reference/` clones — gitignored; `fetch.sh` recreates the four |
 | `scripts/` | python/shell helpers: patched 3DS Ghidra suite + PyGhidra driver, RDComp heatmap, rebuild glue |
 | `docs/` | `findings.md` (recomp metrics, gotchas, round-trip results), `ghidra-scripts.md` |
 | `Data/` | **your** game-derived material — dumps, extracts, generated code, ports. Gitignored by construction; never commit or share |

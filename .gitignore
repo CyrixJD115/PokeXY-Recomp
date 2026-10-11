@@ -25,6 +25,8 @@ firm1.bin
 /thirdparty/**
 !/thirdparty/README.md
 !/thirdparty/fetch.sh
+!/thirdparty/reference/
+!/thirdparty/reference/README.md
 
 # Exported game assets (GLB/PNG renders etc. are game-derived too)
 /exports/
