@@ -5,7 +5,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-THIRD="$ROOT/thirdparty"
+THIRD="$ROOT/.thirdparty"
 
 clone() { # <url> <dir>
   if [ -d "$THIRD/$2" ]; then

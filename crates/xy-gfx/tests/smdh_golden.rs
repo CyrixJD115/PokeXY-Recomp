@@ -13,7 +13,7 @@ use xy_gfx::smdh::Smdh;
 fn data_root() -> PathBuf {
     std::env::var("XY_DATA_ROOT")
         .map(PathBuf::from)
-        .unwrap_or_else(|_| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../Data"))
+        .unwrap_or_else(|_| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.Data"))
 }
 
 fn lum(rgb: &[u8], i: usize) -> i32 {

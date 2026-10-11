@@ -1,34 +1,41 @@
 # PokeXYZ-RDComp
 
-One project space for the Pokémon X/Y **R**ecomp + **D**ecomp effort — a
-Rust-first toolkit where [3dsrecomp](https://github.com/fearkov/3dsrecomp)
+One project space for the Pokémon X/Y native **R**ecomp + **D**ecomp
+effort — a Rust-first toolkit where [3dsrecomp](https://github.com/fearkov/3dsrecomp)
 turns a decrypted dump into a native Linux binary, the `xy` CLI extracts and
-converts every game format, and a matching-decompilation loop
-(3DS-Decomp-Pipeline + objdiff) rebuilds the original code byte-for-byte.
-Python shows up only as helper scripts under `scripts/` (Ghidra automation,
-heatmap, analysis glue).
+converts every game format, a matching-decompilation loop
+(3DS-Decomp-Pipeline + objdiff) rebuilds the original code byte-for-byte,
+and a zakuro-based runtime track carries the HLE runtime layer. Python
+shows up only as helper scripts under `scripts/` (heatmap, rebuild glue).
 
 ## Layout
 
 | Path | What it is |
 |---|---|
 | `crates/` + `src/` | the `xy` toolkit — 8 domain crates (`xy-core/archive/audio/gfx/script/battle/curate/convert`) behind one unified CLI |
-| `recomp/` | static-recomp track: `build.sh` port builder, C override shims |
-| `thirdparty/` | upstream checkouts (3dsrecomp, zakuro, 3DS-Decomp-Pipeline, objdiff) + `reference/` clones — gitignored; `fetch.sh` recreates the four |
-| `scripts/` | python/shell helpers: patched 3DS Ghidra suite + PyGhidra driver, RDComp heatmap, rebuild glue |
+| `xy-recomp/` | static-recomp track: `build.sh` port builder, C override shims |
+| `xy-decomp/` | matching-decomp track: patched 3DS Ghidra suite + PyGhidra driver + symbol exporter |
+| `xy-runtime/` | runtime track: zakuro-based native runtime (working clone gitignored) |
+| `.thirdparty/` | upstream checkouts (3dsrecomp, zakuro, 3DS-Decomp-Pipeline, objdiff) + `reference/` clones — machine-local; `fetch.sh` recreates the four |
+| `scripts/` | cross-cutting helpers: RDComp heatmap, full rebuild glue |
 | `docs/` | `findings.md` (recomp metrics, gotchas, round-trip results), `ghidra-scripts.md` |
-| `Data/` | **your** game-derived material — dumps, extracts, generated code, ports. Gitignored by construction; never commit or share |
+| `.Data/` | **your** game-derived material — dumps, extracts, generated code, ports. Machine-local by convention; never commit or share |
+
+**Convention:** dot-prefixed top-level dirs (`.Data/`, `.thirdparty/`) are
+machine-local workspace material — never committed except their
+README/index files; non-dot dirs are repo content; game tracks are
+`xy-`-prefixed.
 
 ## Quick start
 
 ```bash
 # toolkit
 cargo build --release
-./target/release/xy gfx icon Data/3ds_extracted/exefs/icon.bin -o icon.png
+./target/release/xy gfx icon .Data/3ds_extracted/exefs/icon.bin -o icon.png
 
 # native standalone port (needs Rust, gcc/clang, ar; your own decrypted dump)
-./thirdparty/fetch.sh          # once — clones 3dsrecomp + zakuro
-./recomp/build.sh --run        # picks up Data/0004000000055D00_v00.3ds by default
+./.thirdparty/fetch.sh         # once — clones 3dsrecomp + zakuro
+./xy-recomp/build.sh --run     # picks up .Data/0004000000055D00_v00.3ds by default
 ```
 
 ## Status
@@ -39,7 +46,7 @@ cargo build --release
   generated splits (parity gate for future hand-written C).
 - **Toolkit**: 65/65 golden tests byte/pixel-identical against upstream
   references; clippy `-D warnings` clean.
-- **v1.5 update**: slot prepared at `Data/update/` — see its README before
+- **v1.5 update**: slot prepared at `.Data/update/` — see its README before
   landing the update dumps.
 
 Details and the full roadmap: [`AGENTS.md`](AGENTS.md),
@@ -51,5 +58,5 @@ Requires your own legally-obtained, **decrypted** game dumps. Everything
 game-derived (dumps, extracted assets, generated C, symbol maps, port
 projects, binaries) and all console key material is excluded from version
 control by `.gitignore` and must never be shared or published. Upstream
-tools are vendored unpackaged via `thirdparty/fetch.sh` and keep their own
+tools are vendored unpackaged via `.thirdparty/fetch.sh` and keep their own
 licenses (MIT for 3dsrecomp/zakuro/objdiff).

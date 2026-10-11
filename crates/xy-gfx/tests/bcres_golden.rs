@@ -9,7 +9,7 @@ use xy_gfx::bcres::Bcres;
 fn asset(rel: &str) -> Option<PathBuf> {
     let p = std::env::var("XY_DATA_ROOT")
         .map(PathBuf::from)
-        .unwrap_or_else(|_| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../Data"))
+        .unwrap_or_else(|_| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.Data"))
         .join(rel);
     p.exists().then_some(p)
 }

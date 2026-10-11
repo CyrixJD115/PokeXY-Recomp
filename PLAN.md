@@ -28,7 +28,7 @@ All three golden tests landed and pass against the real assets:
 
 ## Phase 1 — GARC archives (the 1.5 GB prize) ✅ (extraction complete)
 
-`Data/extracted/romfs/a/` holds the game's real content: maps, models,
+`.Data/3ds_extracted/romfs/a/` holds the game's real content: maps, models,
 textures, scripts, encounter data — inside Gamefreak GARC containers.
 
 1. **Recon (Kuriimu2 CLI).** ✅ Done 2026-10-05 — with a twist: Kuriimu2
@@ -175,7 +175,7 @@ files), `a/0/1/3` 49 MB (171 files). Text banks: `a/0/1/0-9` BCLAN,
 ## Phase 5 — code decompilation ✅ corpus complete (naming/refinement open)
 
 - [x] `code.bin` Ghidra pass — 2026-10-05: project + 14,864 decompiled C
-      functions at `Data/src_extracted/decomp/` (see MAP.md).
+      functions at `.Data/src_extracted/decomp/` (see MAP.md).
 - [x] **CRO modules unblocked + parsed** — 2026-10-05 correction: never
       encrypted (magic `CRO0`@0x80 after the SHA-256 hash block; entropy
       histogram + known-plaintext check broke the wrong assumption).
@@ -208,7 +208,7 @@ files), `a/0/1/3` 49 MB (171 files). Text banks: `a/0/1/0-9` BCLAN,
 
 - [ ] Obtain a **Y** dump (title `0004000000055E00`, `kujira-2`) — this is the
       missing game; the **X** dump (`0004000000055D00`, `kujira-1`) is already
-      in `Data/` and is what all current golden tests validate against. (Fixup
+      in `.Data/` and is what all current golden tests validate against. (Fixup
       2026-10-05: this entry previously had X/Y swapped — the SMDH in our
       `0055D00` dump says "Pokémon X" in all 12 regions, matching AGENTS.md.)
 - [ ] Run the whole pipeline end-to-end; the parsers are already
@@ -221,8 +221,8 @@ files), `a/0/1/3` 49 MB (171 files). Text banks: `a/0/1/0-9` BCLAN,
 - [ ] `git init` the parent project (AGENTS.md documents the no-history
       caveat; this unlocks real provenance for the ports).
 - [ ] Decide on committing small reference fixtures (banner jingle + a few
-      GARCs) so golden tests survive `Data/` moves.
-- [ ] Optional: rename `Data/extracted_assets/audio` WAVs to match in-game
+      GARCs) so golden tests survive `.Data/` moves.
+- [ ] Optional: rename `.Data/src_extracted/audio` WAVs to match in-game
       labels when a name table is available from the GARCs.
 
 ## Ground rules (inherited from AGENTS.md)
@@ -234,6 +234,25 @@ files), `a/0/1/3` 49 MB (171 files). Text banks: `a/0/1/0-9` BCLAN,
 - Don't hardcode title IDs; X first, Y by validation.
 
 ## Status log
+
+### 2026-10-11 — restructure: function-named tracks + dot convention ✅ (session 6)
+
+Top level reorganized by function; game tracks are now `xy-`-prefixed:
+
+- **`recomp/` → `xy-recomp/`**, **`scripts/ghidra/` → `xy-decomp/ghidra/`**
+  (new track README), **`runtime/` → `xy-runtime/`** (zakuro working clone,
+  README tracked, clone gitignored). The `xy` toolkit stays at the repo
+  root so `cargo build` and the golden tests keep working.
+- **`Data/` → `.Data/`, `thirdparty/` → `.thirdparty/`** codified: dot-
+  prefixed top-level dirs are machine-local "agentic reference" material —
+  never committed except their README/index files (`.gitignore` rewritten
+  around the rule; the 5 tracked files re-homed and staged as renames).
+- Every path reference updated: 10 golden test files (plus `XY_DATA_ROOT`
+  override added to `garc_golden.rs`), `xy-recomp/build.sh`, `fetch.sh`,
+  `rebuild_v2.sh` (also fixed the stale `XY_Decomp_Tools` name), the
+  Ghidra driver (now defaults its script dir to its own location), the
+  curate generated-README strings, and all docs. Verified with a full
+  `cargo test` pass against the renamed tree.
 
 ### 2026-10-11 — repo consolidation: PokeXYZ-RDComp ✅ (session 5)
 

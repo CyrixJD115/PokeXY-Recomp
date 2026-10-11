@@ -1,5 +1,5 @@
 //! Golden test: the full e-manual pipeline (BCMA → LZ10 → inner DARC)
-//! vs the validated reference tree at `Data/src_extracted/manual`
+//! vs the validated reference tree at `.Data/src_extracted/manual`
 //! (3663 assets from 206 pages — byte-parity first verified by hand on
 //! 2026-10-05). Compares relative path sets and FNV-1a content hashes.
 //!
@@ -16,7 +16,7 @@ use xy_core::util::fnv1a64;
 fn data_root() -> PathBuf {
     std::env::var("XY_DATA_ROOT")
         .map(PathBuf::from)
-        .unwrap_or_else(|_| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../Data"))
+        .unwrap_or_else(|_| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.Data"))
 }
 
 /// Same page-stem naming rule as the CLI.

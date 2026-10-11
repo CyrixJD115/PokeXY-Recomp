@@ -1,14 +1,14 @@
 #!/bin/bash
-# Full clean-slate rebuild of Data/src_extracted (v2 — all fixes folded in).
+# Full clean-slate rebuild of .Data/src_extracted (v2 — all fixes folded in).
 set -u
 ROOT=/mnt/dev/Dev/Coding_Projects/PokeXYZ-RDComp
-DATA=$ROOT/Data
+DATA=$ROOT/.Data
 SRC=$DATA/src_extracted
 RFS=$DATA/3ds_extracted/romfs
-XY=$ROOT/XY_Decomp_Tools/target/release/xy
+XY=$ROOT/target/release/xy
 AH=/opt/ghidra/support/analyzeHeadless
 PROJ=$SRC/decomp/ghidra_project
-SCRIPTS=$ROOT/XY_Decomp_Tools/ghidra
+SCRIPTS=$ROOT/xy-decomp/ghidra
 
 log() { echo "[$(date +%H:%M:%S)] $*"; }
 
@@ -22,10 +22,10 @@ cp "$RFS"/shaders/*.shbin "$SRC/shaders/"
 # banner jingle: slice the CWAV out of the CBMD banner
 python3 - <<'PYEOF'
 import struct
-b = open('/mnt/dev/Dev/Coding_Projects/PokeXYZ-RDComp/Data/3ds_extracted/exefs/banner.bin','rb').read()
+b = open('/mnt/dev/Dev/Coding_Projects/PokeXYZ-RDComp/.Data/3ds_extracted/exefs/banner.bin','rb').read()
 at = b.find(b'CWAV')
 size = struct.unpack('<I', b[at+0xC:at+0x10])[0]
-open('/mnt/dev/Dev/Coding_Projects/PokeXYZ-RDComp/Data/src_extracted/banner_jingle.bcwav','wb').write(b[at:at+size])
+open('/mnt/dev/Dev/Coding_Projects/PokeXYZ-RDComp/.Data/src_extracted/banner_jingle.bcwav','wb').write(b[at:at+size])
 print(f'  banner jingle: {size} bytes sliced from banner.bin @{at:#x}')
 PYEOF
 
@@ -115,7 +115,7 @@ done
 log "STAGE D: symbolication + curate"
 python3 - <<'PYEOF'
 import csv
-SRC = '/mnt/dev/Dev/Coding_Projects/PokeXYZ-RDComp/Data/src_extracted'
+SRC = '/mnt/dev/Dev/Coding_Projects/PokeXYZ-RDComp/.Data/src_extracted'
 syms = {}
 with open(f'{SRC}/cro_extracted/static/symbols.tsv') as f:
     for row in csv.DictReader(f, delimiter='\t'):

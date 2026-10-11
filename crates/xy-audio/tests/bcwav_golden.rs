@@ -8,13 +8,13 @@ use std::path::PathBuf;
 use xy_audio::bcwav::{Bcwav, Codec};
 
 /// Data root for golden assets: `XY_DATA_ROOT` override, else the repo's
-/// `Data/` (asset layout: `Data/3ds_extracted/` raw dumps,
-/// `Data/src_extracted/` converted outputs).
+/// `.Data/` (asset layout: `.Data/3ds_extracted/` raw dumps,
+/// `.Data/src_extracted/` converted outputs).
 fn data_root() -> PathBuf {
     if let Ok(root) = std::env::var("XY_DATA_ROOT") {
         return PathBuf::from(root);
     }
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../Data")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.Data")
 }
 
 fn asset(rel: &str) -> Option<PathBuf> {

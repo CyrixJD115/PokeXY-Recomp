@@ -883,7 +883,7 @@ fn stage_media(ctx: &mut Ctx) -> io::Result<()> {
                 "# audio\n\n{n} WAV files converted from `romfs/sound/*.aac` \
                  (plain ADTS AAC → ffmpeg pcm_s16le) plus the banner jingle \
                  (`xy audio bcwav`, DSP-ADPCM → RIFF WAV, 32,728 Hz stereo).\n\
-                 Raw sources remain in `Data/3ds_extracted/romfs/sound/`.\n"
+                 Raw sources remain in `.Data/3ds_extracted/romfs/sound/`.\n"
             ),
         )?;
     }
@@ -1397,7 +1397,7 @@ fn stage_unknown(ctx: &mut Ctx) -> io::Result<()> {
              nothing is lost. {total} files under `garc/<romfs path>/`, \
              mirroring the source GARC layout. When a format is cracked, \
              promote it into a curated stage (see `xy curate` in \
-             XY_Decomp_Tools) rather than converting in place.\n"
+             PokeXYZ-RDComp) rather than converting in place.\n"
         ),
     )?;
     ctx.summary.entries += total;
@@ -1534,8 +1534,8 @@ fn write_top_readme(ctx: &Ctx, stages: &[Stage]) -> io::Result<()> {
          Built by `xy curate -i <src_extracted>` (stages: {}). Deterministic: \
          re-running produces identical structure and filenames. **Real files \
          only — no symlinks.**\n\n\
-         Provenance chain: `Data/3ds_extracted/` (raw decrypted ROM) → \
-         `Data/src_extracted/` (GARC/BCMA/CRO unpacking, Ghidra, ffmpeg) → \
+         Provenance chain: `.Data/3ds_extracted/` (raw decrypted ROM) → \
+         `.Data/src_extracted/` (GARC/BCMA/CRO unpacking, Ghidra, ffmpeg) → \
          this tree (organization + standard-format conversion). Every file \
          here is listed in `manifest.tsv` (source → path → action → bytes) \
          and re-verified by `validation.tsv`.\n\n\
@@ -1554,8 +1554,8 @@ fn write_top_readme(ctx: &Ctx, stages: &[Stage]) -> io::Result<()> {
          streams and rev-9 CNOD meshes are open RE projects; battle tables \
          (`battle/*.*/`) are organized but not yet field-decoded; media \
          conversion (ffmpeg) happens in the rebuild script and is copied in.\n\n\
-         Rebuild: `cargo build --release && ./target/release/xy curate -i ../../Data/src_extracted`\n\
-         (run from `XY_Decomp_Tools/`).\n",
+         Rebuild: `cargo build --release && ./target/release/xy curate -i ../../.Data/src_extracted`\n\
+         (run from the `PokeXYZ-RDComp/` repo root).\n",
         stage_names.join(","),
         s.families,
         s.models_obj,

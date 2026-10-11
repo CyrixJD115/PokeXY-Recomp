@@ -13,20 +13,28 @@ otp.bin
 firm0.bin
 firm1.bin
 
-# Game-derived data: everything under Data/ (dumps, extracts, generated C,
-# symbol maps, port trees, binaries) derives from the user's own game copies
-# and/or console material — commit the READMEs only.
-/Data/**
-!/Data/README.md
-!/Data/update/
-!/Data/update/README.md
+# Dot-prefixed top-level dirs (.Data/, .thirdparty/) are machine-local
+# workspace material — "agentic references", not repo content. Everything
+# under .Data/ (dumps, extracts, generated C, symbol maps, port trees,
+# binaries) derives from the user's own game copies and/or console
+# material — commit the READMEs only.
+/.Data/**
+!/.Data/README.md
+!/.Data/update/
+!/.Data/update/README.md
 
-# Upstream tool checkouts — keep only their index + fetch script
-/thirdparty/**
-!/thirdparty/README.md
-!/thirdparty/fetch.sh
-!/thirdparty/reference/
-!/thirdparty/reference/README.md
+# Upstream tool checkouts (same dot rule) — keep only their index + fetch script
+/.thirdparty/**
+!/.thirdparty/README.md
+!/.thirdparty/fetch.sh
+!/.thirdparty/reference/
+!/.thirdparty/reference/README.md
+
+# Runtime track: our files are tracked; the upstream zakuro clone is not
+/xy-runtime/zakuro/
+
+# ZCode agent state (machine-local)
+/.zcode/
 
 # Exported game assets (GLB/PNG renders etc. are game-derived too)
 /exports/

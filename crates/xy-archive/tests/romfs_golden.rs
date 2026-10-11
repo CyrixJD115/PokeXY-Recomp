@@ -1,5 +1,5 @@
 //! Golden test: RomFS extraction vs the `ctrtool --romfsdir` reference tree
-//! (`Data/3ds_extracted/romfs`, 653 files — parity first verified by hand on
+//! (`.Data/3ds_extracted/romfs`, 653 files — parity first verified by hand on
 //! 2026-10-05). Compares path sets, sizes, and FNV-1a content hashes.
 //!
 //! Skips cleanly when the dump or reference tree is absent.
@@ -13,7 +13,7 @@ use xy_core::util::fnv1a64;
 fn data_root() -> PathBuf {
     std::env::var("XY_DATA_ROOT")
         .map(PathBuf::from)
-        .unwrap_or_else(|_| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../Data"))
+        .unwrap_or_else(|_| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.Data"))
 }
 
 #[test]

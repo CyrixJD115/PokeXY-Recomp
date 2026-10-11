@@ -25,10 +25,10 @@ RD_ROOT = Path(__file__).resolve().parents[2]
 GHIDRA_DIR = os.environ.get("GHIDRA_INSTALL_DIR", "/opt/ghidra")
 PROJECT_LOC = os.environ.get(
     "XY_PROJECT_LOC",
-    str(RD_ROOT / "Data/src_extracted/decomp/ghidra_project_3ds"),
+    str(RD_ROOT / ".Data/src_extracted/decomp/ghidra_project_3ds"),
 )
 PROJECT = os.environ.get("XY_PROJECT", "PokemonX")
-SCRIPT_DIR = os.environ.get("XY_SCRIPT_DIR", str(RD_ROOT / "scripts/ghidra"))
+SCRIPT_DIR = os.environ.get("XY_SCRIPT_DIR", str(Path(__file__).resolve().parent))
 SCRIPTS = ["Label3dsSVCs.py", "Label3dsHandles.py", "Label3dsCTRFns.py", "Set3dsTlsType.py"]
 
 pyghidra.start(install_dir=GHIDRA_DIR)

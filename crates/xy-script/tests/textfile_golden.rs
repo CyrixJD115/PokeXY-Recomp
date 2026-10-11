@@ -1,5 +1,5 @@
 //! Golden test: Gen 6 text-bank decoder against real gametext banks.
-//! `Data/src_extracted/garc/a/0/7/` language variants, mapped empirically
+//! `.Data/src_extracted/garc/a/0/7/` language variants, mapped empirically
 //! 2026-10-05 by decoding bank 080 of each: 2 & 3 = Japanese, 4 = English,
 //! 5 = French, 6 = Italian, 7 = German, 8 = Spanish, 9 = Korean.
 //! Skips cleanly when assets are absent.
@@ -11,7 +11,7 @@ use xy_script::textfile::TextFile;
 fn data_root() -> PathBuf {
     std::env::var("XY_DATA_ROOT")
         .map(PathBuf::from)
-        .unwrap_or_else(|_| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../Data"))
+        .unwrap_or_else(|_| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.Data"))
 }
 
 fn bank(garc: &str, file: &str) -> Option<PathBuf> {

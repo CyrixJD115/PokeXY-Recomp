@@ -1,8 +1,10 @@
-# thirdparty/ — upstream tool checkouts (gitignored)
+# .thirdparty/ — upstream tool checkouts (machine-local)
 
 The four external tools the daily recomp/decomp loops call into. All are
 upstream projects with their own licenses and histories — never commit
-them; `./fetch.sh` recreates any missing checkout.
+them; `./fetch.sh` recreates any missing checkout. Dot-prefixed top-level
+dirs are machine-local "agentic reference" material by repo convention —
+only this README and `fetch.sh` are tracked.
 
 | Tool | Upstream | License | Role |
 |---|---|---|---|

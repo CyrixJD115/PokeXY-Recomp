@@ -16,17 +16,17 @@ export GHIDRA_INSTALL_DIR=/opt/ghidra
 
 ## 2. Drive headless through PyGhidra, not the CLI
 
-`ghidra/xy_ghidra_3ds.py` in this repo starts the JVM via `pyghidra.start()`
+`xy-decomp/ghidra/xy_ghidra_3ds.py` in this repo starts the JVM via `pyghidra.start()`
 and runs GhidraScripts through `pyghidra.ghidra_script()` — which supports
 any script type *except* that Java scripts need bundle registration, so use
-the Python exporter (`ghidra/ExportSymbolsHeadless.py`).
+the Python exporter (`xy-decomp/ghidra/ExportSymbolsHeadless.py`).
 
 ```bash
 # configure once (or edit the env defaults at the top of the script)
 export XY_PROJECT_LOC=/path/to/ghidra_project_dir
 export XY_PROJECT=PokemonX
-python3 ghidra/xy_ghidra_3ds.py code.bin       # one program
-python3 ghidra/xy_ghidra_3ds.py --all          # every program in the project
+python3 xy-decomp/ghidra/xy_ghidra_3ds.py code.bin       # one program
+python3 xy-decomp/ghidra/xy_ghidra_3ds.py --all          # every program in the project
 ```
 
 ## 3. Patch the upstream scripts for CPython/headless

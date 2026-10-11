@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
 # PokeXYZ-RDComp recomp builder: produce a standalone native binary for
-# Pokémon X or Y from YOUR decrypted dump, reusing this repo's thirdparty
+# Pokémon X or Y from YOUR decrypted dump, reusing this repo's .thirdparty
 # clones (3dsrecomp + Zakuro) so repeat builds never re-clone.
 #
-#   ./recomp/build.sh [--rom /path/to/PokemonX.3ds] [--run]
+#   ./xy-recomp/build.sh [--rom /path/to/PokemonX.3ds] [--run]
 #
-# Nothing game-derived leaves Data/: the generated port projects land in
-# Data/ports/<name> and the binaries are gitignored. Compilation of the
+# Nothing game-derived leaves .Data/: the generated port projects land in
+# .Data/ports/<name> and the binaries are gitignored. Compilation of the
 # port is intentionally manual (first link pulls in hundreds of MiB).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-THIRD="$ROOT/thirdparty"
-PORTS="$ROOT/Data/ports"
+THIRD="$ROOT/.thirdparty"
+PORTS="$ROOT/.Data/ports"
 RUN=0
 ROM=""
 
@@ -41,9 +41,9 @@ else
   step "ccache not installed — expect a long C compile (pacman -S ccache / apt install ccache)"
 fi
 
-step "checking thirdparty checkouts (see thirdparty/fetch.sh)"
-[ -d "$THIRD/3dsrecomp" ] || { echo "missing $THIRD/3dsrecomp — run thirdparty/fetch.sh" >&2; exit 1; }
-[ -d "$THIRD/zakuro" ] || { echo "missing $THIRD/zakuro — run thirdparty/fetch.sh" >&2; exit 1; }
+step "checking .thirdparty checkouts (see .thirdparty/fetch.sh)"
+[ -d "$THIRD/3dsrecomp" ] || { echo "missing $THIRD/3dsrecomp — run .thirdparty/fetch.sh" >&2; exit 1; }
+[ -d "$THIRD/zakuro" ] || { echo "missing $THIRD/zakuro — run .thirdparty/fetch.sh" >&2; exit 1; }
 if [ ! -x "$THIRD/3dsrecomp/target/release/3dsrecomp" ]; then
   step "building 3dsrecomp (first time only)"
   (cd "$THIRD/3dsrecomp" && cargo build --release)
@@ -51,7 +51,7 @@ fi
 RECOMP="$THIRD/3dsrecomp/target/release/3dsrecomp"
 
 if [ -z "$ROM" ]; then
-  for cand in "$ROOT/Data/0004000000055D00_v00.3ds" "$ROOT/Data/0004000000055E00_v00.3ds"; do
+  for cand in "$ROOT/.Data/0004000000055D00_v00.3ds" "$ROOT/.Data/0004000000055E00_v00.3ds"; do
     [ -f "$cand" ] && ROM="$cand" && break
   done
 fi

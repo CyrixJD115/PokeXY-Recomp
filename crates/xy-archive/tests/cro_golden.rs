@@ -10,7 +10,7 @@ use xy_archive::cro::Cro;
 fn data_root() -> PathBuf {
     std::env::var("XY_DATA_ROOT")
         .map(PathBuf::from)
-        .unwrap_or_else(|_| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../Data"))
+        .unwrap_or_else(|_| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.Data"))
 }
 
 #[test]

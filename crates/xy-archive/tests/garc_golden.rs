@@ -16,9 +16,10 @@ use xy_archive::garc::Garc;
 use xy_archive::lzss;
 
 fn romfs(rel: &str) -> Option<PathBuf> {
-    let p = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../Data/3ds_extracted/romfs")
-        .join(rel);
+    let root = std::env::var("XY_DATA_ROOT")
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.Data"));
+    let p = root.join("3ds_extracted/romfs").join(rel);
     p.exists().then_some(p)
 }
 

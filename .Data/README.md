@@ -1,10 +1,12 @@
-# Data/ — game-derived material (gitignored, never share)
+# .Data/ — game-derived material (machine-local, never share)
 
 Everything in here derives from your own legally-dumped copies of Pokémon
-X/Y and from processing them. **Nothing under Data/ is ever committed or
+X/Y and from processing them. **Nothing under .Data/ is ever committed or
 distributed** — game dumps, extracted assets, generated C, symbol maps,
 port trees and binaries all carry Nintendo's IP and/or console-unique
-keys.
+keys. Per repo convention, dot-prefixed top-level dirs are machine-local
+"agentic reference" material — only this README and `update/README.md`
+are tracked.
 
 | Path | Contents |
 |---|---|
@@ -19,7 +21,7 @@ keys.
 | `src_extracted/pipeline/` | matching-decomp workspace: `orig/`, `symbols/` CSVs, generated `split/` (72,742 .o), `out/` (134/134 byte-identical recreates), `objdiff.json` |
 | `src_extracted/recomp/` | 3dsrecomp analyze/build output: `.so`, codeNNN.c/.o, verify reports |
 | `src_extracted/recomp/port/` | the standalone port project (user's current build) |
-| `ports/` | future port trees from `recomp/build.sh` |
+| `ports/` | future port trees from `xy-recomp/build.sh` |
 | `update/` | **v1.5 update dump slot — see `update/README.md`** |
 
 Console key material at this level (`boot9.bin`, `otp.mem`, `firm0.bin`,
