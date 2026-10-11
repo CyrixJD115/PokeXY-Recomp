@@ -5,7 +5,7 @@ repo: 3dsrecomp port generated and linked (`xy-recomp/build.sh`), 134/134
 modules byte-identical relinks in the matching pipeline, 38,385 decompiled C
 functions in the Ghidra corpus, and the `xy-extraction` toolkit with
 validated decoders for every major asset family. Progress numbers below come
-from the live heatmap (`scripts/heatmap_gui.py`).
+from the live heatmap (`xy-heatmap-py/heatmap_gui.py`).
 
 ## 0. Where we stand (measured, not estimated)
 
@@ -253,7 +253,7 @@ Architecture:
 .Data/Source_Extracted/
   recomp/{entries.c,*_functions.h}     ┐
   pipeline/symbols/*.csv               │
-  cro_extracted/{*,static}/symbols.tsv ├─ scripts/heatmap_gui.py ─→ heatmap.html
+  cro_extracted/{*,static}/symbols.tsv ├─ xy-heatmap-py/heatmap_gui.py ─→ heatmap.html
   decomp/{code_c,cro_c}                │   (self-contained, data      heatmap_data.json
   pipeline/{orig,out} (link check)     ┘    embedded; zero deps)      summary.md
                                                                      ↑ polled every 3 s
@@ -262,7 +262,7 @@ Architecture:
                                             filter · import graph · PNG/SVG export
 ```
 
-- Run: `python3 scripts/heatmap_gui.py --serve 8765` (add `--watch` to
+- Run: `python3 xy-heatmap-py/heatmap_gui.py --serve 8765` (add `--watch` to
   rebuild on input change); or open `heatmap.html` directly from disk.
 - Cell = one function (union inventory); colour = highest stage:
   dark grey raw → teal decompiled → green identified → gold verified;
