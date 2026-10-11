@@ -19,7 +19,7 @@ helper scripts under `xy-heatmap-py/`; Rust is the daily driver.
 | `xy-heatmap-py/` | cross-cutting Python/shell helpers: `heatmap_gui.py` (**live single-page heatmap dashboard** — PNG/SVG export, `--watch`/`--serve`; see `docs/runtime-architecture.md` §7), `heatmap.py` (legacy per-module SVGs), `rebuild_v2.sh`, legacy build shim |
 | `.thirdparty/` | machine-local upstream checkouts (3dsrecomp, zakuro, 3DS-Decomp-Pipeline, objdiff) — `fetch.sh` recreates them |
 | `.Data/` | **machine-local, never share**: `Rom/` (dumps + keys + v1.5 update partitions), `Raw_Extracted/` (read-only sources), `Source_Extracted/` (all derived output — index: `.Data/Source_Extracted/MAP.md`), `Curated/` (final outputs: `ports/`) |
-| `docs/` | `findings.md` (recomp + matching-decomp metrics/gotchas), `ghidra-scripts.md` (PyGhidra setup + patches), `runtime-architecture.md` (two-track runtime strategy: Zakuro fork vs full native runtime + asset bridge) |
+| `docs/` | **the research log — every finding lands here** (see Documentation duty below; `docs/README.md` is the map + "what to explore" frontier list): topic folders `3ds/ formats/ knowledge/ dll/ decomp/ recomp/ runtime/ general/` + root `findings.md` (measured run metrics), `ghidra-scripts.md` (PyGhidra setup + patches), `runtime-architecture.md` (two-track runtime strategy), `PokemonX_Decomport_Report.md` (founding survey) |
 | `reference/` | early python prototypes kept for parity reference |
 
 **Directory convention:** dot-prefixed top-level dirs (`.Data/`,
@@ -68,6 +68,35 @@ Romfs quick map (Pokémon X/Y):
 - `sounddebug/` — plain text debug output, not audio.
 - `Source_Extracted/banner_jingle.bcwav` — banner sound, the first format this
   toolkit parsed.
+
+## Documentation duty — every finding lands in `docs/`
+
+This project's real output is knowledge; code is how we verify it. **A finding
+that isn't written down did not happen.** `docs/README.md` is the map — read it
+before exploring, extend it when you learn something; it also carries the
+"what to explore" frontier list (the open RE problems worth fighting).
+
+- **Always log what you find, same session.** Any durable discovery — a format
+  quirk, a working command/flag set, a tool gotcha, a mapping rule, a
+  measurement, a dead end, a disproven theory — goes into the matching
+  `docs/<folder>/*.md` file before you report the task done. Dead ends count
+  double: record what was tried and why it's wrong, marked
+  "wrong, kept for history" (this file already does).
+- **Reference, don't duplicate.** If a doc already covers the topic, append a
+  dated entry to it instead of creating a near-duplicate; link `path:line`,
+  the parser module doc, or the upstream tool rather than restating it.
+- **AGENTS.md is the condensed layer.** It keeps only what an agent needs to
+  act on (conventions, commands, pointers). Detail lives in `docs/`; when a
+  finding changes daily-driver behavior, update the one-liner here and link
+  the doc that holds the detail.
+- **Binary layout specs live in the parser module docs** (offset tables kept
+  in sync with the code). `docs/formats/` holds the investigation narrative
+  around them — recon notes, cross-tool parity, open problems — linked both
+  ways when both exist.
+- **Keep the map true.** Adding or repurposing a docs file or folder means
+  updating `docs/README.md` (and that folder's README index) in the same
+  change. Root-level `findings.md` stays the run-metrics log for
+  recomp/decomp builds; new topical notes go to the folders.
 
 ## Goals & scope
 
@@ -290,6 +319,9 @@ xy-extraction/xy-battle/        # stub — stats / encounters / trainers (data n
 
 ### Conventions (enforced in review)
 
+- **Findings are written down.** Any durable discovery lands in `docs/` per
+  the Documentation duty — behavior changes merged without their doc entry
+  are incomplete work.
 - **Parsers return typed errors** (`xy_core::Error` via `thiserror`; the gfx
   crate wraps it with a png variant) and never `unwrap()`/`panic!` on bad
   input.
@@ -357,6 +389,9 @@ xy-extraction/xy-battle/        # stub — stats / encounters / trainers (data n
    output files. Print a one-line summary per file: `input -> output (params)`.
 4. Golden-file test in the owning crate's `tests/` if a real asset exists
    under `.Data/Raw_Extracted/` or `.Data/Source_Extracted/`.
+5. Log the findings: format quirks, dead ends, parity status go to the
+   matching `docs/` folder file (see Documentation duty) and the file gets
+   listed in that folder's README index.
 
 ## Format knowledge
 
