@@ -1,0 +1,44 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/xy-core",
+    "crates/xy-archive",
+    "crates/xy-audio",
+    "crates/xy-gfx",
+    "crates/xy-script",
+    "crates/xy-battle",
+    "crates/xy-curate",
+    "crates/xy-convert",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+authors = ["cyrixjd115"]
+
+# Unified `xy` CLI frontend (subcommand groups map 1:1 onto the crates above).
+[package]
+name = "xy"
+description = "Unified CLI for the Pokemon X/Y (kujira) decompilation toolkit"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+xy-core = { path = "crates/xy-core" }
+xy-archive = { path = "crates/xy-archive" }
+xy-audio = { path = "crates/xy-audio" }
+xy-gfx = { path = "crates/xy-gfx" }
+xy-script = { path = "crates/xy-script" }
+xy-battle = { path = "crates/xy-battle" }
+xy-curate = { path = "crates/xy-curate" }
+xy-convert = { path = "crates/xy-convert" }
+clap = { version = "4", features = ["derive"] }
+thiserror = "2"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true

@@ -1,0 +1,10 @@
+[package]
+name = "xy-script"
+description = "Script and text disassembly (planned: msg.garc, event scripts)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+xy-core = { path = "../xy-core" }

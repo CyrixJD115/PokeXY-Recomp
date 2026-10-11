@@ -1,0 +1,2030 @@
+[22:56:11] === DllHologramMail.bin ===
+    Label3dsSVCs.py: 4.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 2.1s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.8s :: (no output)
+    Set3dsTlsType.py: 0.8s :: (no output)
+[22:56:19] --- DllHologramMail.bin saved (8.6s total)
+[22:56:19] === DllTestKosaka.bin ===
+    Label3dsSVCs.py: 1.5s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.6s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.6s :: (no output)
+[22:56:22] --- DllTestKosaka.bin saved (3.1s total)
+[22:56:22] === DllTestIkeda.bin ===
+    Label3dsSVCs.py: 1.5s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.6s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[22:56:26] --- DllTestIkeda.bin saved (3.1s total)
+[22:56:26] === DllPssRuleSelect.bin ===
+    Label3dsSVCs.py: 1.2s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.6s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[22:56:28] --- DllPssRuleSelect.bin saved (2.7s total)
+[22:56:28] === DllTestNakahiro.bin ===
+    Label3dsSVCs.py: 1.2s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:56:31] --- DllTestNakahiro.bin saved (2.5s total)
+[22:56:31] === DllUSGymRock.bin ===
+    Label3dsSVCs.py: 1.2s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[22:56:34] --- DllUSGymRock.bin saved (2.6s total)
+[22:56:34] === DllWazaOmoidashi.bin ===
+    Label3dsSVCs.py: 1.1s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.9s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.6s :: (no output)
+    Set3dsTlsType.py: 0.6s :: (no output)
+[22:56:37] --- DllWazaOmoidashi.bin saved (3.3s total)
+[22:56:37] === DllTestMori.bin ===
+    Label3dsSVCs.py: 1.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.7s :: (no output)
+    Set3dsTlsType.py: 0.7s :: (no output)
+[22:56:41] --- DllTestMori.bin saved (3.7s total)
+[22:56:41] === DllStartMenu.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.6s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:56:43] --- DllStartMenu.bin saved (2.5s total)
+[22:56:43] === DllFieldEventPlayer.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.7s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[22:56:46] --- DllFieldEventPlayer.bin saved (2.5s total)
+[22:56:46] === DllBackGround.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.8s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:56:48] --- DllBackGround.bin saved (2.5s total)
+[22:56:48] === DllPssCharaMenu.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.7s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:56:51] --- DllPssCharaMenu.bin saved (2.3s total)
+[22:56:51] === DllUSC02.bin ===
+    Label3dsSVCs.py: 1.3s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.6s :: (no output)
+[22:56:54] --- DllUSC02.bin saved (2.9s total)
+[22:56:54] === DllPssAssistPower.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 1.2s :: (no output)
+    Set3dsTlsType.py: 0.7s :: (no output)
+[22:56:57] --- DllPssAssistPower.bin saved (3.3s total)
+[22:56:57] === DllSubScreenTutorial.bin ===
+    Label3dsSVCs.py: 1.6s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:57:00] --- DllSubScreenTutorial.bin saved (2.9s total)
+[22:57:00] === DllPssIconSelect.bin ===
+    Label3dsSVCs.py: 1.0s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.9s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[22:57:03] --- DllPssIconSelect.bin saved (2.9s total)
+[22:57:03] === DllTestIchiraku.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.8s :: (no output)
+    Set3dsTlsType.py: 0.7s :: (no output)
+[22:57:05] --- DllTestIchiraku.bin saved (2.7s total)
+[22:57:05] === DllReport.bin ===
+    Label3dsSVCs.py: 1.0s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.9s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[22:57:08] --- DllReport.bin saved (2.9s total)
+[22:57:08] === DllPokeList.bin ===
+    Label3dsSVCs.py: 0.7s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 1.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:57:11] --- DllPokeList.bin saved (2.9s total)
+[22:57:11] === DllPCMenu.bin ===
+    Label3dsSVCs.py: 1.2s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 1.1s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[22:57:14] --- DllPCMenu.bin saved (3.0s total)
+[22:57:14] === DllStatus.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 1.2s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[22:57:17] --- DllStatus.bin saved (2.7s total)
+[22:57:17] === DllGift.bin ===
+    Label3dsSVCs.py: 1.0s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.9s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[22:57:20] --- DllGift.bin saved (2.8s total)
+[22:57:20] === DllPoke3Select.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 1.0s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.6s :: (no output)
+[22:57:23] --- DllPoke3Select.bin saved (2.8s total)
+[22:57:23] === DllRandomTrade.bin ===
+    Label3dsSVCs.py: 0.7s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.8s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:57:25] --- DllRandomTrade.bin saved (2.4s total)
+[22:57:25] === DllWazaOboe.bin ===
+    Label3dsSVCs.py: 0.9s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.9s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:57:28] --- DllWazaOboe.bin saved (2.6s total)
+[22:57:28] === DllTrainingAppManager.bin ===
+    Label3dsSVCs.py: 1.3s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.6s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:57:31] --- DllTrainingAppManager.bin saved (2.7s total)
+[22:57:31] === DllNumberInput.bin ===
+    Label3dsSVCs.py: 0.6s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.6s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:57:33] --- DllNumberInput.bin saved (2.1s total)
+[22:57:33] === DllPssMainMenu.bin ===
+    Label3dsSVCs.py: 1.2s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:57:35] --- DllPssMainMenu.bin saved (2.6s total)
+[22:57:35] === DllTestNCL.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:57:37] --- DllTestNCL.bin saved (2.1s total)
+[22:57:37] === DllDendouPC.bin ===
+    Label3dsSVCs.py: 1.6s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.7s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:57:41] --- DllDendouPC.bin saved (3.2s total)
+[22:57:41] === DllTestAriizumi.bin ===
+    Label3dsSVCs.py: 2.4s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.6s :: (no output)
+[22:57:44] --- DllTestAriizumi.bin saved (3.7s total)
+[22:57:44] === DllDialogCommon.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.6s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.6s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[22:57:47] --- DllDialogCommon.bin saved (2.5s total)
+[22:57:47] === DllTestIshiguro.bin ===
+    Label3dsSVCs.py: 1.0s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:57:49] --- DllTestIshiguro.bin saved (2.4s total)
+[22:57:49] === DllSparring.bin ===
+    Label3dsSVCs.py: 0.6s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 1.7s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[22:57:52] --- DllSparring.bin saved (3.0s total)
+[22:57:52] === DllTrainerCase.bin ===
+    Label3dsSVCs.py: 1.0s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.7s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[22:57:55] --- DllTrainerCase.bin saved (2.5s total)
+[22:57:55] === DllUSBigFourDragon.bin ===
+    Label3dsSVCs.py: 0.9s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[22:57:57] --- DllUSBigFourDragon.bin saved (2.4s total)
+[22:57:57] === DllTestKawada.bin ===
+    Label3dsSVCs.py: 1.5s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.6s :: (no output)
+[22:58:00] --- DllTestKawada.bin saved (3.0s total)
+[22:58:00] === DllNuts.bin ===
+    Label3dsSVCs.py: 1.3s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 1.1s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[22:58:04] --- DllNuts.bin saved (3.5s total)
+[22:58:04] === DllGameSync.bin ===
+    Label3dsSVCs.py: 1.5s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[22:58:07] --- DllGameSync.bin saved (3.0s total)
+[22:58:07] === DllPssConfig.bin ===
+    Label3dsSVCs.py: 1.2s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 1.1s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:58:10] --- DllPssConfig.bin saved (3.1s total)
+[22:58:10] === DllUSGymEsper.bin ===
+    Label3dsSVCs.py: 1.1s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.7s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.6s :: (no output)
+[22:58:13] --- DllUSGymEsper.bin saved (2.8s total)
+[22:58:13] === DllGts.bin ===
+    Label3dsSVCs.py: 2.1s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 2.2s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[22:58:18] --- DllGts.bin saved (5.4s total)
+[22:58:18] === DllTrialDownload.bin ===
+    Label3dsSVCs.py: 1.2s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.9s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:58:21] --- DllTrialDownload.bin saved (2.9s total)
+[22:58:21] === DllPssFavorite.bin ===
+    Label3dsSVCs.py: 0.7s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.7s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[22:58:23] --- DllPssFavorite.bin saved (2.2s total)
+[22:58:23] === DllTestTomoya.bin ===
+    Label3dsSVCs.py: 0.7s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.3s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:58:25] --- DllTestTomoya.bin saved (1.9s total)
+[22:58:25] === DllPssPlaySelect.bin ===
+    Label3dsSVCs.py: 0.6s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[22:58:27] --- DllPssPlaySelect.bin saved (1.8s total)
+[22:58:27] === DllPuzzle.bin ===
+    Label3dsSVCs.py: 1.4s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 1.1s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[22:58:31] --- DllPuzzle.bin saved (3.3s total)
+[22:58:31] === DllFieldEventSkatePipe.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:58:33] --- DllFieldEventSkatePipe.bin saved (2.1s total)
+[22:58:33] === DllTownmap.bin ===
+    Label3dsSVCs.py: 1.0s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.9s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[22:58:35] --- DllTownmap.bin saved (2.6s total)
+[22:58:35] === DllUSKinomi.bin ===
+    Label3dsSVCs.py: 0.9s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:58:38] --- DllUSKinomi.bin saved (2.3s total)
+[22:58:38] === DllUSBigFourWater.bin ===
+    Label3dsSVCs.py: 0.7s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.6s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[22:58:40] --- DllUSBigFourWater.bin saved (2.1s total)
+[22:58:40] === DllEshop.bin ===
+    Label3dsSVCs.py: 0.9s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 1.6s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:58:43] --- DllEshop.bin saved (3.4s total)
+[22:58:43] === DllFriendEntry.bin ===
+    Label3dsSVCs.py: 0.9s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:58:46] --- DllFriendEntry.bin saved (2.2s total)
+[22:58:46] === DllUSBadgeCheckGate.bin ===
+    Label3dsSVCs.py: 0.9s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:58:48] --- DllUSBadgeCheckGate.bin saved (2.1s total)
+[22:58:48] === DllShinkaDemo.bin ===
+    Label3dsSVCs.py: 1.0s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:58:50] --- DllShinkaDemo.bin saved (2.4s total)
+[22:58:50] === DllFieldDemo.bin ===
+    Label3dsSVCs.py: 0.6s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:58:52] --- DllFieldDemo.bin saved (2.0s total)
+[22:58:52] === DllFieldEventSlopeSlip.bin ===
+    Label3dsSVCs.py: 0.9s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.6s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:58:54] --- DllFieldEventSlopeSlip.bin saved (2.3s total)
+[22:58:54] === DllUSPassage.bin ===
+    Label3dsSVCs.py: 0.7s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[22:58:56] --- DllUSPassage.bin saved (1.8s total)
+[22:58:56] === DllCaptureRegister.bin ===
+    Label3dsSVCs.py: 1.2s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 1.0s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:58:59] --- DllCaptureRegister.bin saved (3.1s total)
+[22:58:59] === DllZukan.bin ===
+    Label3dsSVCs.py: 0.9s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 2.7s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[22:59:04] --- DllZukan.bin saved (4.7s total)
+[22:59:04] === DllTestObata.bin ===
+    Label3dsSVCs.py: 1.1s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.3s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:59:06] --- DllTestObata.bin saved (2.2s total)
+[22:59:06] === DllTestTamada.bin ===
+    Label3dsSVCs.py: 1.2s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[22:59:09] --- DllTestTamada.bin saved (2.6s total)
+[22:59:09] === DllColosseum.bin ===
+    Label3dsSVCs.py: 1.7s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.9s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.6s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:59:12] --- DllColosseum.bin saved (3.6s total)
+[22:59:13] === DllTestHosaka.bin ===
+    Label3dsSVCs.py: 1.6s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.7s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[22:59:16] --- DllTestHosaka.bin saved (3.2s total)
+[22:59:16] === DllHeading.bin ===
+    Label3dsSVCs.py: 1.2s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 1.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.6s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:59:19] --- DllHeading.bin saved (3.6s total)
+[22:59:19] === DllUS3DDun.bin ===
+    Label3dsSVCs.py: 1.4s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.7s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.6s :: (no output)
+[22:59:22] --- DllUS3DDun.bin saved (3.0s total)
+[22:59:22] === DllCommWait.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.6s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[22:59:25] --- DllCommWait.bin saved (2.4s total)
+[22:59:25] === DllUSDynamo.bin ===
+    Label3dsSVCs.py: 1.4s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.7s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:59:28] --- DllUSDynamo.bin saved (2.9s total)
+[22:59:28] === DllKawaigari.bin ===
+    Label3dsSVCs.py: 1.3s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 3.6s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.6s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[22:59:34] --- DllKawaigari.bin saved (5.9s total)
+[22:59:34] === DllEggDemo.bin ===
+    Label3dsSVCs.py: 1.2s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.6s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.6s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[22:59:37] --- DllEggDemo.bin saved (2.9s total)
+[22:59:37] === DllFatalErrorProc.bin ===
+    Label3dsSVCs.py: 1.0s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[22:59:39] --- DllFatalErrorProc.bin saved (2.4s total)
+[22:59:39] === DllSparringMenu.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.8s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[22:59:42] --- DllSparringMenu.bin saved (2.4s total)
+[22:59:42] === DllTestOhno.bin ===
+    Label3dsSVCs.py: 0.6s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[22:59:44] --- DllTestOhno.bin saved (2.0s total)
+[22:59:44] === DllFieldDebug.bin ===
+    Label3dsSVCs.py: 1.0s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.3s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[22:59:46] --- DllFieldDebug.bin saved (2.3s total)
+[22:59:46] === DllLangSelect.bin ===
+    Label3dsSVCs.py: 0.7s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.8s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.6s :: (no output)
+    Set3dsTlsType.py: 0.6s :: (no output)
+[22:59:49] --- DllLangSelect.bin saved (2.8s total)
+[22:59:49] === DllUSBigFourFire.bin ===
+    Label3dsSVCs.py: 1.0s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.8s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:59:52] --- DllUSBigFourFire.bin saved (2.7s total)
+[22:59:52] === DllUSMirror.bin ===
+    Label3dsSVCs.py: 1.0s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.8s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[22:59:54] --- DllUSMirror.bin saved (2.7s total)
+[22:59:54] === DllUSPokecen.bin ===
+    Label3dsSVCs.py: 2.1s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[22:59:58] --- DllUSPokecen.bin saved (3.3s total)
+[22:59:58] === DllPokeViewer.bin ===
+    Label3dsSVCs.py: 0.6s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.6s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:00:00] --- DllPokeViewer.bin saved (2.2s total)
+[23:00:00] === DllSalon.bin ===
+    Label3dsSVCs.py: 1.5s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:00:02] --- DllSalon.bin saved (2.6s total)
+[23:00:03] === DllTestNagihashi.bin ===
+    Label3dsSVCs.py: 0.9s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:00:05] --- DllTestNagihashi.bin saved (2.2s total)
+[23:00:05] === DllTrialHouseResult.bin ===
+    Label3dsSVCs.py: 0.5s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:00:06] --- DllTrialHouseResult.bin saved (1.7s total)
+[23:00:06] === DllTestIkuta.bin ===
+    Label3dsSVCs.py: 0.6s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.3s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:00:08] --- DllTestIkuta.bin saved (1.7s total)
+[23:00:08] === DllBattleVideoSave.bin ===
+    Label3dsSVCs.py: 1.1s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.7s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.6s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:00:11] --- DllBattleVideoSave.bin saved (2.8s total)
+[23:00:11] === DllConfig.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 1.0s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.6s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:00:14] --- DllConfig.bin saved (2.8s total)
+[23:00:14] === code.bin ===
+Bookmarked svcGetCurrentProcessorNumber at 00575e3b
+Bookmarked svcReleaseMutex at 0056c26d
+Bookmarked svcStopPoint at 00560719
+Bookmarked svcStopPoint at 00560211
+Bookmarked svcControlMemory at 0053e53d
+Bookmarked svcGetSystemTick at 004f27b0
+Bookmarked svcGetSystemTick at 004f278c
+Bookmarked svcGetSystemTick at 004f26fc
+Bookmarked svcGetSystemTick at 004f26d0
+Bookmarked svcGetSystemTick at 004f1ee4
+Bookmarked svcGetSystemTick at 004f1560
+Bookmarked svcGetSystemTick at 00435eec
+Bookmarked svcGetSystemTick at 00435df8
+Bookmarked svcGetSystemTick at 0041f218
+Bookmarked svcGetSystemTick at 0041ef70
+Bookmarked svcCloseHandle at 0040f43c
+Bookmarked svcCloseHandle at 0040f3fc
+Bookmarked svcGetSystemTick at 0040f2d0
+Bookmarked svcGetSystemTick at 0040f118
+Bookmarked svcCloseHandle at 0040ef88
+Bookmarked svcCloseHandle at 0040ef48
+Bookmarked svcWaitSynchronization1 at 0040c3c4
+Bookmarked svcWaitSynchronization1 at 0040c2b8
+Bookmarked svcCloseHandle at 0040c23c
+Bookmarked svcCloseHandle at 0040c20c
+Bookmarked svcCloseHandle at 0040c1d0
+Bookmarked svcCloseHandle at 0040c15c
+Bookmarked svcCloseHandle at 0040c120
+Bookmarked svcCloseHandle at 0040c0d4
+Bookmarked svcCloseHandle at 0040bfb8
+Bookmarked svcClearEvent at 0040b1d8
+Bookmarked svcClearEvent at 0040b0d8
+Bookmarked svcCloseHandle at 0040afb4
+Bookmarked svcCloseHandle at 0040af28
+Bookmarked svcClearEvent at 0040ae94
+Bookmarked svcGetSystemTick at 0040a1d8
+Bookmarked svcGetSystemTick at 0040a0f8
+Bookmarked svcCloseHandle at 00408e4c
+Bookmarked svcCloseHandle at 00408e38
+Bookmarked svcCloseHandle at 00408e24
+Bookmarked svcCloseHandle at 003fce80
+Bookmarked svcCloseHandle at 003fce6c
+Bookmarked svcCloseHandle at 003fce58
+Bookmarked svcCloseHandle at 003fce20
+Bookmarked svcCloseHandle at 003fce0c
+Bookmarked svcCloseHandle at 003fcdf8
+Bookmarked svcClearEvent at 003fcb7c
+Bookmarked svcClearEvent at 003fcab4
+Bookmarked svcClearEvent at 003fc9f0
+Bookmarked svcClearEvent at 003fc994
+Bookmarked svcClearEvent at 003fc91c
+Bookmarked svcGetSystemTick at 003fbbc0
+Bookmarked svcCloseHandle at 003f8bf8
+Bookmarked svcCloseHandle at 003f8bdc
+Bookmarked svcCloseHandle at 003f8bbc
+Bookmarked svcCloseHandle at 003f8ba4
+Bookmarked svcCloseHandle at 003f85f8
+Bookmarked svcCloseHandle at 003f85e4
+Bookmarked svcCloseHandle at 003f8500
+Bookmarked svcWaitSynchronization1 at 003f84d0
+Bookmarked svcWaitSynchronization1 at 003f83c0
+Bookmarked svcCancelTimer at 003f8360
+Bookmarked svcWaitSynchronization1 at 003f8338
+Bookmarked svcSignalEvent at 003f82b8
+Bookmarked svcWaitSynchronization1 at 003f811c
+Bookmarked svcWaitSynchronization1 at 003f805c
+Bookmarked svcSignalEvent at 003f7e04
+Bookmarked svcClearEvent at 003f7a98
+Bookmarked svcClearEvent at 003f7a3c
+Bookmarked svcGetSystemTick at 003ad6e4
+Bookmarked svcGetSystemTick at 003ad5c0
+Bookmarked svcGetSystemTick at 003a5198
+Bookmarked svcCloseHandle at 003a3ecc
+Bookmarked svcCloseHandle at 003a3ea4
+Bookmarked svcWaitSynchronization1 at 003a3e68
+Bookmarked svcWaitSynchronization1 at 003a3b54
+Bookmarked svcSetThreadPriority at 003a387c
+Bookmarked svcSetThreadPriority at 003a385c
+Bookmarked svcCloseHandle at 003a33ac
+Bookmarked svcCloseHandle at 003a336c
+Bookmarked svcReleaseMutex at 003a32e4
+Bookmarked svcWaitSynchronization1 at 003a32c4
+Bookmarked svcCloseHandle at 003a3298
+Bookmarked svcCloseHandle at 003a3254
+Bookmarked svcSignalEvent at 003a321c
+Bookmarked svcCloseHandle at 00395824
+Bookmarked svcCloseHandle at 00395810
+Bookmarked svcCloseHandle at 003957fc
+Bookmarked svcCloseHandle at 003957e4
+Bookmarked svcCloseHandle at 003957a0
+Bookmarked svcCloseHandle at 0039578c
+Bookmarked svcCloseHandle at 00395778
+Bookmarked svcCloseHandle at 00395760
+Bookmarked svcSignalEvent at 00395508
+Bookmarked svcWaitSynchronization1 at 00395478
+Bookmarked svcWaitSynchronization1 at 00395304
+Bookmarked svcCloseHandle at 003951e0
+Bookmarked svcCloseHandle at 003947c0
+Bookmarked svcCloseHandle at 003947ac
+Bookmarked svcCloseHandle at 00394798
+Bookmarked svcCloseHandle at 00394784
+Bookmarked svcCloseHandle at 00394770
+Bookmarked svcCloseHandle at 0039475c
+Bookmarked svcCloseHandle at 0039473c
+Bookmarked svcCloseHandle at 00394724
+Bookmarked svcCloseHandle at 0039470c
+Bookmarked svcCloseHandle at 003946f4
+Bookmarked svcCloseHandle at 003946dc
+Bookmarked svcCloseHandle at 003946c4
+Bookmarked svcCloseHandle at 003946ac
+Bookmarked svcSignalEvent at 0039457c
+Bookmarked svcSignalEvent at 00394480
+Bookmarked svcSignalEvent at 00393f28
+Bookmarked svcSignalEvent at 00393e8c
+Bookmarked svcSignalEvent at 00393e54
+Bookmarked svcSignalEvent at 00393e24
+Bookmarked svcCloseHandle at 003907bc
+Bookmarked svcCloseHandle at 00390764
+Bookmarked svcWaitSynchronization1 at 00390738
+Bookmarked svcGetSystemTick at 0034e898
+Bookmarked svcCloseHandle at 002d18ac
+Bookmarked svcSendSyncRequest at 002d1818
+Bookmarked svcSendSyncRequest at 002d17a4
+Bookmarked svcSendSyncRequest at 002d1714
+Bookmarked svcSendSyncRequest at 002d16c8
+Bookmarked svcSendSyncRequest at 002d1640
+Bookmarked svcSendSyncRequest at 002d15f0
+Bookmarked svcSendSyncRequest at 002d15bc
+Bookmarked svcSendSyncRequest at 002d1584
+Bookmarked svcSendSyncRequest at 002d1520
+Bookmarked svcSendSyncRequest at 002d14d0
+Bookmarked svcSendSyncRequest at 002d1434
+Bookmarked svcSendSyncRequest at 002d13ec
+Bookmarked svcSendSyncRequest at 002d13a0
+Bookmarked svcSendSyncRequest at 002d135c
+Bookmarked svcSendSyncRequest at 002cee60
+Bookmarked svcSendSyncRequest at 002cee28
+Bookmarked svcSendSyncRequest at 002cede0
+Bookmarked svcSendSyncRequest at 002ced60
+Bookmarked svcSendSyncRequest at 002ced00
+Bookmarked svcSendSyncRequest at 002cecb4
+Bookmarked svcSendSyncRequest at 002cec30
+Bookmarked svcSendSyncRequest at 002cebe4
+Bookmarked svcSendSyncRequest at 002ceb9c
+Bookmarked svcSendSyncRequest at 002ceb14
+Bookmarked svcSendSyncRequest at 002ceab4
+Bookmarked svcSendSyncRequest at 002cea28
+Bookmarked svcSendSyncRequest at 002ce998
+Bookmarked svcSendSyncRequest at 002ce910
+Bookmarked svcSendSyncRequest at 002ce8a8
+Bookmarked svcCloseHandle at 002cd980
+Bookmarked svcSendSyncRequest at 002ccef0
+Bookmarked svcCloseHandle at 002ccd8c
+Bookmarked svcSendSyncRequest at 002ca490
+Bookmarked svcSendSyncRequest at 002ca440
+Bookmarked svcSendSyncRequest at 002ca3f0
+Bookmarked svcSendSyncRequest at 002ca398
+Bookmarked svcSendSyncRequest at 002ca354
+Bookmarked svcSendSyncRequest at 002ca310
+Bookmarked svcSendSyncRequest at 002ca2cc
+Bookmarked svcSendSyncRequest at 002ca26c
+Bookmarked svcSendSyncRequest at 002ca204
+Bookmarked svcSendSyncRequest at 002ca1c0
+Bookmarked svcSendSyncRequest at 002ca160
+Bookmarked svcSendSyncRequest at 002ca118
+Bookmarked svcSendSyncRequest at 002ca0d0
+Bookmarked svcSendSyncRequest at 002ca078
+Bookmarked svcSendSyncRequest at 002ca01c
+Bookmarked svcSendSyncRequest at 002c9fe0
+Bookmarked svcSendSyncRequest at 002c9fa8
+Bookmarked svcSendSyncRequest at 002c9f60
+Bookmarked svcSendSyncRequest at 002c9f18
+Bookmarked svcSendSyncRequest at 002c9ed8
+Bookmarked svcSendSyncRequest at 002c9ea4
+Bookmarked svcSendSyncRequest at 002c9e64
+Bookmarked svcSendSyncRequest at 002c9e14
+Bookmarked svcSendSyncRequest at 002c9db4
+Bookmarked svcSendSyncRequest at 002c9d6c
+Bookmarked svcSendSyncRequest at 002c9d28
+Bookmarked svcSendSyncRequest at 002c9ce8
+Bookmarked svcSendSyncRequest at 002c9ca0
+Bookmarked svcSendSyncRequest at 002c9c58
+Bookmarked svcSendSyncRequest at 002c9c08
+Bookmarked svcSendSyncRequest at 002c9bb4
+Bookmarked svcSendSyncRequest at 002c9b6c
+Bookmarked svcCloseHandle at 002c9abc
+Bookmarked svcCloseHandle at 002c99b8
+Bookmarked svcCloseHandle at 002c95bc
+Bookmarked svcCloseHandle at 002c957c
+Bookmarked svcCloseHandle at 002c9548
+Bookmarked svcCloseHandle at 002c9504
+Bookmarked svcCloseHandle at 002c93d0
+Bookmarked svcCloseHandle at 002c925c
+Bookmarked svcSendSyncRequest at 002c9074
+Bookmarked svcClearEvent at 002c8ec8
+Bookmarked svcWaitSynchronization1 at 002c8eb0
+Bookmarked svcCloseHandle at 002c8e2c
+Bookmarked svcCloseHandle at 002c89c0
+Bookmarked svcCloseHandle at 002c8628
+Bookmarked svcSendSyncRequest at 002c7fac
+Bookmarked svcCloseHandle at 002b8874
+Bookmarked svcCloseHandle at 002b8850
+Bookmarked svcCloseHandle at 002b8818
+Bookmarked svcCloseHandle at 002b87f8
+Bookmarked svcSendSyncRequest at 002b87bc
+Bookmarked svcSendSyncRequest at 002b8778
+Bookmarked svcSendSyncRequest at 002b8730
+Bookmarked svcSendSyncRequest at 002b86f4
+Bookmarked svcSendSyncRequest at 002b86bc
+Bookmarked svcSendSyncRequest at 002b8688
+Bookmarked svcSendSyncRequest at 002b8650
+Bookmarked svcSendSyncRequest at 002b8614
+Bookmarked svcSendSyncRequest at 002b85d0
+Bookmarked svcSendSyncRequest at 002b8598
+Bookmarked svcSendSyncRequest at 002b8568
+Bookmarked svcSendSyncRequest at 002b8534
+Bookmarked svcSendSyncRequest at 002b8504
+Bookmarked svcSendSyncRequest at 002b8498
+Bookmarked svcSendSyncRequest at 002b844c
+Bookmarked svcSendSyncRequest at 002b841c
+Bookmarked svcSendSyncRequest at 002b83bc
+Bookmarked svcSendSyncRequest at 002b838c
+Bookmarked svcSendSyncRequest at 002b8340
+Bookmarked svcSendSyncRequest at 002b82dc
+Bookmarked svcSendSyncRequest at 002b8298
+Bookmarked svcSendSyncRequest at 002b8230
+Bookmarked svcCloseHandle at 002b81d8
+Bookmarked svcCloseHandle at 002b8178
+Bookmarked svcCloseHandle at 002b80b0
+Bookmarked svcCloseHandle at 002b7d34
+Bookmarked svcCloseHandle at 002b6c74
+Bookmarked svcGetSystemTick at 002b6bc8
+Bookmarked svcCloseHandle at 002b6bb4
+Bookmarked svcWaitSynchronization1 at 002b6b18
+Bookmarked svcGetSystemTick at 002b6a2c
+Bookmarked svcCloseHandle at 002b6750
+Bookmarked svcWaitSynchronization1 at 002b66d0
+Bookmarked svcSendSyncRequest at 002b6598
+Bookmarked svcSendSyncRequest at 002b6538
+Bookmarked svcSendSyncRequest at 002b64e8
+Bookmarked svcSendSyncRequest at 002b64a0
+Bookmarked svcSendSyncRequest at 002b6458
+Bookmarked svcSendSyncRequest at 002b6424
+Bookmarked svcSendSyncRequest at 002b63d4
+Bookmarked svcSendSyncRequest at 002b6390
+Bookmarked svcSendSyncRequest at 002b634c
+Bookmarked svcSendSyncRequest at 002b62f8
+Bookmarked svcSendSyncRequest at 002b62a8
+Bookmarked svcSendSyncRequest at 002b6254
+Bookmarked svcSendSyncRequest at 002b61e8
+Bookmarked svcSendSyncRequest at 002b61a4
+Bookmarked svcSendSyncRequest at 002b6178
+Bookmarked svcSendSyncRequest at 002b6120
+Bookmarked svcSendSyncRequest at 002b60d4
+Bookmarked svcSendSyncRequest at 002b606c
+Bookmarked svcSendSyncRequest at 002b6014
+Bookmarked svcSendSyncRequest at 002b5fbc
+Bookmarked svcSendSyncRequest at 002b5f80
+Bookmarked svcSendSyncRequest at 002b5f28
+Bookmarked svcSendSyncRequest at 002b5ed4
+Bookmarked svcSendSyncRequest at 002b4e0c
+Bookmarked svcSendSyncRequest at 002b4da0
+Bookmarked svcSendSyncRequest at 002b4d40
+Bookmarked svcSendSyncRequest at 002b4cf0
+Bookmarked svcSendSyncRequest at 002b4ca0
+Bookmarked svcSendSyncRequest at 002b4c34
+Bookmarked svcSendSyncRequest at 002b4bec
+Bookmarked svcSendSyncRequest at 002b4bb8
+Bookmarked svcSendSyncRequest at 002b4b68
+Bookmarked svcSendSyncRequest at 002b4b24
+Bookmarked svcSendSyncRequest at 002b4ae0
+Bookmarked svcSendSyncRequest at 002b4a8c
+Bookmarked svcSendSyncRequest at 002b4a3c
+Bookmarked svcSendSyncRequest at 002b49e8
+Bookmarked svcSendSyncRequest at 002b497c
+Bookmarked svcSendSyncRequest at 002b4938
+Bookmarked svcSendSyncRequest at 002b490c
+Bookmarked svcSendSyncRequest at 002b48b4
+Bookmarked svcSendSyncRequest at 002b4868
+Bookmarked svcSendSyncRequest at 002b4800
+Bookmarked svcSendSyncRequest at 002b47a8
+Bookmarked svcSendSyncRequest at 002b4750
+Bookmarked svcSendSyncRequest at 002b4714
+Bookmarked svcSendSyncRequest at 002b46bc
+Bookmarked svcSendSyncRequest at 002b4668
+Bookmarked svcCloseHandle at 002b462c
+Bookmarked svcCloseHandle at 002b4614
+Bookmarked svcCloseHandle at 002b4600
+Bookmarked svcCloseHandle at 002b45c8
+Bookmarked svcCloseHandle at 002b45b0
+Bookmarked svcCloseHandle at 002b459c
+Bookmarked svcSendSyncRequest at 002b21b4
+Bookmarked svcSendSyncRequest at 002b2178
+Bookmarked svcSendSyncRequest at 002b213c
+Bookmarked svcSendSyncRequest at 002b20fc
+Bookmarked svcSendSyncRequest at 002b20c0
+Bookmarked svcSendSyncRequest at 002b2084
+Bookmarked svcSendSyncRequest at 002b204c
+Bookmarked svcSendSyncRequest at 002b2010
+Bookmarked svcSendSyncRequest at 002b1fd0
+Bookmarked svcSendSyncRequest at 002b1f9c
+Bookmarked svcSendSyncRequest at 002b1f6c
+Bookmarked svcSendSyncRequest at 002b1f38
+Bookmarked svcSendSyncRequest at 002b1f00
+Bookmarked svcSendSyncRequest at 002b1ecc
+Bookmarked svcSendSyncRequest at 002b1e94
+Bookmarked svcSendSyncRequest at 002b1e5c
+Bookmarked svcSendSyncRequest at 002b1e04
+Bookmarked svcSendSyncRequest at 002b1dc4
+Bookmarked svcSendSyncRequest at 002b1d68
+Bookmarked svcSendSyncRequest at 002b1d0c
+Bookmarked svcSendSyncRequest at 002b1cb0
+Bookmarked svcSendSyncRequest at 002b1c58
+Bookmarked svcCloseHandle at 002b1b7c
+Bookmarked svcCloseHandle at 002b19c4
+Bookmarked svcCloseHandle at 002b1898
+Bookmarked svcCloseHandle at 002b176c
+Bookmarked svcSendSyncRequest at 002b1730
+Bookmarked svcSendSyncRequest at 002b16a4
+Bookmarked svcSendSyncRequest at 002b1664
+Bookmarked svcSendSyncRequest at 002b162c
+Bookmarked svcSendSyncRequest at 002b15b4
+Bookmarked svcSendSyncRequest at 002b156c
+Bookmarked svcSendSyncRequest at 002b1530
+Bookmarked svcSendSyncRequest at 002b14c4
+Bookmarked svcSendSyncRequest at 002b1484
+Bookmarked svcSendSyncRequest at 002b1430
+Bookmarked svcSendSyncRequest at 002b13ac
+Bookmarked svcSendSyncRequest at 002b137c
+Bookmarked svcSendSyncRequest at 002b1320
+Bookmarked svcSendSyncRequest at 002b12dc
+Bookmarked svcSendSyncRequest at 002b128c
+Bookmarked svcSendSyncRequest at 002b1260
+Bookmarked svcSendSyncRequest at 002b11e0
+Bookmarked svcSendSyncRequest at 002b1188
+Bookmarked svcSendSyncRequest at 002b1158
+Bookmarked svcSendSyncRequest at 002b1104
+Bookmarked svcSendSyncRequest at 002b10bc
+Bookmarked svcSendSyncRequest at 002b1060
+Bookmarked svcCloseHandle at 002b0f28
+Bookmarked svcCloseHandle at 002b0c90
+Bookmarked svcCloseHandle at 002b0b74
+Bookmarked svcCloseHandle at 002b0b58
+Bookmarked svcCloseHandle at 002b08dc
+Bookmarked svcCloseHandle at 002b08c4
+Bookmarked svcCloseHandle at 002b089c
+Bookmarked svcCloseHandle at 002b0874
+Bookmarked svcWaitSynchronization1 at 002af698
+Bookmarked svcCloseHandle at 002af288
+Bookmarked svcCloseHandle at 002af1c0
+Bookmarked svcCloseHandle at 002af188
+Bookmarked svcSendSyncRequest at 002af150
+Bookmarked svcSendSyncRequest at 002af11c
+Bookmarked svcSendSyncRequest at 002af0e0
+Bookmarked svcCloseHandle at 002af098
+Bookmarked svcCloseHandle at 002aef94
+Bookmarked svcCloseHandle at 002aed80
+Bookmarked svcCloseHandle at 002aed6c
+Bookmarked svcGetSystemTick at 002ae5bc
+Bookmarked svcCloseHandle at 002ad5cc
+Bookmarked svcCloseHandle at 002ad5b8
+Bookmarked svcGetSystemTick at 002abf1c
+Bookmarked svcWaitSynchronization1 at 002aa7a8
+Bookmarked svcCloseHandle at 002aa754
+Bookmarked svcWaitSynchronization1 at 002aa71c
+Bookmarked svcSignalEvent at 002aa6f8
+Bookmarked svcGetSystemTick at 002a9998
+Bookmarked svcWaitSynchronization1 at 002a8aa8
+Bookmarked svcCloseHandle at 002a8a1c
+Bookmarked svcCloseHandle at 002a89c4
+Bookmarked svcSignalEvent at 002a86c8
+Bookmarked svcSetThreadPriority at 0027d708
+Bookmarked svcSetThreadPriority at 0027d6cc
+Bookmarked svcSetThreadPriority at 00265e10
+Bookmarked svcCloseHandle at 0023f5c0
+Bookmarked svcWaitSynchronization1 at 0023f4d4
+Bookmarked svcCloseHandle at 0023a3b8
+Bookmarked svcWaitSynchronization1 at 0023a36c
+Bookmarked svcCloseHandle at 0023a1e8
+Bookmarked svcWaitSynchronization1 at 0023a1b0
+Bookmarked svcCloseHandle at 0023a0e0
+Bookmarked svcWaitSynchronization1 at 0023a0a8
+Bookmarked svcSetThreadPriority at 0022db8c
+Bookmarked svcCloseHandle at 001f3ecc
+Bookmarked svcCloseHandle at 001f3eb4
+Bookmarked svcCloseHandle at 001f3e64
+Bookmarked svcCloseHandle at 001f3e48
+Bookmarked svcWaitSynchronization1 at 001f3b30
+Bookmarked svcWaitSynchronization1 at 001f38c8
+Bookmarked svcClearEvent at 001f3474
+Bookmarked svcCloseHandle at 001f3420
+Bookmarked svcSendSyncRequest at 001ef9dc
+Bookmarked svcSendSyncRequest at 001ef9a4
+Bookmarked svcSendSyncRequest at 001ef95c
+Bookmarked svcSendSyncRequest at 001ef924
+Bookmarked svcSendSyncRequest at 001ef8e8
+Bookmarked svcSendSyncRequest at 001ef778
+Bookmarked svcSendSyncRequest at 001ef734
+Bookmarked svcSendSyncRequest at 001ef6f8
+Bookmarked svcSendSyncRequest at 001ef6c0
+Bookmarked svcSendSyncRequest at 001ef678
+Bookmarked svcSendSyncRequest at 001ef630
+Bookmarked svcSendSyncRequest at 001ef5e4
+Bookmarked svcSendSyncRequest at 001ef5ac
+Bookmarked svcSendSyncRequest at 001ef568
+Bookmarked svcSendSyncRequest at 001ef534
+Bookmarked svcCloseHandle at 001ef1a4
+Bookmarked svcCloseHandle at 001ef178
+Bookmarked svcSendSyncRequest at 001ef128
+Bookmarked svcSendSyncRequest at 001ef0cc
+Bookmarked svcSendSyncRequest at 001ef098
+Bookmarked svcSendSyncRequest at 001ef068
+Bookmarked svcSendSyncRequest at 001ef038
+Bookmarked svcSendSyncRequest at 001ef008
+Bookmarked svcGetSystemTick at 001ee20c
+Bookmarked svcGetSystemTick at 001eda5c
+Bookmarked svcCloseHandle at 001ecbcc
+Bookmarked svcCloseHandle at 001ecbb8
+Bookmarked svcCloseHandle at 001ecba0
+Bookmarked svcCloseHandle at 001ecb84
+Bookmarked svcCloseHandle at 001ecb6c
+Bookmarked svcCloseHandle at 001ecb54
+Bookmarked svcCloseHandle at 001ec3c0
+Bookmarked svcSendSyncRequest at 001ec384
+Bookmarked svcSendSyncRequest at 001eb214
+Bookmarked svcSendSyncRequest at 001eb1b8
+Bookmarked svcSendSyncRequest at 001eb16c
+Bookmarked svcSendSyncRequest at 001eb114
+Bookmarked svcSendSyncRequest at 001eb0cc
+Bookmarked svcSendSyncRequest at 001eb094
+Bookmarked svcSendSyncRequest at 001eb054
+Bookmarked svcSendSyncRequest at 001eb004
+Bookmarked svcSendSyncRequest at 001eafb8
+Bookmarked svcSendSyncRequest at 001eaf78
+Bookmarked svcSendSyncRequest at 001eaef0
+Bookmarked svcSendSyncRequest at 001eae6c
+Bookmarked svcSendSyncRequest at 001eae0c
+Bookmarked svcSendSyncRequest at 001eada0
+Bookmarked svcSendSyncRequest at 001ead30
+Bookmarked svcSendSyncRequest at 001eacec
+Bookmarked svcSendSyncRequest at 001eab4c
+Bookmarked svcSendSyncRequest at 001eaaf0
+Bookmarked svcSendSyncRequest at 001eaaa4
+Bookmarked svcSendSyncRequest at 001eaa4c
+Bookmarked svcSendSyncRequest at 001eaa04
+Bookmarked svcSendSyncRequest at 001ea9cc
+Bookmarked svcSendSyncRequest at 001ea98c
+Bookmarked svcSendSyncRequest at 001ea93c
+Bookmarked svcSendSyncRequest at 001ea8f0
+Bookmarked svcSendSyncRequest at 001ea8b0
+Bookmarked svcSendSyncRequest at 001ea828
+Bookmarked svcSendSyncRequest at 001ea7a4
+Bookmarked svcSendSyncRequest at 001ea744
+Bookmarked svcSendSyncRequest at 001ea6d8
+Bookmarked svcSendSyncRequest at 001ea668
+Bookmarked svcSendSyncRequest at 001ea624
+Bookmarked svcWaitSynchronization1 at 001e7cbc
+Bookmarked svcSendSyncRequest at 001e7698
+Bookmarked svcCloseHandle at 001e72f8
+Bookmarked svcCloseHandle at 001e7204
+Bookmarked svcCloseHandle at 001e71d8
+Bookmarked svcCloseHandle at 001e71b0
+Bookmarked svcCloseHandle at 001e717c
+Bookmarked svcCloseHandle at 001e710c
+Bookmarked svcCloseHandle at 001e70f4
+Bookmarked svcCloseHandle at 001e70ac
+Bookmarked svcCloseHandle at 001e7090
+Bookmarked svcWaitSynchronization1 at 001e6f90
+Bookmarked svcCloseHandle at 001e6e48
+Bookmarked svcCloseHandle at 001e6e04
+Bookmarked svcCloseHandle at 001e6dc4
+Bookmarked svcCloseHandle at 001e6d8c
+Bookmarked svcCloseHandle at 001e6ba0
+Bookmarked svcWaitSynchronization1 at 001e69cc
+Bookmarked svcCloseHandle at 001e68b8
+Bookmarked svcSendSyncRequest at 001e66dc
+Bookmarked svcSendSyncRequest at 001e6684
+Bookmarked svcSendSyncRequest at 001e6640
+Bookmarked svcSendSyncRequest at 001e65ec
+Bookmarked svcSendSyncRequest at 001e65a8
+Bookmarked svcSendSyncRequest at 001e6550
+Bookmarked svcSendSyncRequest at 001e651c
+Bookmarked svcSendSyncRequest at 001e64e4
+Bookmarked svcSendSyncRequest at 001e64ac
+Bookmarked svcSendSyncRequest at 001e6460
+Bookmarked svcSendSyncRequest at 001e6414
+Bookmarked svcSendSyncRequest at 001e63dc
+Bookmarked svcSendSyncRequest at 001e63a8
+Bookmarked svcCloseHandle at 001e5f54
+Bookmarked svcCloseHandle at 001e5a7c
+Bookmarked svcCloseHandle at 001e5968
+Bookmarked svcGetSystemTick at 001e5444
+Bookmarked svcWaitSynchronization1 at 001e5228
+Bookmarked svcClearEvent at 001e51f0
+Bookmarked svcWaitSynchronization1 at 001e51b8
+Bookmarked svcCloseHandle at 001e519c
+Bookmarked svcClearEvent at 001e5160
+Bookmarked svcGetSystemTick at 001e50a8
+Bookmarked svcWaitSynchronization1 at 001e5004
+Bookmarked svcGetSystemTick at 001e4f6c
+Bookmarked svcCloseHandle at 001e4eac
+Bookmarked svcWaitSynchronization1 at 001e4e40
+Bookmarked svcClearEvent at 001e4e28
+Bookmarked svcCloseHandle at 001e4c58
+Bookmarked svcSendSyncRequest at 001e301c
+Bookmarked svcSendSyncRequest at 001e2fe8
+Bookmarked svcSendSyncRequest at 001e2f9c
+Bookmarked svcSendSyncRequest at 001e2f64
+Bookmarked svcSendSyncRequest at 001e2f34
+Bookmarked svcSendSyncRequest at 001e2efc
+Bookmarked svcSendSyncRequest at 001e2ec4
+Bookmarked svcSendSyncRequest at 001e2e78
+Bookmarked svcSendSyncRequest at 001e2e20
+Bookmarked svcSendSyncRequest at 001e2dec
+Bookmarked svcSendSyncRequest at 001e2d94
+Bookmarked svcSendSyncRequest at 001e2d64
+Bookmarked svcSendSyncRequest at 001e2d2c
+Bookmarked svcSendSyncRequest at 001e2ce0
+Bookmarked svcSendSyncRequest at 001e2ca8
+Bookmarked svcSendSyncRequest at 001e2c24
+Bookmarked svcSendSyncRequest at 001e2be4
+Bookmarked svcSendSyncRequest at 001e2b78
+Bookmarked svcSendSyncRequest at 001e2b28
+Bookmarked svcSendSyncRequest at 001e2ad8
+Bookmarked svcSendSyncRequest at 001e2a98
+Bookmarked svcSendSyncRequest at 001e2a64
+Bookmarked svcSendSyncRequest at 001e2a28
+Bookmarked svcSendSyncRequest at 001e29cc
+Bookmarked svcSendSyncRequest at 001e293c
+Bookmarked svcSendSyncRequest at 001e28ec
+Bookmarked svcSendSyncRequest at 001e2890
+Bookmarked svcSendSyncRequest at 001e2858
+Bookmarked svcSendSyncRequest at 001e2828
+Bookmarked svcSendSyncRequest at 001e27d0
+Bookmarked svcSendSyncRequest at 001e275c
+Bookmarked svcSendSyncRequest at 001e26e0
+Bookmarked svcSendSyncRequest at 001e266c
+Bookmarked svcSendSyncRequest at 001e2638
+Bookmarked svcSendSyncRequest at 001e25fc
+Bookmarked svcSendSyncRequest at 001e25a8
+Bookmarked svcSendSyncRequest at 001e2518
+Bookmarked svcSendSyncRequest at 001e24c8
+Bookmarked svcCloseHandle at 001e2174
+Bookmarked svcCloseHandle at 001e2078
+Bookmarked svcCloseHandle at 001e204c
+Bookmarked svcCloseHandle at 001e1f24
+Bookmarked svcCloseHandle at 001e1e70
+Bookmarked svcCloseHandle at 001e1e44
+Bookmarked svcCloseHandle at 001e1958
+Bookmarked svcSendSyncRequest at 001dcf40
+Bookmarked svcSendSyncRequest at 001dcee0
+Bookmarked svcSendSyncRequest at 001dce8c
+Bookmarked svcSendSyncRequest at 001dce24
+Bookmarked svcSendSyncRequest at 001dcde8
+Bookmarked svcSendSyncRequest at 001dcd9c
+Bookmarked svcSendSyncRequest at 001dcd50
+Bookmarked svcSendSyncRequest at 001dcd0c
+Bookmarked svcSendSyncRequest at 001dccc0
+Bookmarked svcSendSyncRequest at 001dcc54
+Bookmarked svcSendSyncRequest at 001dcbf8
+Bookmarked svcCloseHandle at 001dc9e0
+Bookmarked svcWaitSynchronization1 at 001dc9c4
+Bookmarked svcCloseHandle at 001dc98c
+Bookmarked svcGetSystemTick at 001d3758
+Bookmarked svcGetSystemTick at 001cd460
+Bookmarked svcGetSystemTick at 001cbd10
+Bookmarked svcGetSystemTick at 001cb354
+Bookmarked svcGetSystemTick at 001cab50
+Bookmarked svcWaitSynchronization1 at 0019a6dc
+Bookmarked svcSignalEvent at 0019a608
+Bookmarked svcSetTimer at 0019a5fc
+Bookmarked svcOutputDebugString at 0019a5e8
+Bookmarked svcGetThreadPriority at 0019a5d4
+Bookmarked svcGetHandleInfo at 0019a5b8
+Bookmarked svcDuplicateHandle at 0019a5a0
+Bookmarked svcCreateTimer at 0019a588
+Bookmarked svcCloseHandle at 0019a57c
+Bookmarked svcClearEvent at 0019a574
+Bookmarked svcWaitSynchronization1 at 00199cec
+Bookmarked svcSendSyncRequest at 00193610
+Bookmarked svcSetThreadPriority at 0018cca8
+Bookmarked svcCloseHandle at 0018cc28
+Bookmarked svcCloseHandle at 0018b6cc
+Bookmarked svcClearEvent at 0018b5cc
+Bookmarked svcWaitSynchronization1 at 0018b5bc
+Bookmarked svcClearEvent at 0018b564
+Bookmarked svcWaitSynchronization1 at 0018b53c
+Bookmarked svcSignalEvent at 0018b3d4
+Bookmarked svcGetSystemTick at 00186f48
+Bookmarked svcGetSystemTick at 00186ecc
+Bookmarked svcGetSystemTick at 00186024
+Bookmarked svcGetSystemTick at 00186008
+Bookmarked svcGetSystemTick at 00185fa4
+Bookmarked svcGetSystemTick at 00185f8c
+Bookmarked svcGetSystemTick at 00185484
+Bookmarked svcGetSystemTick at 0017f13c
+Bookmarked svcGetSystemTick at 0017f038
+Bookmarked svcSendSyncRequest at 0017d810
+Bookmarked svcGetThreadId at 0017d614
+Bookmarked svcSendSyncRequest at 00179bf8
+Bookmarked svcSendSyncRequest at 00179bd0
+Bookmarked svcWaitSynchronization1 at 00177794
+Bookmarked svcMapMemoryBlock at 0017773c
+Bookmarked svcCloseHandle at 001776c8
+Bookmarked svcUnmapMemoryBlock at 001776a4
+Bookmarked svcCreateMemoryBlock at 00177180
+Bookmarked svcSendSyncRequest at 0017368c
+Bookmarked svcSendSyncRequest at 0017364c
+Bookmarked svcSendSyncRequest at 001735e8
+Bookmarked svcSendSyncRequest at 00173584
+Bookmarked svcSendSyncRequest at 00173558
+Bookmarked svcCloseHandle at 00173510
+Bookmarked svcCloseHandle at 00173498
+Bookmarked svcSendSyncRequest at 001732a0
+Bookmarked svcSendSyncRequest at 00173240
+Bookmarked svcCloseHandle at 001731f0
+Bookmarked svcCloseHandle at 00173194
+Bookmarked svcWaitSynchronization1 at 0017316c
+Bookmarked svcSignalEvent at 00173150
+Bookmarked svcClearEvent at 00173020
+Bookmarked svcWaitSynchronization1 at 00173008
+Bookmarked svcSendSyncRequest at 00172d2c
+Bookmarked svcCloseHandle at 00172af4
+Bookmarked svcWaitSynchronization1 at 00172ac8
+Bookmarked svcCloseHandle at 00172a94
+Bookmarked svcWaitSynchronization1 at 00172a6c
+Bookmarked svcSendSyncRequest at 0016fa78
+Bookmarked svcSendSyncRequest at 0016f7ec
+Bookmarked svcSendSyncRequest at 0016f7ac
+Bookmarked svcSendSyncRequest at 0016f76c
+Bookmarked svcSendSyncRequest at 0016f710
+Bookmarked svcSendSyncRequest at 0016f6bc
+Bookmarked svcSendSyncRequest at 0016f680
+Bookmarked svcCloseHandle at 0016f630
+Bookmarked svcUnmapMemoryBlock at 0016f618
+Bookmarked svcCloseHandle at 00166204
+Bookmarked svcWaitSynchronization1 at 001661e0
+Bookmarked svcSendSyncRequest at 00165324
+Bookmarked svcSendSyncRequest at 001652f0
+Bookmarked svcCloseHandle at 00165064
+Bookmarked svcCloseHandle at 00164fc0
+Bookmarked svcCloseHandle at 00164efc
+Bookmarked svcCloseHandle at 00164e88
+Bookmarked svcCloseHandle at 00164dac
+Bookmarked svcCloseHandle at 00164d6c
+Bookmarked svcCloseHandle at 00164ce8
+Bookmarked svcCloseHandle at 001649fc
+Bookmarked svcSendSyncRequest at 00164704
+Bookmarked svcSendSyncRequest at 001646cc
+Bookmarked svcSendSyncRequest at 00164680
+Bookmarked svcCloseHandle at 00164628
+Bookmarked svcCloseHandle at 001644d8
+Bookmarked svcSendSyncRequest at 00164458
+Bookmarked svcSendSyncRequest at 001643f8
+Bookmarked svcSendSyncRequest at 001643bc
+Bookmarked svcSendSyncRequest at 00164370
+Bookmarked svcCloseHandle at 00163b4c
+Bookmarked svcCloseHandle at 00163b08
+Bookmarked svcSendSyncRequest at 00163a5c
+Bookmarked svcSendSyncRequest at 00163a24
+Bookmarked svcCloseHandle at 00163714
+Bookmarked svcCloseHandle at 001636f4
+Bookmarked svcSendSyncRequest at 0015fdd8
+Bookmarked svcSendSyncRequest at 0015fd98
+Bookmarked svcSendSyncRequest at 0015fd64
+Bookmarked svcCloseHandle at 0015fb4c
+Bookmarked svcClearEvent at 0015f8d4
+Bookmarked svcSendSyncRequest at 0015f678
+Bookmarked svcGetSystemTick at 0015f600
+Bookmarked svcSendSyncRequest at 0015f0b8
+Bookmarked svcSendSyncRequest at 0015f07c
+Bookmarked svcGetSystemTick at 0015e8c8
+Bookmarked svcBreak at 0015e8bc
+Bookmarked svcArbitrateAddress at 0015e8a0
+Bookmarked svcCloseHandle at 0014aef4
+Bookmarked svcCloseHandle at 0014a1d4
+Bookmarked svcCloseHandle at 0014a19c
+Bookmarked svcGetSystemTick at 00149aa8
+Bookmarked svcGetSystemTick at 001499d0
+Bookmarked svcGetSystemTick at 00149434
+Bookmarked svcGetSystemTick at 0014939c
+Bookmarked svcSendSyncRequest at 00149200
+Bookmarked svcCloseHandle at 00148cd0
+Bookmarked svcCloseHandle at 00148c64
+Bookmarked svcCloseHandle at 00148c44
+Bookmarked svcSignalEvent at 00148b60
+Bookmarked svcClearEvent at 00148980
+Bookmarked svcWaitSynchronization1 at 00148968
+Bookmarked svcCloseHandle at 001487fc
+Bookmarked svcSendSyncRequest at 001468f4
+Bookmarked svcSendSyncRequest at 00146734
+Bookmarked svcCloseHandle at 001458b0
+Bookmarked svcCloseHandle at 00145808
+Bookmarked svcWaitSynchronization1 at 001457ec
+Bookmarked svcCloseHandle at 001457ac
+Bookmarked svcCreateEvent at 00144f14
+Bookmarked svcGetSystemTick at 00144204
+Bookmarked svcWaitSynchronization1 at 001400f4
+Bookmarked svcCloseHandle at 0013bc60
+Bookmarked svcCloseHandle at 0013bba4
+Bookmarked svcCloseHandle at 0013bb08
+Bookmarked svcClearEvent at 0013b958
+Bookmarked svcSendSyncRequest at 0013519c
+Bookmarked svcGetSystemTick at 00134fb8
+Bookmarked svcGetSystemTick at 00134e48
+Bookmarked svcSendSyncRequest at 00134da0
+Bookmarked svcSendSyncRequest at 00134d68
+Bookmarked svcSendSyncRequest at 00134d34
+Bookmarked svcSendSyncRequest at 00134d00
+Bookmarked svcSendSyncRequest at 00134c8c
+Bookmarked svcSendSyncRequest at 00134c1c
+Bookmarked svcSendSyncRequest at 00134ba8
+Bookmarked svcSendSyncRequest at 00134b58
+Bookmarked svcSendSyncRequest at 00134b04
+Bookmarked svcSendSyncRequest at 00134aa4
+Bookmarked svcCloseHandle at 00134990
+Bookmarked svcCloseHandle at 00134974
+Bookmarked svcWaitSynchronization1 at 0013494c
+Bookmarked svcSignalEvent at 0013492c
+Bookmarked svcSendSyncRequest at 001348c8
+Bookmarked svcSendSyncRequest at 00134860
+Bookmarked svcCloseHandle at 00134208
+Bookmarked svcSendSyncRequest at 001340dc
+Bookmarked svcCloseHandle at 00133e04
+Bookmarked svcSendSyncRequest at 00133d74
+Bookmarked svcMapMemoryBlock at 00133bac
+Bookmarked svcSendSyncRequest at 0013355c
+Bookmarked svcCloseHandle at 001332b8
+Bookmarked svcExitThread at 00132ae4
+Bookmarked svcGetSystemTick at 001318dc
+Bookmarked svcGetSystemTick at 001317b8
+Bookmarked svcCloseHandle at 0012fcb8
+Bookmarked svcGetSystemTick at 001296cc
+Bookmarked svcSendSyncRequest at 00126064
+Bookmarked svcSendSyncRequest at 00126024
+Bookmarked svcSendSyncRequest at 00125fec
+Bookmarked svcSendSyncRequest at 00125fac
+Bookmarked svcSendSyncRequest at 00125e4c
+Bookmarked svcSendSyncRequest at 00125e10
+Bookmarked svcSendSyncRequest at 00125db0
+Bookmarked svcSendSyncRequest at 00125d44
+Bookmarked svcSendSyncRequest at 00125cf8
+Bookmarked svcSendSyncRequest at 00125cb0
+Bookmarked svcSendSyncRequest at 00125c40
+Bookmarked svcReleaseMutex at 00125a7c
+Bookmarked svcCloseHandle at 00125a50
+Bookmarked svcWaitSynchronization1 at 00125690
+Bookmarked svcSendSyncRequest at 00125474
+Bookmarked svcSendSyncRequest at 00125444
+Bookmarked svcSendSyncRequest at 00125414
+Bookmarked svcCloseHandle at 00124cdc
+Bookmarked svcCloseHandle at 00124c38
+Bookmarked svcSendSyncRequest at 00124b08
+Bookmarked svcSendSyncRequest at 0012459c
+Bookmarked svcSendSyncRequest at 00124558
+Bookmarked svcSendSyncRequest at 00123f10
+Bookmarked svcSendSyncRequest at 00123ee0
+Bookmarked svcSendSyncRequest at 00123e88
+Bookmarked svcSendSyncRequest at 00123830
+Bookmarked svcWaitSynchronizationN at 0012324c
+Bookmarked svcSleepThread at 00123238
+Bookmarked svcGetProcessId at 00123218
+Bookmarked svcConnectToPort at 00123200
+Bookmarked svcGetSystemTick at 0011d284
+Bookmarked svcGetSystemTick at 0011d25c
+Bookmarked svcGetSystemTick at 0011d0dc
+Bookmarked svcSendSyncRequest at 0011b5cc
+Bookmarked svcSendSyncRequest at 0011b564
+Bookmarked svcSendSyncRequest at 0011b518
+Bookmarked svcSendSyncRequest at 0011b4b8
+Bookmarked svcSendSyncRequest at 0011b42c
+Bookmarked svcClearEvent at 0011a6fc
+Bookmarked svcSignalEvent at 0011a6d8
+Bookmarked svcSendSyncRequest at 00119c30
+Bookmarked svcSendSyncRequest at 00119bdc
+Bookmarked svcSendSyncRequest at 00119bac
+Bookmarked svcSendSyncRequest at 00119b80
+Bookmarked svcSendSyncRequest at 00119ad0
+Bookmarked svcSendSyncRequest at 00119a98
+Bookmarked svcSendSyncRequest at 00119a44
+Bookmarked svcSendSyncRequest at 00119a14
+Bookmarked svcSendSyncRequest at 001199e8
+Bookmarked svcSendSyncRequest at 00119984
+Bookmarked svcSendSyncRequest at 0011994c
+Bookmarked svcGetSystemTick at 00119784
+Bookmarked svcSendSyncRequest at 00118b54
+Bookmarked svcSendSyncRequest at 00118b18
+Bookmarked svcSendSyncRequest at 00118adc
+Bookmarked svcCloseHandle at 001187dc
+Bookmarked svcSendSyncRequest at 00118704
+Bookmarked svcCloseHandle at 0011864c
+Bookmarked svcSendSyncRequest at 00118234
+Bookmarked svcSendSyncRequest at 00118078
+Bookmarked svcSendSyncRequest at 00118044
+Bookmarked svcCloseHandle at 00117fb4
+Bookmarked svcCloseHandle at 00117f5c
+Bookmarked svcSendSyncRequest at 00117e4c
+Bookmarked svcSendSyncRequest at 00117e0c
+Bookmarked svcCreateThread at 00117564
+Bookmarked svcCreateMutex at 00117544
+Bookmarked svcControlMemory at 00117528
+Bookmarked svcGetSystemTick at 001140fc
+Bookmarked svcGetSystemTick at 001140c8
+Bookmarked svcSendSyncRequest at 001102a8
+Bookmarked svcSendSyncRequest at 00110260
+Bookmarked svcSendSyncRequest at 001101e4
+Bookmarked svcSendSyncRequest at 00110190
+Bookmarked svcCloseHandle at 00110080
+Bookmarked svcCloseHandle at 00110024
+Bookmarked svcCloseHandle at 0010fe64
+Bookmarked svcCloseHandle at 0010fc64
+Bookmarked svcSignalEvent at 0010fb0c
+Bookmarked svcSendSyncRequest at 0010f80c
+Bookmarked svcSendSyncRequest at 0010f7d0
+Bookmarked svcWaitSynchronization1 at 0010f614
+Bookmarked svcMapMemoryBlock at 0010eca4
+Bookmarked svcWaitSynchronization1 at 0010ebd4
+Bookmarked svcGetSystemTick at 0010e7ac
+Bookmarked svcGetSystemTick at 0010e624
+Bookmarked svcGetSystemTick at 0010e56c
+Bookmarked svcCreateAddressArbiter at 0010e244
+Bookmarked svcGetSystemTick at 0010c330
+Bookmarked svcSendSyncRequest at 00109c58
+Bookmarked svcSendSyncRequest at 00109c20
+Bookmarked svcSendSyncRequest at 00109be4
+Bookmarked svcExitProcess at 00109910
+Bookmarked svcGetResourceLimit at 0010884c
+Bookmarked svcExitProcess at 001072c4
+Bookmarked svcCloseHandle at 0010705c
+Bookmarked svcGetResourceLimitCurrentValues at 00107054
+Bookmarked svcExitProcess at 00106130
+    Label3dsSVCs.py: 6.8s :: Bookmarked svcGetResourceLimitCurrentValues at 00107054 | Bookmarked svcExitProcess at 00106130
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 65.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+Traceback (most recent call last):
+  File "/mnt/dev/Dev/Coding_Projects/PokeXYZ-PC/XY_Decomp_Tools/ghidra_3ds_scripts/Label3dsCTRFns.py", line 137, in <module>
+    if readBytes(svc_send_sync_request_addr.add(4), 4) == bytesToByteArr([0x1e, 0xff, 0x2f, 0xe1]):
+       ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/mnt/dev/Dev/Coding_Projects/PokeXYZ-PC/XY_Decomp_Tools/ghidra_3ds_scripts/ghidra_utils.py", line 52, in readBytes
+    ba = memory.getBytes(addr, len)
+TypeError: No matching overloads found for ghidra.program.database.mem.MemoryMapDB.getBytes(ghidra.program.model.address.GenericAddress,int), options are:
+	public int ghidra.program.database.mem.MemoryMapDB.getBytes(ghidra.program.model.address.Address,byte[]) throws ghidra.program.model.mem.MemoryAccessException
+	public int ghidra.program.database.mem.MemoryMapDB.getBytes(ghidra.program.model.address.Address,byte[],int,int) throws ghidra.program.model.mem.MemoryAccessException
+
+
+    Label3dsCTRFns.py: 1.3s :: (no output)  [stderr: 	public int ghidra.program.database.mem.MemoryMapDB.getBytes(ghidra.program.model.address.Address,byte[],int,int) throws ghidra.program.model.mem.MemoryAccessException]
+Retyped 001096c0 and set name to tls
+Retyped 00109bb0 and set name to tls
+Retyped 00109c04 and set name to tls
+Retyped 00109c40 and set name to tls
+Retyped 0010f7bc and set name to tls
+Retyped 0010f7f4 and set name to tls
+Retyped 00110178 and set name to tls
+Retyped 001101cc and set name to tls
+Retyped 0011021c and set name to tls
+Retyped 00110280 and set name to tls
+Retyped 00117dec and set name to tls
+Retyped 00117e38 and set name to tls
+Retyped 00118030 and set name to tls
+Retyped 00118060 and set name to tls
+Retyped 00118140 and set name to tls
+Retyped 00118190 and set name to tls
+Retyped 00118210 and set name to tls
+Retyped 001186f0 and set name to tls
+Retyped 00118ac4 and set name to tls
+Retyped 00118b00 and set name to tls
+Retyped 00118b3c and set name to tls
+Retyped 00119930 and set name to tls
+Retyped 00119970 and set name to tls
+Retyped 001199d4 and set name to tls
+Retyped 00119a04 and set name to tls
+Retyped 00119a34 and set name to tls
+Retyped 00119a70 and set name to tls
+Retyped 00119ab8 and set name to tls
+Retyped 00119b6c and set name to tls
+Retyped 00119b9c and set name to tls
+Retyped 00119bcc and set name to tls
+Retyped 00119c08 and set name to tls
+Retyped 0011b414 and set name to tls
+Retyped 0011b48c and set name to tls
+Retyped 0011b498 and set name to _tls
+Retyped 0011b4e0 and set name to tls
+Retyped 0011b544 and set name to tls
+Retyped 0011b584 and set name to tls
+Retyped 00123814 and set name to tls
+Retyped 00123a74 and set name to tls
+Retyped 00123e70 and set name to tls
+Retyped 00123eb4 and set name to tls
+Retyped 00123f00 and set name to tls
+Retyped 0012453c and set name to tls
+Retyped 00124588 and set name to tls
+Retyped 00124adc and set name to tls
+Retyped 00125404 and set name to tls
+Retyped 0012542c and set name to tls
+Retyped 00125c28 and set name to tls
+Retyped 00125c68 and set name to tls
+Retyped 00125c90 and set name to _tls
+Retyped 00125ce4 and set name to tls
+Retyped 00125d24 and set name to tls
+Retyped 00125d78 and set name to tls
+Retyped 00125d90 and set name to _tls
+Retyped 00125df4 and set name to tls
+Retyped 00125e34 and set name to tls
+Retyped 00125f98 and set name to tls
+Retyped 00125fd0 and set name to tls
+Retyped 00126010 and set name to tls
+Retyped 00126048 and set name to tls
+Retyped 00133508 and set name to tls
+Retyped 00133d50 and set name to tls
+Retyped 001340a8 and set name to tls
+Retyped 00134844 and set name to tls
+Retyped 001348a4 and set name to tls
+Retyped 00134a8c and set name to tls
+Retyped 00134ad4 and set name to tls
+Retyped 00134b24 and set name to tls
+Retyped 00134b7c and set name to tls
+Retyped 00134be4 and set name to tls
+Retyped 00134bfc and set name to _tls
+Retyped 00134c70 and set name to tls
+Retyped 00134cd0 and set name to tls
+Retyped 00134d20 and set name to tls
+Retyped 00134d50 and set name to tls
+Retyped 00134d88 and set name to tls
+Retyped 00135188 and set name to tls
+Retyped 00146710 and set name to tls
+Retyped 001468e0 and set name to tls
+Retyped 00153470 and set name to tls
+Retyped 0015f054 and set name to tls
+Retyped 0015f09c and set name to tls
+Retyped 0015f668 and set name to tls
+Retyped 0015f830 and set name to tls
+Retyped 0015f848 and set name to _tls
+Retyped 0015fd4c and set name to tls
+Retyped 0015fd88 and set name to tls
+Retyped 0015fdb8 and set name to tls
+Retyped 001639fc and set name to tls
+Retyped 00163a4c and set name to tls
+Retyped 0016433c and set name to tls
+Retyped 00164354 and set name to _tls
+Retyped 00164390 and set name to tls
+Retyped 001643d8 and set name to tls
+Retyped 00164418 and set name to tls
+Retyped 00164650 and set name to tls
+Retyped 001646a0 and set name to tls
+Retyped 001646ec and set name to tls
+Retyped 0016f668 and set name to tls
+Retyped 0016f6a4 and set name to tls
+Retyped 0016f6e4 and set name to tls
+Retyped 0016f730 and set name to tls
+Retyped 0016f750 and set name to _tls
+Retyped 0016f798 and set name to tls
+Retyped 0016f7d4 and set name to tls
+Retyped 0016fa5c and set name to tls
+Retyped 00172d04 and set name to tls
+Retyped 00173230 and set name to tls
+Retyped 00173284 and set name to tls
+Retyped 00173530 and set name to tls
+Retyped 00173574 and set name to tls
+Retyped 001735a8 and set name to tls
+Retyped 001735c4 and set name to _tls
+Retyped 0017361c and set name to tls
+Retyped 00173630 and set name to _tls
+Retyped 00173678 and set name to tls
+Retyped 00179bc0 and set name to tls
+Retyped 00179be8 and set name to tls
+Retyped 0017d7f0 and set name to tls
+Retyped 001935c8 and set name to tls
+Retyped 001935f4 and set name to _tls
+Retyped 001dcbc4 and set name to tls
+Retyped 001dcc1c and set name to tls
+Retyped 001dcc38 and set name to _tls
+Retyped 001dcc80 and set name to tls
+Retyped 001dcca0 and set name to _tls
+Retyped 001dccf0 and set name to tls
+Retyped 001dcd30 and set name to tls
+Retyped 001dcd7c and set name to tls
+Retyped 001dcdbc and set name to tls
+Retyped 001dcdc8 and set name to _tls
+Retyped 001dce10 and set name to tls
+Retyped 001dce48 and set name to tls
+Retyped 001dce70 and set name to _tls
+Retyped 001dceb8 and set name to tls
+Retyped 001dcf00 and set name to tls
+Retyped 001dcf1c and set name to _tls
+Retyped 001e2490 and set name to tls
+Retyped 001e24ec and set name to tls
+Retyped 001e2550 and set name to tls
+Retyped 001e25d0 and set name to tls
+Retyped 001e2624 and set name to tls
+Retyped 001e2658 and set name to tls
+Retyped 001e26b0 and set name to tls
+Retyped 001e272c and set name to tls
+Retyped 001e2790 and set name to tls
+Retyped 001e27f4 and set name to tls
+Retyped 001e2848 and set name to tls
+Retyped 001e2880 and set name to tls
+Retyped 001e28bc and set name to tls
+Retyped 001e2910 and set name to tls
+Retyped 001e2974 and set name to tls
+Retyped 001e29f0 and set name to tls
+Retyped 001e2a44 and set name to tls
+Retyped 001e2a84 and set name to tls
+Retyped 001e2ac0 and set name to tls
+Retyped 001e2b10 and set name to tls
+Retyped 001e2b54 and set name to tls
+Retyped 001e2bb8 and set name to tls
+Retyped 001e2c10 and set name to tls
+Retyped 001e2c6c and set name to tls
+Retyped 001e2cd0 and set name to tls
+Retyped 001e2d10 and set name to tls
+Retyped 001e2d50 and set name to tls
+Retyped 001e2d84 and set name to tls
+Retyped 001e2dc4 and set name to tls
+Retyped 001e2e10 and set name to tls
+Retyped 001e2e4c and set name to tls
+Retyped 001e2ea8 and set name to tls
+Retyped 001e2eec and set name to tls
+Retyped 001e2f20 and set name to tls
+Retyped 001e2f54 and set name to tls
+Retyped 001e2f88 and set name to tls
+Retyped 001e2fbc and set name to tls
+Retyped 001e300c and set name to tls
+Retyped 001e6394 and set name to tls
+Retyped 001e63c8 and set name to tls
+Retyped 001e6400 and set name to tls
+Retyped 001e6438 and set name to tls
+Retyped 001e6484 and set name to tls
+Retyped 001e64d0 and set name to tls
+Retyped 001e6508 and set name to tls
+Retyped 001e6538 and set name to tls
+Retyped 001e6578 and set name to tls
+Retyped 001e65d8 and set name to tls
+Retyped 001e662c and set name to tls
+Retyped 001e6668 and set name to tls
+Retyped 001e66b0 and set name to tls
+Retyped 001e6bb4 and set name to tls
+Retyped 001e7658 and set name to tls
+Retyped 001ea5dc and set name to tls
+Retyped 001ea694 and set name to tls
+Retyped 001ea708 and set name to tls
+Retyped 001ea770 and set name to tls
+Retyped 001ea7d4 and set name to tls
+Retyped 001ea860 and set name to tls
+Retyped 001eaa70 and set name to tls
+Retyped 001eab14 and set name to tls
+Retyped 001eaca4 and set name to tls
+Retyped 001ead1c and set name to tls
+Retyped 001ead5c and set name to tls
+Retyped 001eadd0 and set name to tls
+Retyped 001eae38 and set name to tls
+Retyped 001eae9c and set name to tls
+Retyped 001eaf28 and set name to tls
+Retyped 001eafa4 and set name to tls
+Retyped 001eafe0 and set name to tls
+Retyped 001eb030 and set name to tls
+Retyped 001eb07c and set name to tls
+Retyped 001eb0b4 and set name to tls
+Retyped 001eb0ec and set name to tls
+Retyped 001eb138 and set name to tls
+Retyped 001eb190 and set name to tls
+Retyped 001eb1dc and set name to tls
+Retyped 001ec364 and set name to tls
+Retyped 001eeff4 and set name to tls
+Retyped 001ef024 and set name to tls
+Retyped 001ef054 and set name to tls
+Retyped 001ef084 and set name to tls
+Retyped 001ef0b8 and set name to tls
+Retyped 001ef114 and set name to tls
+Retyped 001ef520 and set name to tls
+Retyped 001ef554 and set name to tls
+Retyped 001ef590 and set name to tls
+Retyped 001ef5d0 and set name to tls
+Retyped 001ef600 and set name to tls
+Retyped 001ef654 and set name to tls
+Retyped 001ef698 and set name to tls
+Retyped 001ef6e0 and set name to tls
+Retyped 001ef720 and set name to tls
+Retyped 001ef75c and set name to tls
+Retyped 001ef8d4 and set name to tls
+Retyped 001ef908 and set name to tls
+Traceback (most recent call last):
+  File "GhidraScript.java", line 290, in ghidra.app.script.GhidraScript.execute
+Exception: Java Exception
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/mnt/dev/Dev/Coding_Projects/PokeXYZ-PC/XY_Decomp_Tools/ghidra_3ds_scripts/Set3dsTlsType.py", line 33, in <module>
+    decompiled_func, _ = decompileContainingFunction(tls_addr)
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/mnt/dev/Dev/Coding_Projects/PokeXYZ-PC/XY_Decomp_Tools/ghidra_3ds_scripts/ghidra_utils.py", line 66, in decompileContainingFunction
+    return decomp.decompileFunction(func, 60, monitor), func
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+java.lang.java.lang.NullPointerException: java.lang.NullPointerException: Cannot invoke "ghidra.program.model.pcode.Decoder.clear()" because "decoder" is null
+
+    Set3dsTlsType.py: 12.6s :: Retyped 001ef8d4 and set name to tls | Retyped 001ef908 and set name to tls  [stderr: java.lang.java.lang.NullPointerException: java.lang.NullPointerException: Cannot invoke "ghidra.program.model.pcode.Decoder.clear()" because "decoder" is null]
+[23:01:40] --- code.bin saved (86.1s total)
+[23:01:40] === DllFieldEventEntranceIn.bin ===
+    Label3dsSVCs.py: 1.0s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.9s :: (no output)
+    Set3dsTlsType.py: 0.7s :: (no output)
+[23:01:43] --- DllFieldEventEntranceIn.bin saved (3.1s total)
+[23:01:43] === DllTradeDemo.bin ===
+    Label3dsSVCs.py: 1.1s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.6s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[23:01:46] --- DllTradeDemo.bin saved (2.4s total)
+[23:01:46] === DllTitle.bin ===
+    Label3dsSVCs.py: 1.1s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 2.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.9s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[23:01:51] --- DllTitle.bin saved (4.7s total)
+[23:01:51] === DllStrInput.bin ===
+    Label3dsSVCs.py: 1.1s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.8s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.6s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:01:54] --- DllStrInput.bin saved (3.1s total)
+[23:01:54] === DllTestOnoue.bin ===
+    Label3dsSVCs.py: 1.1s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:01:56] --- DllTestOnoue.bin saved (2.2s total)
+[23:01:56] === DllBag.bin ===
+    Label3dsSVCs.py: 1.1s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 1.7s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:02:00] --- DllBag.bin saved (3.7s total)
+[23:02:00] === DllUSGymFighting.bin ===
+    Label3dsSVCs.py: 0.9s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.9s :: (no output)
+[23:02:02] --- DllUSGymFighting.bin saved (2.7s total)
+[23:02:02] === DllBattlePartySelect.bin ===
+    Label3dsSVCs.py: 1.1s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[23:02:05] --- DllBattlePartySelect.bin saved (2.5s total)
+[23:02:05] === DllSequence.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 1.0s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:02:07] --- DllSequence.bin saved (2.6s total)
+[23:02:07] === DllUSGymElec.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.7s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:02:10] --- DllUSGymElec.bin saved (2.4s total)
+[23:02:10] === DllBoxSearch.bin ===
+    Label3dsSVCs.py: 1.1s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.7s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.3s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:02:12] --- DllBoxSearch.bin saved (2.6s total)
+[23:02:13] === DllTradelist.bin ===
+    Label3dsSVCs.py: 1.1s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 1.6s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[23:02:16] --- DllTradelist.bin saved (3.6s total)
+[23:02:16] === DllBattleVideoPlayer.bin ===
+    Label3dsSVCs.py: 1.1s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.9s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[23:02:19] --- DllBattleVideoPlayer.bin saved (3.1s total)
+[23:02:19] === DllFieldEventPokeRideAction.bin ===
+    Label3dsSVCs.py: 1.2s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.6s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[23:02:22] --- DllFieldEventPokeRideAction.bin saved (2.6s total)
+[23:02:22] === DllUSR13.bin ===
+    Label3dsSVCs.py: 1.0s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[23:02:24] --- DllUSR13.bin saved (2.5s total)
+[23:02:24] === DllUSGymFairy.bin ===
+    Label3dsSVCs.py: 0.6s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:02:26] --- DllUSGymFairy.bin saved (1.9s total)
+[23:02:26] === DllTestTaya.bin ===
+    Label3dsSVCs.py: 0.7s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:02:28] --- DllTestTaya.bin saved (2.0s total)
+[23:02:28] === DllBattle.bin ===
+    Label3dsSVCs.py: 1.7s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 11.9s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.7s :: (no output)
+    Set3dsTlsType.py: 0.8s :: (no output)
+[23:02:44] --- DllBattle.bin saved (15.2s total)
+[23:02:44] === DllUSR15.bin ===
+    Label3dsSVCs.py: 1.0s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.6s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:02:46] --- DllUSR15.bin saved (2.6s total)
+[23:02:46] === DllTestPGL.bin ===
+    Label3dsSVCs.py: 0.9s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[23:02:48] --- DllTestPGL.bin saved (2.1s total)
+[23:02:48] === DllBox.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 1.7s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:02:52] --- DllBox.bin saved (3.4s total)
+[23:02:52] === DllLiveCup.bin ===
+    Label3dsSVCs.py: 1.0s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 1.0s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[23:02:55] --- DllLiveCup.bin saved (2.7s total)
+[23:02:55] === DllPromotion.bin ===
+    Label3dsSVCs.py: 1.4s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 2.7s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.8s :: (no output)
+    Set3dsTlsType.py: 0.6s :: (no output)
+[23:03:00] --- DllPromotion.bin saved (5.4s total)
+[23:03:00] === DllIntro.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 1.2s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:03:03] --- DllIntro.bin saved (2.7s total)
+[23:03:03] === DllTestSuzuki.bin ===
+    Label3dsSVCs.py: 1.1s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:03:05] --- DllTestSuzuki.bin saved (2.5s total)
+[23:03:05] === DllPssMessageWindow.bin ===
+    Label3dsSVCs.py: 1.0s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.6s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[23:03:08] --- DllPssMessageWindow.bin saved (2.2s total)
+[23:03:08] === DllField.bin ===
+    Label3dsSVCs.py: 1.4s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 13.9s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 1.0s :: (no output)
+    Set3dsTlsType.py: 0.8s :: (no output)
+[23:03:25] --- DllField.bin saved (17.1s total)
+[23:03:25] === DllTestIto.bin ===
+    Label3dsSVCs.py: 1.2s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[23:03:27] --- DllTestIto.bin saved (2.4s total)
+[23:03:27] === DllStaffRoll.bin ===
+    Label3dsSVCs.py: 0.9s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.6s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.6s :: (no output)
+[23:03:30] --- DllStaffRoll.bin saved (2.6s total)
+[23:03:30] === DllFieldEventTakinobori.bin ===
+    Label3dsSVCs.py: 0.7s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:03:32] --- DllFieldEventTakinobori.bin saved (1.9s total)
+[23:03:32] === DllUSBigFourSteel.bin ===
+    Label3dsSVCs.py: 0.6s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[23:03:34] --- DllUSBigFourSteel.bin saved (2.1s total)
+[23:03:34] === DllDebugProcLoop.bin ===
+    Label3dsSVCs.py: 1.1s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:03:36] --- DllDebugProcLoop.bin saved (2.3s total)
+[23:03:36] === DllKawaigariArrange.bin ===
+    Label3dsSVCs.py: 1.3s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 1.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:03:40] --- DllKawaigariArrange.bin saved (3.6s total)
+[23:03:40] === DllKisekae.bin ===
+    Label3dsSVCs.py: 1.3s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 1.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.6s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:03:43] --- DllKisekae.bin saved (3.7s total)
+[23:03:43] === DllDendouDemo.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.7s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:03:46] --- DllDendouDemo.bin saved (2.3s total)
+[23:03:46] === DllVSDemo.bin ===
+    Label3dsSVCs.py: 0.7s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.7s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:03:48] --- DllVSDemo.bin saved (2.2s total)
+[23:03:48] === DllDebugPokeMake.bin ===
+    Label3dsSVCs.py: 1.2s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.3s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:03:51] --- DllDebugPokeMake.bin saved (2.5s total)
+[23:03:51] === DllTheEnd.bin ===
+    Label3dsSVCs.py: 1.2s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:03:53] --- DllTheEnd.bin saved (2.5s total)
+[23:03:53] === DllGameClearSave.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.3s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:03:55] --- DllGameClearSave.bin saved (2.0s total)
+[23:03:55] === DllUSGymGrass.bin ===
+    Label3dsSVCs.py: 1.0s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.6s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.3s :: (no output)
+    Set3dsTlsType.py: 0.3s :: (no output)
+[23:03:57] --- DllUSGymGrass.bin saved (2.2s total)
+[23:03:57] === DllBattleMatch.bin ===
+    Label3dsSVCs.py: 1.4s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 2.8s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[23:04:03] --- DllBattleMatch.bin saved (5.2s total)
+[23:04:03] === DllUSGymInsect.bin ===
+    Label3dsSVCs.py: 1.1s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:04:05] --- DllUSGymInsect.bin saved (2.3s total)
+[23:04:05] === DllTestSogabe.bin ===
+    Label3dsSVCs.py: 0.6s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[23:04:07] --- DllTestSogabe.bin saved (2.0s total)
+[23:04:07] === DllBattleHouseConnect.bin ===
+    Label3dsSVCs.py: 0.8s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[23:04:09] --- DllBattleHouseConnect.bin saved (2.2s total)
+[23:04:09] === DllTestSeqDemoView.bin ===
+    Label3dsSVCs.py: 1.5s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.4s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:04:12] --- DllTestSeqDemoView.bin saved (2.8s total)
+[23:04:12] === DllCommendation.bin ===
+    Label3dsSVCs.py: 1.2s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.5s :: (no output)
+    Set3dsTlsType.py: 0.5s :: (no output)
+[23:04:14] --- DllCommendation.bin saved (2.6s total)
+[23:04:14] === DllUSGymIce.bin ===
+    Label3dsSVCs.py: 1.2s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.7s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:04:17] --- DllUSGymIce.bin saved (2.7s total)
+[23:04:17] === DllPhotoViewer.bin ===
+    Label3dsSVCs.py: 0.9s :: (no output)
+SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle attribution.
+    Label3dsHandles.py: 0.5s :: SKIPPED Label3dsHandles: ctr::srv::GetServiceHandleDirect is not labeled in this program. XY uses the C-era srvGetServiceHandle API, so this C++-API script has nothing to anchor on. Label it manually to enable IPC handle
+    Label3dsCTRFns.py: 0.4s :: (no output)
+    Set3dsTlsType.py: 0.4s :: (no output)
+[23:04:19] --- DllPhotoViewer.bin saved (2.1s total)
+=== driver done ===

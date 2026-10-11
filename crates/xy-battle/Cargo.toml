@@ -1,0 +1,10 @@
+[package]
+name = "xy-battle"
+description = "Game data tables (planned: stats, learnsets, encounters, trainers)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+xy-core = { path = "../xy-core" }

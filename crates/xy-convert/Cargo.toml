@@ -1,0 +1,16 @@
+[package]
+name = "xy-convert"
+description = "Conversion, inspection and media-orchestration APIs for the Pokemon X/Y toolkit (GUI/CLI backend)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+xy-core = { path = "../xy-core" }
+xy-audio = { path = "../xy-audio" }
+xy-gfx = { path = "../xy-gfx" }
+xy-script = { path = "../xy-script" }
+sha2 = "0.10"
+crc32fast = "1"
+gltf = { version = "1", default-features = false, features = ["utils"] }

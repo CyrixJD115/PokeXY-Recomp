@@ -1,0 +1,10 @@
+[package]
+name = "xy-audio"
+description = "Sound container parsing: BCWAV (PCM + DSP-ADPCM) to WAV"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+xy-core = { path = "../xy-core" }

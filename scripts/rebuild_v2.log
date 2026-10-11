@@ -1,0 +1,173 @@
+[22:18:59] STAGE A: structure + fast extractions
+  banner jingle: 109320 bytes sliced from banner.bin @0x2c3c0
+[22:18:59] A1: garc extract-tree (romfs/a)
+extract-tree: 271 GARCs, 44512 files, 14409 decompressed, 1587902328 -> 4717541504 bytes; manifest at /mnt/dev/Dev/Coding_Projects/PokeXYZ-PC/Data/src_extracted/garc/manifest.tsv
+[22:19:07] A2: root-level .garc files
+/mnt/dev/Dev/Coding_Projects/PokeXYZ-PC/Data/3ds_extracted/romfs/btl_ai.garc -> /mnt/dev/Dev/Coding_Projects/PokeXYZ-PC/Data/src_extracted/garc/btl_ai.garc (6 files, 0 decompressed)
+[22:19:07] A3: cro extract (134 modules)
+  cro_extracted modules: 134
+[22:19:08] A4: text conversion
+  gametext_jpn: 151
+  gametext_jpn2: 151
+  gametext_eng: 151
+  gametext_fre: 151
+  gametext_ita: 151
+  gametext_ger: 151
+  gametext_spa: 151
+  gametext_kor: 151
+  storytext_jpn: 424
+  storytext_jpn2: 424
+  storytext_eng: 424
+  storytext_fre: 424
+  storytext_ita: 424
+  storytext_ger: 424
+  storytext_spa: 424
+  storytext_kor: 424
+[22:19:17] A5: manual + icon (1x and 8x)
+extracted 3663 assets from 206 manual pages -> /mnt/dev/Dev/Coding_Projects/PokeXYZ-PC/Data/src_extracted/manual
+icon -> /mnt/dev/Dev/Coding_Projects/PokeXYZ-PC/Data/src_extracted/icon.png
+icon -> /mnt/dev/Dev/Coding_Projects/PokeXYZ-PC/Data/src_extracted/icon_8x.png (8x)
+[22:19:18] STAGE B: media (ffmpeg)
+  audio wavs: 232
+  videos: 5
+[22:19:38] STAGE C1: Ghidra code.bin
+  code.bin: 14864 functions decompiled
+[22:24:54] STAGE C2: Ghidra all CRO modules
+  DllBackGround: 111 fns
+  DllBag: 454 fns
+  DllBattle: 3010 fns
+  DllBattleHouseConnect: 57 fns
+  DllBattleMatch: 662 fns
+  DllBattlePartySelect: 69 fns
+  DllBattleVideoPlayer: 367 fns
+  DllBattleVideoSave: 74 fns
+  DllBox: 403 fns
+  DllBoxSearch: 131 fns
+  DllCaptureRegister: 93 fns
+  DllColosseum: 135 fns
+  DllCommendation: 32 fns
+  DllCommWait: 37 fns
+  DllConfig: 153 fns
+  GHIDRA-FAIL: DllDebugPokeMake
+  GHIDRA-FAIL: DllDebugProcLoop
+  DllDendouDemo: 199 fns
+  DllDendouPC: 176 fns
+  DllDialogCommon: 42 fns
+  DllEggDemo: 127 fns
+  DllEshop: 128 fns
+  DllFatalErrorProc: 29 fns
+  DllField: 5109 fns
+  GHIDRA-FAIL: DllFieldDebug
+  DllFieldDemo: 141 fns
+  DllFieldEventEntranceIn: 37 fns
+  DllFieldEventPlayer: 99 fns
+  DllFieldEventPokeRideAction: 14 fns
+  DllFieldEventSkatePipe: 84 fns
+  DllFieldEventSlopeSlip: 19 fns
+  DllFieldEventTakinobori: 33 fns
+  DllFriendEntry: 96 fns
+  DllGameClearSave: 37 fns
+  DllGameSync: 155 fns
+  DllGift: 316 fns
+  DllGts: 673 fns
+  DllHeading: 163 fns
+  DllHologramMail: 534 fns
+  DllIntro: 169 fns
+  DllKawaigari: 517 fns
+  DllKawaigariArrange: 157 fns
+  DllKisekae: 304 fns
+  DllLangSelect: 86 fns
+  DllLiveCup: 227 fns
+  DllNumberInput: 85 fns
+  DllNuts: 166 fns
+  DllPCMenu: 117 fns
+  DllPhotoViewer: 66 fns
+  DllPoke3Select: 147 fns
+  DllPokeList: 323 fns
+  GHIDRA-FAIL: DllPokeViewer
+  DllPromotion: 400 fns
+  DllPssAssistPower: 116 fns
+  DllPssCharaMenu: 152 fns
+  DllPssConfig: 68 fns
+  DllPssFavorite: 84 fns
+  DllPssIconSelect: 118 fns
+  DllPssMainMenu: 101 fns
+  DllPssMessageWindow: 66 fns
+  DllPssPlaySelect: 38 fns
+  DllPssRuleSelect: 61 fns
+  DllPuzzle: 337 fns
+  DllRandomTrade: 164 fns
+  DllReport: 193 fns
+  DllSalon: 54 fns
+  DllSequence: 508 fns
+  DllShinkaDemo: 188 fns
+  DllSparring: 329 fns
+  DllSparringMenu: 157 fns
+  DllStaffRoll: 130 fns
+  DllStartMenu: 82 fns
+  DllStatus: 344 fns
+  DllStrInput: 163 fns
+  DllSubScreenTutorial: 55 fns
+  GHIDRA-FAIL: DllTestAriizumi
+  GHIDRA-FAIL: DllTestHosaka
+  GHIDRA-FAIL: DllTestIchiraku
+  GHIDRA-FAIL: DllTestIkeda
+  GHIDRA-FAIL: DllTestIkuta
+  GHIDRA-FAIL: DllTestIshiguro
+  GHIDRA-FAIL: DllTestIto
+  GHIDRA-FAIL: DllTestKawada
+  GHIDRA-FAIL: DllTestKosaka
+  GHIDRA-FAIL: DllTestMori
+  GHIDRA-FAIL: DllTestNagihashi
+  GHIDRA-FAIL: DllTestNakahiro
+  GHIDRA-FAIL: DllTestNCL
+  GHIDRA-FAIL: DllTestObata
+  GHIDRA-FAIL: DllTestOhno
+  GHIDRA-FAIL: DllTestOnoue
+  GHIDRA-FAIL: DllTestPGL
+  GHIDRA-FAIL: DllTestSeqDemoView
+  GHIDRA-FAIL: DllTestSogabe
+  GHIDRA-FAIL: DllTestSuzuki
+  GHIDRA-FAIL: DllTestTamada
+  GHIDRA-FAIL: DllTestTaya
+  GHIDRA-FAIL: DllTestTomoya
+  DllTheEnd: 39 fns
+  DllTitle: 324 fns
+  DllTownmap: 113 fns
+  DllTradeDemo: 129 fns
+  DllTradelist: 294 fns
+  DllTrainerCase: 194 fns
+  DllTrainingAppManager: 20 fns
+  DllTrialDownload: 203 fns
+  DllTrialHouseResult: 121 fns
+  DllUS3DDun: 23 fns
+  DllUSBadgeCheckGate: 22 fns
+  DllUSBigFourDragon: 34 fns
+  DllUSBigFourFire: 22 fns
+  DllUSBigFourSteel: 38 fns
+  DllUSBigFourWater: 34 fns
+  DllUSC02: 50 fns
+  DllUSDynamo: 6 fns
+  DllUSGymElec: 29 fns
+  DllUSGymEsper: 40 fns
+  DllUSGymFairy: 24 fns
+  DllUSGymFighting: 13 fns
+  DllUSGymGrass: 23 fns
+  DllUSGymIce: 24 fns
+  DllUSGymInsect: 22 fns
+  DllUSGymRock: 12 fns
+  DllUSKinomi: 24 fns
+  DllUSMirror: 9 fns
+  DllUSPassage: 75 fns
+  DllUSPokecen: 23 fns
+  DllUSR13: 25 fns
+  DllUSR15: 31 fns
+  DllVSDemo: 93 fns
+  DllWazaOboe: 219 fns
+  DllWazaOmoidashi: 153 fns
+  DllZukan: 717 fns
+[22:43:13] STAGE D: symbolication + curate
+symbolicated 129/14864
+/mnt/dev/Dev/Coding_Projects/PokeXYZ-PC/Data/src_extracted -> /mnt/dev/Dev/Coding_Projects/PokeXYZ-PC/Data/src_extracted/curated (49124 entries linked, 8120 Pokémon models named)
+[22:43:14] REBUILD COMPLETE
+REBUILD-EXIT: 0

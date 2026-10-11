@@ -1,0 +1,13 @@
+[package]
+name = "xy-curate"
+description = "Curated-tree pipeline for the Pokemon X/Y toolkit (library)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+xy-core = { path = "../xy-core" }
+xy-archive = { path = "../xy-archive" }
+xy-gfx = { path = "../xy-gfx" }
+xy-script = { path = "../xy-script" }

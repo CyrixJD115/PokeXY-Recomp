@@ -1,0 +1,34 @@
+# Build cache
+/target
+
+# Console key material — NEVER commit or share (can derive console-unique keys)
+/keys/
+boot9.bin
+boot11.bin
+essentials.bin
+movable.sed
+seeddb.bin
+otp.mem
+otp.bin
+firm0.bin
+firm1.bin
+
+# Game-derived data: everything under Data/ (dumps, extracts, generated C,
+# symbol maps, port trees, binaries) derives from the user's own game copies
+# and/or console material — commit the READMEs only.
+/Data/**
+!/Data/README.md
+!/Data/update/
+!/Data/update/README.md
+
+# Upstream tool checkouts — keep only their index + fetch script
+/thirdparty/**
+!/thirdparty/README.md
+!/thirdparty/fetch.sh
+
+# Exported game assets (GLB/PNG renders etc. are game-derived too)
+/exports/
+
+# Python scratch
+__pycache__/
+*.pyc

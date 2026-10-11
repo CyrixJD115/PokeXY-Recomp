@@ -1,0 +1,10 @@
+[package]
+name = "xy-archive"
+description = "Container/archive handling: RomFS, DARC (e-manual), GARC"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+xy-core = { path = "../xy-core" }
