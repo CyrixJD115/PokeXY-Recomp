@@ -61,6 +61,11 @@ import re
 import sys
 import time
 
+# Anchor defaults to the repo root so the script runs correctly from any
+# working directory (repo root, scripts/, editors with a different cwd, …).
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEFAULT_SRC = os.path.join(ROOT, ".Data", "Source_Extracted")
+
 MOD_RE = re.compile(r'\{"([^"]+)", &m(\d+)_base, (0x[0-9A-Fa-f]+)u, (\d+),')
 FN_RE = re.compile(r'void (?:m\d+_)?f_([0-9A-Fa-f]+)\(Context')
 
@@ -1018,7 +1023,8 @@ def serve(out_dir, port, watch_args=None):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--source-root", default=".Data/Source_Extracted")
+    ap.add_argument("--source-root", default=DEFAULT_SRC,
+                    help=f"default: {DEFAULT_SRC}")
     ap.add_argument("--recomp", help="3dsrecomp port dir "
                     "(default <src>/recomp)")
     ap.add_argument("--symbols", help="pipeline symbols dir "
@@ -1031,7 +1037,7 @@ def main():
                     "(addresses the AOT recomp didn't cover)")
     ap.add_argument("--verified", help="JSON list of {module, addr} records "
                     "verified natively (3dsrecomp verify / objdiff export)")
-    ap.add_argument("--out", default=".Data/Source_Extracted/heatmap_gui")
+    ap.add_argument("--out", default=os.path.join(DEFAULT_SRC, "heatmap_gui"))
     ap.add_argument("--watch", action="store_true",
                     help="rebuild when inputs change")
     ap.add_argument("--serve", type=int, metavar="PORT", nargs="?", const=8765,
