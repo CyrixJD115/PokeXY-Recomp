@@ -16,10 +16,10 @@ helper scripts under `scripts/`; Rust is the daily driver.
 | `xy-recomp/` | recomp track: `build.sh` port builder, C `overrides/` |
 | `xy-decomp/` | matching-decomp track: `ghidra/` (patched 3ds suite + PyGhidra driver + symbol exporter), track README |
 | `xy-runtime/` | runtime track: zakuro-based native runtime (working clone gitignored, README tracked) |
-| `scripts/` | cross-cutting helpers: `heatmap.py` (decomp↔recomp bridge), `rebuild_v2.sh`, legacy build shim |
+| `scripts/` | cross-cutting helpers: `heatmap.py` (legacy per-module SVGs), `heatmap_gui.py` (**live single-page heatmap dashboard** — PNG/SVG export, `--watch`/`--serve`; see `docs/runtime-architecture.md` §7), `rebuild_v2.sh`, legacy build shim |
 | `.thirdparty/` | machine-local upstream checkouts (3dsrecomp, zakuro, 3DS-Decomp-Pipeline, objdiff) — `fetch.sh` recreates them |
 | `.Data/` | **machine-local, never share**: `Rom/` (dumps + keys + v1.5 update partitions), `Raw_Extracted/` (read-only sources), `Source_Extracted/` (all derived output — index: `.Data/Source_Extracted/MAP.md`), `Curated/` (final outputs: `ports/`) |
-| `docs/` | `findings.md` (recomp + matching-decomp metrics/gotchas), `ghidra-scripts.md` (PyGhidra setup + patches) |
+| `docs/` | `findings.md` (recomp + matching-decomp metrics/gotchas), `ghidra-scripts.md` (PyGhidra setup + patches), `runtime-architecture.md` (two-track runtime strategy: Zakuro fork vs full native runtime + asset bridge) |
 | `reference/` | early python prototypes kept for parity reference |
 
 **Directory convention:** dot-prefixed top-level dirs (`.Data/`,
@@ -41,6 +41,7 @@ package (`src/` + root `Cargo.toml`) lives at the repo root.
 | `.Data/Source_Extracted/decomp/` | `code.bin` + Ghidra project + 38,385 decompiled C functions (14,864 code.bin + 23,521 across all 133 CRO modules) |
 | `.Data/Source_Extracted/pipeline/` | Matching-decomp workspace: `orig/` + `symbols/` CSVs + generated `split/` + `out/` (134/134 byte-identical recreates) + `objdiff.json` |
 | `.Data/Source_Extracted/recomp/` | 3dsrecomp analyze/build output + the standalone port project (`port/`) |
+| `.Data/Source_Extracted/heatmap_gui/` | generated dashboard (`heatmap.html` + `heatmap_data.json` + `summary.md`) from `scripts/heatmap_gui.py` |
 | `.Data/Source_Extracted/text/` | gametext/storytext JSON, 8 languages (4,600 banks) |
 | `.Data/Source_Extracted/cro/` | The 133 plaintext `.cro` modules + `static.crs` (CRO0 magic at 0x80 — parser landed; **not** encrypted) |
 | `.Data/Curated/` | Final outputs — `Curated/ports/` holds the port trees `xy-recomp/build.sh` generates |
@@ -111,6 +112,11 @@ cargo build --release  # optimized (strip + LTO)
 cargo test             # unit + integration (integration skips if ROM assets absent)
 cargo clippy --all-targets -- -D warnings
 cargo fmt              # rustfmt defaults
+
+# progress dashboard (regenerate + serve the live heatmap GUI)
+python3 scripts/heatmap_gui.py                    # one-shot build
+python3 scripts/heatmap_gui.py --serve 8765       # live page at http://127.0.0.1:8765/heatmap.html
+python3 scripts/heatmap_gui.py --watch --serve    # rebuild on input change + live page
 
 # examples (run from repo root; binary is `xy`)
 ./target/release/xy info  .Data/Rom/X/Base/0004000000055D00_v00.3ds
