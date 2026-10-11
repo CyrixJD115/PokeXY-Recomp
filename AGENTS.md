@@ -16,7 +16,7 @@ helper scripts under `xy-heatmap-py/`; Rust is the daily driver.
 | `xy-recomp/` | recomp track: `build.sh` port builder, C `overrides/` |
 | `xy-decomp/` | matching-decomp track: `ghidra/` (patched 3ds suite + PyGhidra driver + symbol exporter), track README |
 | `xy-runtime/` | runtime track: zakuro-based native runtime (working clone gitignored, README tracked) |
-| `xy-heatmap-py/` | cross-cutting Python/shell helpers: `heatmap_gui.py` (**live single-page heatmap dashboard** — PNG/SVG export, `--watch`/`--serve`; see `docs/runtime-architecture.md` §7), `heatmap.py` (legacy per-module SVGs), `rebuild_v2.sh`, legacy build shim |
+| `xy-heatmap-py/` | the progress-heatmap toolkit: `heatmap.py` CLI (build/serve/summary/roms) over the `xhmap/` package (**central radial heatmap** + per-module grids, PNG/SVG export, ROM detection with `--rom`, live `serve --watch`; see `docs/runtime-architecture.md` §7) + `shell/rebuild_v2.sh` + `legacy/` (superseded v1 scripts) — README inside |
 | `.thirdparty/` | machine-local upstream checkouts (3dsrecomp, zakuro, 3DS-Decomp-Pipeline, objdiff) — `fetch.sh` recreates them |
 | `.Data/` | **machine-local, never share**: `Rom/` (dumps + keys + v1.5 update partitions), `Raw_Extracted/` (read-only sources), `Source_Extracted/` (all derived output — index: `.Data/Source_Extracted/MAP.md`), `Curated/` (final outputs: `ports/`) |
 | `docs/` | **the research log — every finding lands here** (see Documentation duty below; `docs/README.md` is the map + "what to explore" frontier list): topic folders `3ds/ formats/ knowledge/ dll/ decomp/ recomp/ runtime/ general/` + root `findings.md` (measured run metrics), `ghidra-scripts.md` (PyGhidra setup + patches), `runtime-architecture.md` (two-track runtime strategy), `PokemonX_Decomport_Report.md` (founding survey) |
@@ -41,7 +41,7 @@ package (`src/` + root `Cargo.toml`) lives at the repo root.
 | `.Data/Source_Extracted/decomp/` | `code.bin` + Ghidra project + 38,385 decompiled C functions (14,864 code.bin + 23,521 across all 133 CRO modules) |
 | `.Data/Source_Extracted/pipeline/` | Matching-decomp workspace: `orig/` + `symbols/` CSVs + generated `split/` + `out/` (134/134 byte-identical recreates) + `objdiff.json` |
 | `.Data/Source_Extracted/recomp/` | 3dsrecomp analyze/build output + the standalone port project (`port/`) |
-| `.Data/Source_Extracted/heatmap_gui/` | generated dashboard (`heatmap.html` + `heatmap_data.json` + `summary.md`) from `xy-heatmap-py/heatmap_gui.py` |
+| `.Data/Source_Extracted/heatmap_gui/` | generated dashboard (`heatmap.html` + `heatmap_data.json` + `summary.md`) from `xy-heatmap-py/heatmap.py` |
 | `.Data/Source_Extracted/text/` | gametext/storytext JSON, 8 languages (4,600 banks) |
 | `.Data/Source_Extracted/cro/` | The 133 plaintext `.cro` modules + `static.crs` (CRO0 magic at 0x80 — parser landed; **not** encrypted) |
 | `.Data/Curated/` | Final outputs — `Curated/ports/` holds the port trees `xy-recomp/build.sh` generates |
@@ -142,10 +142,11 @@ cargo test             # unit + integration (integration skips if ROM assets abs
 cargo clippy --all-targets -- -D warnings
 cargo fmt              # rustfmt defaults
 
-# progress dashboard (regenerate + serve the live heatmap GUI)
-python3 xy-heatmap-py/heatmap_gui.py                    # one-shot build
-python3 xy-heatmap-py/heatmap_gui.py --serve 8765       # live page at http://127.0.0.1:8765/heatmap.html
-python3 xy-heatmap-py/heatmap_gui.py --watch --serve    # rebuild on input change + live page
+# progress dashboard (central radial heatmap + module grids; runs from any cwd)
+python3 xy-heatmap-py/heatmap.py                        # build (one-shot)
+python3 xy-heatmap-py/heatmap.py serve --watch --port 8765   # live page + rebuild on change
+python3 xy-heatmap-py/heatmap.py summary                # text table to stdout
+python3 xy-heatmap-py/heatmap.py roms [--rom <file>]    # identify .3ds/.cxi dumps (X/Y × base/upd)
 
 # examples (run from repo root; binary is `xy`)
 ./target/release/xy info  .Data/Rom/X/Base/0004000000055D00_v00.3ds
@@ -203,7 +204,7 @@ action → detail → bytes → status) and re-verified into `validation.tsv`
 | `data` | `battle/ world/ ui/ manual/ shaders/` | organized real copies of the pk3DS-mapped GARC data |
 | `text` | `text/` | per-bank JSON copies + `text/organized/<lang>/` named banks (`species.json`=bank 080, `moves.json`=013, `abilities.json`=034, `items.json`=096, … per pk3DS `TextReference.GameText_XY`) + `index.json` |
 | `pokemon` | `pokemon/` | all 981 `a/0/0/7` 8-file families copied under `families/pmNNNN_Species_FF/`; models → **OBJ+MTL** (`models/`, Blender-validated); textures → **PNG** (`textures/`); orphans → `unknown/` |
-| `media` | `audio/ video/` | WAV / MP4 copies (ffmpeg conversions happen in `xy-heatmap-py/rebuild_v2.sh`) |
+| `media` | `audio/ video/` | WAV / MP4 copies (ffmpeg conversions happen in `xy-heatmap-py/shell/rebuild_v2.sh`) |
 | `code` | `code/` | CRO modules, extracted segments + symbols, the whole Ghidra C corpus, `modules.json` (segments/exports/import graph per module) |
 | `csharp` | `code/csharp/<Module>/` | **C→C# deobfuscation pipeline** (see below) |
 | `unknown` | `unknown/garc/<romfs path>/` | unmapped data preserved raw with READMEs — never discarded |
@@ -287,8 +288,9 @@ xy-decomp/ghidra/
   DecompileAll.java        # Ghidra headless post-script: export all C functions
                            # (force-creates module_entry for zero-function stubs)
 xy-heatmap-py/
-  heatmap_gui.py, heatmap.py  # live heatmap dashboard (+legacy SVGs),
-  rebuild_v2.sh               # full clean-slate re-dump of .Data/Source_Extracted
+  heatmap.py                  # CLI entry: build | serve --watch | summary | roms
+  xhmap/                      # cli / collect / romdetect / page / server modules
+  shell/rebuild_v2.sh         # full clean-slate re-dump of .Data/Source_Extracted
 xy-extraction/xy-curate/src/
   lib.rs                 # `xy curate` pipeline (stages, manifest, validation,
                          # progress + cancellation) — real files only, never

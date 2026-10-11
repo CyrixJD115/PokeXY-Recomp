@@ -1,401 +1,8 @@
-#!/usr/bin/env python3
-"""RDComp live heatmap GUI — single-page dashboard for the Pokémon X/Y
-recomp/decomp progress, with PNG/SVG export.
-
-Data model (all machine-local, produced from your own dump):
-
-  stage 0  Raw Binary        function exists in the 3dsrecomp port, nothing
-                             else known about it
-  stage 1  Identified/Named  carries a real symbol — CRO export table
-                             (cro_extracted/<Mod>/symbols.tsv), static.crs
-                             exports (cro_extracted/static/symbols.tsv), or a
-                             non-synthetic Ghidra name (pipeline/symbols/*.csv)
-  stage 2  Decompiled to C   a Ghidra decompiled .c exists in the decomp
-                             corpus (decomp/code_c + decomp/cro_c/<Mod>)
-  stage 3  Natively Verified recompiled code byte/exact-verified against the
-                             original (per-function: --verified list; module
-                             level: byte-identical relink in pipeline/out)
-
-  overlay  Interpreted      address appears in a Zakuro interpreter hints
-           (hints)          file (--hints) — the AOT recomp didn't cover it
-
-  stat     Recomp-covered   the 3dsrecomp port has a function start here
-           (not coloured)   (bit 16; shown in tooltips/module/global stats)
-
-The cell grid is the UNION of every tool's function starts (3dsrecomp port
-headers, Ghidra symbol CSVs, the decompiled-C corpus, export tables) — the
-port merges some functions Ghidra splits and vice versa, so no single
-source is authoritative. Cell colour encodes the highest achieved stage;
-the unnamed-decompiled mass is teal, named green, verified gold, raw dark
-grey, hints red.
-
-Coordinates: Main (functions.h) uses absolute 0x100000-based addresses,
-matching code.bin.csv and static.crs load_addr. CRO modules
-(m<NNN>_functions.h) use module-relative text offsets (0x180-based),
-matching the shifted <Dll>.cro.csv rows AND the `offset` column of the
-CRO symbols.tsv; the cro_c decomp corpus filenames are load-address based
-(0x100000 + offset), so they are rebased by -0x100000 before matching.
-
-Usage:
-  python3 scripts/heatmap_gui.py                      # one-shot build
-  python3 scripts/heatmap_gui.py --watch              # rebuild on change
-  python3 scripts/heatmap_gui.py --serve 8765         # serve + live page
-  python3 scripts/heatmap_gui.py --hints hints.txt    # overlay interp hits
-
-Outputs (default .Data/Source_Extracted/heatmap_gui/):
-  heatmap.html        self-contained page (data embedded; works from file://)
-  heatmap_data.json   same payload; the page polls it when served over http
-  summary.md          plain-text per-module table (old heatmap.py parity)
-
-The page polls heatmap_data.json every 3 s when loaded over http(s) and
-re-renders — pair --watch with --serve for a fully live dashboard.
-"""
-import argparse
-import csv
-import glob
-import hashlib
-import html
+"""Emit the single-page dashboard: heatmap.html (self-contained, data
+embedded, works from file://), heatmap_data.json (live-poll payload) and
+summary.md (plain-text table)."""
 import json
 import os
-import re
-import sys
-import time
-
-# Anchor defaults to the repo root so the script runs correctly from any
-# working directory (repo root, scripts/, editors with a different cwd, …).
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DEFAULT_SRC = os.path.join(ROOT, ".Data", "Source_Extracted")
-
-MOD_RE = re.compile(r'\{"([^"]+)", &m(\d+)_base, (0x[0-9A-Fa-f]+)u, (\d+),')
-FN_RE = re.compile(r'void (?:m\d+_)?f_([0-9A-Fa-f]+)\(Context')
-
-# Ghidra synthetic name families — these are NOT "identified" functions.
-SYNTHETIC = ("FUN_", "thunk_FUN_", "DAT_", "UNK_", "LAB_", "SUB_",
-             "switchD_", "switchdataD_", "module_entry", "module_")
-
-MANGLED_NS_RE = re.compile(r'^_ZN([0-9]+)')
-
-
-def parse_module_map(entries_c):
-    mods = {}
-    with open(entries_c) as f:
-        for line in f:
-            m = MOD_RE.search(line)
-            if m:
-                mods[int(m.group(2))] = {
-                    "name": m.group(1),
-                    "size": int(m.group(3), 16),
-                    "declared": int(m.group(4)),
-                }
-    return mods
-
-
-def parse_functions(path):
-    addrs = set()
-    with open(path) as f:
-        for line in f:
-            m = FN_RE.search(line)
-            if m:
-                addrs.add(int(m.group(1), 16) & ~1)
-    return sorted(addrs)
-
-
-def resolve_ci(directory, filename):
-    """Case-insensitive path resolution (entries.c says DllEShop, the
-    pipeline files say DllEshop — both spellings occur)."""
-    target = os.path.join(directory, filename)
-    if os.path.exists(target):
-        return target
-    try:
-        low = filename.lower()
-        for entry in os.listdir(directory):
-            if entry.lower() == low:
-                return os.path.join(directory, entry)
-    except OSError:
-        pass
-    return target
-
-
-def parse_symbols_csv(csv_path):
-    """Ghidra symbol CSV -> (function starts, {addr&~1: real name})."""
-    starts, named = set(), {}
-    try:
-        with open(csv_path) as f:
-            for row in csv.DictReader(f):
-                name = row["Name"].strip('"')
-                try:
-                    addr = int(row["Location"].strip('"'), 16) & ~1
-                except ValueError:
-                    continue
-                if name.startswith(("FUN_", "thunk_FUN_")):
-                    starts.add(addr)
-                elif not name.startswith(SYNTHETIC):
-                    named[addr] = name
-                    starts.add(addr)
-    except FileNotFoundError:
-        pass
-    return starts, named
-
-
-def parse_symbols_tsv(tsv_path):
-    """CRO/static export table -> {offset&~1: name} (real game symbols)."""
-    out = {}
-    try:
-        with open(tsv_path) as f:
-            next(f, None)
-            for line in f:
-                parts = line.rstrip("\n").split("\t")
-                if len(parts) >= 2 and parts[0]:
-                    try:
-                        out[int(parts[1], 16) & ~1] = parts[0]
-                    except ValueError:
-                        pass
-    except FileNotFoundError:
-        pass
-    return out
-
-
-def parse_decomp_dir(path, rebase=0):
-    """Set of addresses covered by the Ghidra decompiled C corpus."""
-    out = set()
-    for fn in glob.glob(os.path.join(path, "*.c")):
-        base = os.path.basename(fn).split("_", 1)[0]
-        try:
-            out.add((int(base, 16) - rebase) & ~1)
-        except ValueError:
-            pass
-    return out
-
-
-def parse_hints(path):
-    addrs = set()
-    if not path:
-        return addrs
-    started = False
-    for line in open(path):
-        line = line.strip()
-        if line.startswith("="):
-            started = True
-            continue
-        if started and line and not line.startswith(("#", "/")):
-            try:
-                addrs.add(int(line, 16) & ~1)
-            except ValueError:
-                pass
-    return addrs
-
-
-def parse_verified(path):
-    """Optional JSON list of {module, addr} entries verified natively."""
-    out = {}
-    if not path:
-        return out
-    for rec in json.load(open(path)):
-        out.setdefault(rec.get("module", ""), set()).add(
-            int(rec["addr"], 16) & ~1)
-    return out
-
-
-def demangle_namespace(name):
-    """Extract a '::' namespace from an Itanium-mangled name (light parse).
-
-    Components are length-prefixed: _ZN9xy_system2bg6System13SetIsCallDrawEb
-    -> xy_system::bg::System (last component = the function name).
-    """
-    if not name.startswith("_ZN"):
-        return ""
-    rest = name[3:]
-    parts = []
-    while rest:
-        m = re.match(r'([0-9]+)', rest)
-        if not m:
-            return ""
-        n = int(m.group(1))
-        start = len(m.group(1))
-        if n == 0 or len(rest) < start + n:
-            return ""
-        parts.append(rest[start:start + n])
-        rest = rest[start + n:]
-        if not rest or not rest[0].isdigit():
-            break
-    return "::".join(parts[:-1]) if len(parts) > 1 else ""
-
-
-def parse_imports(tsv_path):
-    """imports.tsv -> list of imported module names."""
-    mods = []
-    try:
-        with open(tsv_path) as f:
-            next(f, None)
-            for line in f:
-                parts = line.rstrip("\n").split("\t")
-                if parts and parts[0]:
-                    mods.append(parts[0].strip("|"))
-    except FileNotFoundError:
-        pass
-    return mods
-
-
-def sha256_of(path):
-    h = hashlib.sha256()
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
-def module_link_verified(pipeline_dir, module_file):
-    """Byte-identical relink check: pipeline/orig/<f> vs pipeline/out/<f>."""
-    orig = os.path.join(pipeline_dir, "orig", module_file)
-    out = os.path.join(pipeline_dir, "out", module_file)
-    try:
-        if os.path.getsize(orig) != os.path.getsize(out):
-            return False
-        return sha256_of(orig) == sha256_of(out)
-    except (FileNotFoundError, OSError):
-        return False
-
-
-def collect(args):
-    src = args.source_root
-    recomp = args.recomp or os.path.join(src, "recomp")
-    symbols_dir = args.symbols or os.path.join(src, "pipeline", "symbols")
-    cro_dir = args.cro or os.path.join(src, "cro_extracted")
-    decomp = args.decomp or os.path.join(src, "decomp")
-    pipeline = args.pipeline or os.path.join(src, "pipeline")
-
-    mods = parse_module_map(os.path.join(recomp, "entries.c"))
-    hints = parse_hints(args.hints)
-    verified = parse_verified(args.verified)
-
-    # Main executable: absolute addresses; static.crs = its export table.
-    plan = [("Main (code.bin)", "code.bin", 0,
-             os.path.join(recomp, "functions.h"),
-             os.path.join(symbols_dir, "code.bin.csv"),
-             os.path.join(cro_dir, "static", "symbols.tsv"),
-             os.path.join(decomp, "code_c"), 0)]
-    # CROs: m<NNN>_functions.h + <Dll>.cro.csv + exports, module-relative.
-    for mid, info in sorted(mods.items()):
-        h = os.path.join(recomp, f"m{mid:03d}_functions.h")
-        if os.path.exists(h):
-            plan.append((info["name"], info["name"], mid, h,
-                         resolve_ci(symbols_dir, f"{info['name']}.cro.csv"),
-                         os.path.join(cro_dir, info["name"], "symbols.tsv"),
-                         resolve_ci(os.path.join(decomp, "cro_c"),
-                                    info["name"]),
-                         0x100000))
-
-    ns_index = {}          # ns string -> id
-    ns_counts = {}
-    modules = []
-    totals = {"functions": 0, "named": 0, "decompiled": 0, "verified": 0,
-              "hints": 0, "recomp": 0}
-    importer_index = {}     # module -> [importers]
-
-    for name, modfile, mid, hpath, csv_path, tsv_path, cdir, rebase in plan:
-        port = set(parse_functions(hpath))          # 3dsrecomp's view
-        gh_starts, names = parse_symbols_csv(csv_path)
-        names.update(parse_symbols_tsv(tsv_path))   # real exports win
-        decomp_set = parse_decomp_dir(cdir, rebase)
-        ver = verified.get(name, verified.get(modfile, set()))
-
-        # Function inventory = union of every tool's function starts. The
-        # port merges some functions Ghidra splits (and splits some Ghidra
-        # merges), so no single source is authoritative.
-        funcs = sorted(port | gh_starts | decomp_set | set(names) | ver)
-
-        imports = parse_imports(resolve_ci(
-            os.path.join(cro_dir, "static" if mid == 0 else name),
-            "imports.tsv"))
-        for imp in imports:
-            importer_index.setdefault(imp, []).append(name)
-
-        idx_of = {a: i for i, a in enumerate(funcs)}
-        st = []
-        names_j = {}
-        ns_j = {}
-        for a in funcs:
-            s = 0
-            if a in names:
-                s |= 1
-            if a in decomp_set:
-                s |= 2
-            if a in ver:
-                s |= 4
-            if a in hints:
-                s |= 8
-            if a in port:
-                s |= 16                    # recomp-covered (stats only)
-            st.append(s)
-            if a in names:
-                i = idx_of[a]
-                nm = names[a]
-                names_j[str(i)] = nm
-                ns = demangle_namespace(nm)
-                if ns:
-                    ns_j[str(i)] = ns_index.setdefault(ns, len(ns_index))
-                    ns_counts[ns] = ns_counts.get(ns, 0) + 1
-
-        totals["functions"] += len(funcs)
-        totals["named"] += sum(1 for s in st if s & 1)
-        totals["decompiled"] += sum(1 for s in st if s & 2)
-        totals["verified"] += sum(1 for s in st if s & 4)
-        totals["hints"] += sum(1 for s in st if s & 8)
-        totals["recomp"] += sum(1 for s in st if s & 16)
-
-        link_ok = module_link_verified(
-            pipeline, modfile if mid == 0 else
-            os.path.basename(resolve_ci(os.path.join(pipeline, "orig"),
-                                        f"{modfile}.cro")))
-
-        modules.append({
-            "name": name, "mid": mid, "n": len(funcs),
-            "addrs": " ".join(f"{a:08x}" for a in funcs),
-            "st": st, "names": names_j, "ns": ns_j,
-            "imports": imports, "linkOk": link_ok,
-        })
-
-    for m in modules:
-        m["importers"] = sorted(importer_index.get(m["name"], []))
-
-    namespaces = [{"ns": ns, "count": ns_counts[ns]}
-                  for ns in sorted(ns_counts, key=lambda k: -ns_counts[k])]
-    link_total = sum(1 for m in modules if m["linkOk"])
-    return {
-        "generated": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "game": "Pokémon X (recomp basis: title 0004000000055D00)",
-        "totals": {**totals, "modules": len(modules),
-                   "linkVerified": link_total},
-        "namespaces": namespaces,
-        "nsIndex": [None] * len(ns_index) if not ns_index else
-                   sorted(ns_index, key=ns_index.get),
-        "modules": modules,
-    }
-
-
-def render_summary(data, out_dir):
-    rows = ["| module | functions | named | named % | decompiled | recomp | "
-            "verified | hints | link-ok |",
-            "|---|---:|---:|---:|---:|---:|---:|---:|---|"]
-    for m in data["modules"]:
-        named = sum(1 for s in m["st"] if s & 1)
-        dec = sum(1 for s in m["st"] if s & 2)
-        rec = sum(1 for s in m["st"] if s & 16)
-        ver = sum(1 for s in m["st"] if s & 4)
-        hint = sum(1 for s in m["st"] if s & 8)
-        pct = 100.0 * named / max(m["n"], 1)
-        rows.append(f"| {m['name']} | {m['n']} | {named} | {pct:.1f}% | "
-                    f"{dec} | {rec} | {ver} | {hint} | "
-                    f"{'yes' if m['linkOk'] else '—'} |")
-    t = data["totals"]
-    with open(os.path.join(out_dir, "summary.md"), "w") as f:
-        f.write("# RDComp heatmap\n\n" + "\n".join(rows))
-        f.write(f"\n\n**Total: {t['functions']} functions, {t['named']} named "
-                f"({100.0 * t['named'] / max(t['functions'], 1):.1f}%), "
-                f"{t['decompiled']} decompiled, {t['recomp']} recomp-covered, "
-                f"{t['verified']} verified, {t['hints']} interpreter hits, "
-                f"{t['linkVerified']}/{t['modules']} modules link-verified.**\n")
-
 
 HTML_TEMPLATE = r"""<!DOCTYPE html>
 <html lang="en">
@@ -456,6 +63,14 @@ h2{font-size:13px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;
   color:var(--dim)}
 #overview .legend .sw{display:inline-block;width:10px;height:10px;
   border-radius:2px;margin-right:5px;vertical-align:-1px}
+#central{border:1px solid var(--border);border-radius:10px;background:var(--panel);
+  padding:14px;display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
+#central .cwrap{flex:0 1 620px;min-width:340px}
+#radial{width:100%;max-width:620px;height:auto;display:block;cursor:crosshair}
+#central .cmeta{flex:1 1 300px;min-width:260px;font-size:12px;color:var(--dim);
+  line-height:1.6}
+#central .cmeta h3{margin:0 0 6px;font-size:14px;color:var(--text)}
+#central .cmeta .btns{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
 #nslist{display:flex;flex-wrap:wrap;gap:6px}
 .nschip{background:var(--panel2);border:1px solid var(--border);border-radius:14px;
   padding:3px 11px;font-size:12px;cursor:pointer;color:var(--dim)}
@@ -471,8 +86,6 @@ section.mod>header{position:static;background:var(--panel2);border-bottom:
 section.mod h3{margin:0;font-size:14px;font-weight:600}
 section.mod .meta{font-size:11px;color:var(--dim)}
 section.mod .meta b{color:var(--text)}
-section.mod .mini{display:flex;gap:2px;align-items:center}
-section.mod .mini i{width:9px;height:9px;border-radius:2px}
 section.mod canvas{display:block;margin:10px 14px 14px;cursor:crosshair;
   border-radius:4px}
 section.mod .imports{padding:0 14px 12px;display:flex;flex-wrap:wrap;gap:5px}
@@ -515,16 +128,34 @@ footer{color:var(--dim);font-size:11px;margin-top:30px;border-top:
       <div class="stackbar" id="stackbar"></div>
       <div class="legend" id="legend"></div>
     </div>
+    <h2>Central heatmap — every module a sector of one canvas</h2>
+    <div id="central">
+      <div class="cwrap"><canvas id="radial" width="940" height="940"></canvas></div>
+      <div class="cmeta">
+        <h3>How to read it</h3>
+        Sector angle ∝ function count (12 o'clock, clockwise, alphabetical).
+        Cells fill each sector from the center outward in <b>address
+        order</b> — inner rings are the module's lowest addresses. Colour =
+        highest achieved stage: dark grey raw → teal decompiled → green
+        identified → gold verified; red = interpreted at runtime.
+        Hover any cell for module/address/symbol; click a sector to jump to
+        its detail grid below. The center disc carries the corpus totals.
+        <div class="btns">
+          <button class="btn" id="expSvgRad">Export radial SVG</button>
+          <button class="btn" id="expPngRad">Export radial PNG</button>
+        </div>
+      </div>
+    </div>
     <h2>Namespaces (identified symbols)</h2>
     <div id="nsfilter"></div>
     <div id="nslist"></div>
     <h2>Modules — address-ordered function grid</h2>
     <div id="mods"></div>
-    <footer>Cell = one function, address order left→right, top→bottom.
-      Colour = highest achieved stage. Hover for details; click a module
-      name in the sidebar to jump. Sources: 3dsrecomp port headers ·
-      pipeline symbol CSVs · CRO/static export tables · Ghidra decomp
-      corpus · pipeline byte-identical relinks.</footer>
+    <footer>Cell = one function. Grid cells: address order left→right,
+      top→bottom. Sources: 3dsrecomp port headers · pipeline symbol CSVs ·
+      CRO/static export tables · Ghidra decomp corpus · pipeline
+      byte-identical relinks. Regenerate with
+      <span class="mono">xy-heatmap-py/heatmap.py</span>.</footer>
   </main>
 </div>
 <div id="tooltip"></div>
@@ -595,6 +226,191 @@ function renderHeader(){
   }
 }
 
+/* ---- central radial heatmap ---- */
+const RAD={size:940, r0:104, dr:0, pad:70};
+let RL=null;            /* radial layout */
+
+function buildRadialLayout(){
+  const N=DATA.totals.functions, K=M.length;
+  const minA=0.006;                       /* ~0.34° floor so tiny modules show */
+  const maxR=RAD.size/2-RAD.pad;
+  /* one global ring thickness: the largest module must fit inside maxR.
+     sum_k dA*(r0+k*dr) ≈ dA*(r0*rows + dr*rows²/2) = n  ->  solve dr */
+  const big=M.reduce((a,b)=>a.n>b.n?a:b);
+  const dAmax=minA+(2*Math.PI-K*minA)*(big.n/N);
+  RAD.dr=Math.max(3.2,(maxR-RAD.r0)*Math.sqrt(dAmax/(2*big.n)));
+  let a=-Math.PI/2;                        /* 12 o'clock, clockwise */
+  const mods=[];
+  const list=M.slice().sort((x,y)=>x.name.localeCompare(y.name));
+  for(const m of list){
+    const dA=minA+(2*Math.PI-K*minA)*(m.n/N);
+    const rings=[]; let off=0,k=0;
+    while(off<m.n){
+      const rMid=RAD.r0+(k+0.5)*RAD.dr;
+      const cap=Math.max(1,Math.floor(dA*rMid/RAD.dr));
+      rings.push({r1:RAD.r0+k*RAD.dr, r2:RAD.r0+(k+1)*RAD.dr, cap, off});
+      off+=Math.min(cap,m.n-off); k++;
+    }
+    mods.push({m,a0:a,dA,rings});
+    a+=dA;
+  }
+  RL={mods,maxR};
+}
+function wedge(g,cx,cy,r1,r2,a1,a2){
+  g.beginPath();
+  g.arc(cx,cy,r2,a1,a2);
+  g.arc(cx,cy,r1,a2,a1,true);
+  g.closePath(); g.fill();
+}
+function drawRadial(){
+  const cv=document.getElementById("radial");
+  const dpr=window.devicePixelRatio||1;
+  cv.width=RAD.size*dpr; cv.height=RAD.size*dpr;
+  const g=cv.getContext("2d"); g.scale(dpr,dpr);
+  const c=RAD.size/2;
+  g.fillStyle="#101216"; g.fillRect(0,0,RAD.size,RAD.size);
+  for(const sec of RL.mods){
+    const m=sec.m;
+    for(const ring of sec.rings){
+      const inRing=Math.min(ring.cap,m.n-ring.off);
+      const cellA=sec.dA/ring.cap;
+      const gap=Math.min(0.3*cellA,0.004);
+      let run=null;                        /* run-length wedges */
+      const flush=()=>{
+        if(!run) return;
+        wedge(g,c,c,ring.r1+0.5,ring.r2-0.5,
+          sec.a0+run.j0*cellA+gap, sec.a0+(run.j1+1)*cellA-gap);
+        run=null;
+      };
+      for(let j=0;j<inRing;j++){
+        const col=cellColor(m,ring.off+j);
+        if(run && run.col===col && run.j1===j-1){ run.j1=j; }
+        else{ flush(); run={col,j0:j,j1:j}; }
+      }
+      flush();
+    }
+  }
+  /* sector separators */
+  g.strokeStyle="#1c1f26"; g.lineWidth=1;
+  for(const sec of RL.mods){
+    const depth=RAD.r0+sec.rings.length*RAD.dr;
+    g.beginPath();
+    g.moveTo(c+Math.cos(sec.a0)*RAD.r0, c+Math.sin(sec.a0)*RAD.r0);
+    g.lineTo(c+Math.cos(sec.a0)*depth, c+Math.sin(sec.a0)*depth);
+    g.stroke();
+  }
+  /* outer labels: sectors wide enough to fit a name */
+  g.fillStyle="#8b929c"; g.font="9px ui-monospace,Consolas,monospace";
+  for(const sec of RL.mods){
+    if(sec.dA<0.055) continue;
+    const depth=RAD.r0+sec.rings.length*RAD.dr+8;
+    const mid=sec.a0+sec.dA/2;
+    const x=c+Math.cos(mid)*depth, y=c+Math.sin(mid)*depth;
+    g.save(); g.translate(x,y); g.rotate(mid);
+    if(mid>Math.PI/2&&mid<Math.PI*1.5){ g.rotate(Math.PI); g.textAlign="right"; }
+    else g.textAlign="left";
+    let nm=sec.m.name; if(nm.length>22) nm=nm.slice(0,21)+"…";
+    g.fillText(nm, mid>Math.PI/2&&mid<Math.PI*1.5?-3:3, 3);
+    g.restore();
+  }
+  /* center disc with totals */
+  g.beginPath(); g.arc(c,c,RAD.r0-8,0,2*Math.PI);
+  g.fillStyle="#14161a"; g.fill();
+  g.strokeStyle="#23262d"; g.stroke();
+  const t=DATA.totals;
+  g.fillStyle="#e8e8e8"; g.textAlign="center";
+  g.font="600 26px ui-monospace,Consolas,monospace";
+  g.fillText(fmt(t.functions),c,c-14);
+  g.font="11px ui-monospace,Consolas,monospace"; g.fillStyle="#9aa0aa";
+  g.fillText("functions · "+t.modules+" modules",c,c+8);
+  g.fillText("identified "+(100*t.named/Math.max(t.functions,1)).toFixed(1)
+    +"%",c,c+24);
+}
+function radialHit(e){
+  const cv=e.target;
+  const r=cv.getBoundingClientRect();
+  const sx=RAD.size/r.width;               /* css -> layout scale */
+  const dx=(e.clientX-r.left)*sx-RAD.size/2;
+  const dy=(e.clientY-r.top)*sx-RAD.size/2;
+  const rad=Math.hypot(dx,dy);
+  let ang=Math.atan2(dy,dx)+Math.PI/2;     /* 0 at 12 o'clock, cw */
+  if(ang<0) ang+=2*Math.PI;
+  for(const sec of RL.mods){
+    if(ang<sec.a0+Math.PI/2||ang>=sec.a0+sec.dA+Math.PI/2) continue;
+    const k=Math.floor((rad-RAD.r0)/RAD.dr);
+    const ring=sec.rings[k];
+    if(!ring) return null;
+    const inRing=Math.min(ring.cap,sec.m.n-ring.off);
+    const j=Math.min(inRing-1,
+      Math.floor((ang-(sec.a0+Math.PI/2))/sec.dA*ring.cap));
+    if(j<0) return null;
+    return {m:sec.m,i:ring.off+j,sec};
+  }
+  return null;
+}
+function onRadialMove(e){
+  const hit=radialHit(e);
+  if(!hit) return hideTip();
+  showTipFor(hit.m,hit.i,e);
+}
+function radialSvg(){
+  const s=RAD.size,c=s/2;
+  const P=[]; const pol=(r,a)=>[c+r*Math.cos(a),c+r*Math.sin(a)];
+  P.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}" viewBox="0 0 ${s} ${s}">`,
+    `<rect width="100%" height="100%" fill="#101216"/>`);
+  for(const sec of RL.mods){
+    const m=sec.m;
+    for(const ring of sec.rings){
+      const inRing=Math.min(ring.cap,m.n-ring.off);
+      const cellA=sec.dA/ring.cap;
+      const gap=Math.min(0.3*cellA,0.004);
+      let run=null;
+      const flush=()=>{
+        if(!run) return;
+        const a1=sec.a0+run.j0*cellA+gap, a2=sec.a0+(run.j1+1)*cellA-gap;
+        const [x1,y1]=pol(ring.r2,a1),[x2,y2]=pol(ring.r2,a2);
+        const [x3,y3]=pol(ring.r1,a2),[x4,y4]=pol(ring.r1,a1);
+        P.push(`<path d="M ${x1.toFixed(1)} ${y1.toFixed(1)} `+
+          `A ${ring.r2} ${ring.r2} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)} `+
+          `L ${x3.toFixed(1)} ${y3.toFixed(1)} `+
+          `A ${ring.r1} ${ring.r1} 0 0 0 ${x4.toFixed(1)} ${y4.toFixed(1)} Z" `+
+          `fill="${run.col}"/>`);
+        run=null;
+      };
+      for(let j=0;j<inRing;j++){
+        const col=cellColor(m,ring.off+j);
+        if(run && run.col===col && run.j1===j-1){ run.j1=j; }
+        else{ flush(); run={col,j0:j,j1:j}; }
+      }
+      flush();
+    }
+  }
+  for(const sec of RL.mods){
+    const depth=RAD.r0+sec.rings.length*RAD.dr;
+    const [x1,y1]=pol(RAD.r0,sec.a0),[x2,y2]=pol(depth,sec.a0);
+    P.push(`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" `+
+      `x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#1c1f26"/>`);
+    if(sec.dA>=0.055){
+      const mid=sec.a0+sec.dA/2, lr=depth+10;
+      let nm=esc(sec.m.name); if(nm.length>22) nm=nm.slice(0,21)+"…";
+      const [lx,ly]=pol(lr,mid);
+      const deg=mid*180/Math.PI;
+      const flip=mid>Math.PI/2&&mid<Math.PI*1.5;
+      P.push(`<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" fill="#8b929c" `+
+        `font-family="monospace" font-size="9" text-anchor="${flip?"end":"start"}" `+
+        `transform="rotate(${(flip?deg+180:deg).toFixed(1)} ${lx.toFixed(1)} ${ly.toFixed(1)})">`+
+        `${nm}</text>`);
+    }
+  }
+  const t=DATA.totals;
+  P.push(`<circle cx="${c}" cy="${c}" r="${RAD.r0-8}" fill="#14161a" stroke="#23262d"/>`,
+    `<text x="${c}" y="${c-6}" fill="#e8e8e8" font-family="monospace" font-size="26" text-anchor="middle" font-weight="600">${fmt(t.functions)}</text>`,
+    `<text x="${c}" y="${c+12}" fill="#9aa0aa" font-family="monospace" font-size="11" text-anchor="middle">functions · ${t.modules} modules</text>`,
+    `<text x="${c}" y="${c+28}" fill="#9aa0aa" font-family="monospace" font-size="11" text-anchor="middle">identified ${(100*t.named/Math.max(t.functions,1)).toFixed(1)}% · ${DATA.generated}</text>`,
+    `</svg>`);
+  return P.join("\n");
+}
+
 /* ---- sidebar ---- */
 function renderSide(){
   const q=document.getElementById("q").value.toLowerCase();
@@ -618,10 +434,20 @@ function renderSide(){
       `<i style="width:${100*nNamed/m.n}%;background:${colorOf("named")}"></i>`+
       `<i style="width:${100*c.decomp/m.n}%;background:${colorOf("decomp")}"></i>`+
       `<i style="width:${100*c.raw/m.n}%;background:${colorOf("raw")}"></i></div>`;
-    row.onclick=()=>document.getElementById("mod-"+cssId(m.name))
-      .scrollIntoView({behavior:"smooth",block:"start"});
+    row.onclick=()=>jumpTo(cssId(m.name));
     box.appendChild(row);
   }
+}
+function jumpTo(id){
+  const t=document.getElementById(id);
+  if(!t) return;
+  t.scrollIntoView({behavior:"smooth",block:"start"});
+  /* environments without a smooth-scroll animator (headless, some
+     kiosks): if nothing moved, settle instantly */
+  setTimeout(()=>{
+    if(Math.abs(t.getBoundingClientRect().top)>window.innerHeight*0.9)
+      t.scrollIntoView({behavior:"auto",block:"start"});
+  },350);
 }
 function namedN(m){ let n=0; for(const s of m.st) if(s&1)n++; return n; }
 function pct(m){ return 100*namedN(m)/Math.max(m.n,1); }
@@ -640,14 +466,14 @@ function renderNs(){
     chip.textContent=`${rec.ns} · ${rec.count}`;
     if(nsFilter===rec.ns) chip.classList.add("sel");
     chip.onclick=()=>{ nsFilter=(nsFilter===rec.ns)?null:rec.ns;
-      renderNs(); rerenderCanvases(); };
+      renderNs(); rerenderCanvases(); drawRadial(); };
     box.appendChild(chip);
   }
   const flt=document.getElementById("nsfilter");
   if(nsFilter){ flt.style.display="block";
     flt.innerHTML=`namespace filter: <b class="mono">${esc(nsFilter)}</b> — `+
       `non-matching cells dimmed · <a href="#" onclick="nsFilter=null;`+
-      `renderNs();rerenderCanvases();return false">clear</a>`;
+      `renderNs();rerenderCanvases();drawRadial();return false">clear</a>`;
   } else flt.style.display="none";
 }
 function nsOfCell(m,i){
@@ -685,8 +511,7 @@ function renderMods(){
       for(const dep of m.imports.slice(0,40)){
         const d=document.createElement("span"); d.className="imp mono";
         d.textContent=dep;
-        d.onclick=()=>{ const t=document.getElementById(cssId(dep));
-          if(t) t.scrollIntoView({behavior:"smooth",block:"start"}); };
+        d.onclick=()=>jumpTo(cssId(dep));
         im.appendChild(d);
       }
       if(m.imports.length>40){ const more=document.createElement("span");
@@ -700,8 +525,7 @@ function renderMods(){
         for(const dep of impBy.slice(0,20)){
           const d=document.createElement("span"); d.className="imp mono";
           d.textContent=dep;
-          d.onclick=()=>{ const t=document.getElementById(cssId(dep));
-            if(t) t.scrollIntoView({behavior:"smooth",block:"start"}); };
+          d.onclick=()=>jumpTo(cssId(dep));
           im.appendChild(d);
         }
       }
@@ -772,14 +596,7 @@ function allLayouts(){
 
 /* ---- tooltip ---- */
 const tip=document.getElementById("tooltip");
-function onMove(e,{cv,m}){
-  const r=cv.getBoundingClientRect();
-  const {cols}=layoutOf(m, r.width);
-  const x=Math.floor((e.clientX-r.left-PAD)/CELL);
-  const y=Math.floor((e.clientY-r.top-PAD-GAPT)/CELL);
-  if(x<0||x>=cols||y<0) return hideTip();
-  const i=y*cols+x;
-  if(i>=m.n) return hideTip();
+function showTipFor(m,i,e){
   const addr=parseInt(m.addrs[i],16);
   const nm=m.names[String(i)];
   const st=clsOf(m.st[i]);
@@ -793,6 +610,16 @@ function onMove(e,{cv,m}){
   const tx=Math.min(e.clientX+14,window.innerWidth-tip.offsetWidth-8);
   const ty=Math.min(e.clientY+14,window.innerHeight-tip.offsetHeight-8);
   tip.style.left=tx+"px"; tip.style.top=ty+"px";
+}
+function onMove(e,{cv,m}){
+  const r=cv.getBoundingClientRect();
+  const {cols}=layoutOf(m, r.width);
+  const x=Math.floor((e.clientX-r.left-PAD)/CELL);
+  const y=Math.floor((e.clientY-r.top-PAD-GAPT)/CELL);
+  if(x<0||x>=cols||y<0) return hideTip();
+  const i=y*cols+x;
+  if(i>=m.n) return hideTip();
+  showTipFor(m,i,e);
 }
 function hideTip(){ tip.style.display="none"; }
 
@@ -846,8 +673,8 @@ function allSvg(){
     modBlocks.push({m,y});
     y+=headH+rows*cell+18;
   }
-  const w=pad*2+cols*cell, h=y;
-  parts.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">`,
+  const w=pad*2+cols*cell;
+  parts.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${y}" viewBox="0 0 ${w} ${y}">`,
     `<rect width="100%" height="100%" fill="#0f1115"/>`,
     `<text x="${pad}" y="24" fill="#e8e8e8" font-family="monospace" font-size="15">PokeXYZ-RDComp heatmap — ${svgEsc(DATA.game)}</text>`,
     `<text x="${pad}" y="44" fill="#9aa0aa" font-family="monospace" font-size="11">${DATA.generated} · ${fmt(t.functions)} functions · identified ${fmt(t.named)} · verified ${fmt(t.verified)} · link-ok ${t.linkVerified}/${t.modules}</text>`);
@@ -869,7 +696,7 @@ function allSvg(){
     }
   }
   parts.push("</svg>");
-  return {svg:parts.join("\n"), w, h: y};
+  return {svg:parts.join("\n"), w, h:y};
 }
 
 function exportModuleSvg(m){
@@ -877,9 +704,8 @@ function exportModuleSvg(m){
     new Blob([moduleSvg(m,7)],{type:"image/svg+xml"}));
 }
 function exportModulePng(m){
-  const scale=3, cell=7;
-  const svg=moduleSvg(m,cell);
-  rasterize(svg,scale).then(canvas=>
+  const svg=moduleSvg(m,7);
+  rasterize(svg,3).then(canvas=>
     canvas.toBlob(b=>download(
       `heatmap-${m.name.replace(/[^\w.-]/g,"_")}-${stamp()}.png`,b)));
 }
@@ -894,6 +720,14 @@ function exportAllPng(){
   if(w*h*scale*scale>maxArea) scale=Math.sqrt(maxArea/(w*h));
   rasterize(svg,scale).then(canvas=>
     canvas.toBlob(b=>download(`pokexyz-heatmap-${stamp()}.png`,b)));
+}
+function exportRadialSvg(){
+  download(`pokexyz-radial-${stamp()}.svg`,
+    new Blob([radialSvg()],{type:"image/svg+xml"}));
+}
+function exportRadialPng(){
+  rasterize(radialSvg(),3).then(canvas=>
+    canvas.toBlob(b=>download(`pokexyz-radial-${stamp()}.png`,b)));
 }
 function rasterize(svgStr,scale){
   return new Promise((res,rej)=>{
@@ -915,13 +749,15 @@ function rasterize(svgStr,scale){
 }
 document.getElementById("expSvgAll").onclick=exportAllSvg;
 document.getElementById("expPngAll").onclick=exportAllPng;
+document.getElementById("expSvgRad").onclick=exportRadialSvg;
+document.getElementById("expPngRad").onclick=exportRadialPng;
 
 /* ---- live polling ---- */
 function goLive(){
   const el=document.getElementById("live");
   if(!location.protocol.startsWith("http")){
     document.getElementById("livetxt").textContent=
-      "static — serve with --serve";
+      "static — serve with `serve`";
     return;
   }
   el.classList.add("on");
@@ -933,7 +769,8 @@ function goLive(){
       const d=await r.json();
       if(d.generated!==DATA.generated){
         Object.assign(DATA,d);
-        decode(); renderHeader(); renderSide(); renderNs(); renderMods();
+        decode(); renderHeader(); renderSide(); renderNs();
+        buildRadialLayout(); drawRadial(); renderMods();
       } else {
         document.getElementById("stamp").textContent=d.generated;
       }
@@ -944,19 +781,55 @@ function goLive(){
 /* ---- boot ---- */
 document.getElementById("q").addEventListener("input",renderSide);
 document.getElementById("sort").addEventListener("change",renderSide);
+const radCv=document.getElementById("radial");
+radCv.addEventListener("mousemove",onRadialMove);
+radCv.addEventListener("mouseleave",hideTip);
+radCv.addEventListener("click",e=>{
+  const hit=radialHit(e);
+  if(hit) jumpTo(cssId(hit.m.name));
+});
 let rszT=null;
 window.addEventListener("resize",()=>{ clearTimeout(rszT);
   rszT=setTimeout(rerenderCanvases,150); });
-decode(); renderHeader(); renderSide(); renderNs(); renderMods(); goLive();
+decode(); renderHeader(); renderSide(); renderNs();
+buildRadialLayout(); drawRadial(); renderMods(); goLive();
 </script>
 </body>
 </html>
 """
 
 
-def build(args):
-    data = collect(args)
-    out_dir = args.out
+def render_summary(data, out_dir=None, stream=None):
+    rows = ["| module | functions | named | named % | decompiled | recomp | "
+            "verified | hints | link-ok |",
+            "|---|---:|---:|---:|---:|---:|---:|---:|---|"]
+    for m in data["modules"]:
+        named = sum(1 for s in m["st"] if s & 1)
+        dec = sum(1 for s in m["st"] if s & 2)
+        rec = sum(1 for s in m["st"] if s & 16)
+        ver = sum(1 for s in m["st"] if s & 4)
+        hint = sum(1 for s in m["st"] if s & 8)
+        pct = 100.0 * named / max(m["n"], 1)
+        rows.append(f"| {m['name']} | {m['n']} | {named} | {pct:.1f}% | "
+                    f"{dec} | {rec} | {ver} | {hint} | "
+                    f"{'yes' if m['linkOk'] else '—'} |")
+    t = data["totals"]
+    rows.append("")
+    rows.append(f"**Total: {t['functions']} functions, {t['named']} named "
+                f"({100.0 * t['named'] / max(t['functions'], 1):.1f}%), "
+                f"{t['decompiled']} decompiled, {t['recomp']} recomp-covered, "
+                f"{t['verified']} verified, {t['hints']} interpreter hits, "
+                f"{t['linkVerified']}/{t['modules']} modules link-verified.**")
+    text = "# RDComp heatmap\n\n" + "\n".join(rows) + "\n"
+    if stream is not None:
+        print(text, file=stream)
+        return
+    with open(os.path.join(out_dir, "summary.md"), "w") as f:
+        f.write(text)
+
+
+def build(data, out_dir):
+    """Write heatmap.html + heatmap_data.json + summary.md."""
     os.makedirs(out_dir, exist_ok=True)
     payload = json.dumps(data, separators=(",", ":"))
     with open(os.path.join(out_dir, "heatmap_data.json"), "w") as f:
@@ -964,105 +837,12 @@ def build(args):
     page = HTML_TEMPLATE.replace("__DATA_JSON__", payload)
     with open(os.path.join(out_dir, "heatmap.html"), "w") as f:
         f.write(page)
-    render_summary(data, out_dir)
+    render_summary(data, out_dir=out_dir)
     t = data["totals"]
     print(f"wrote {out_dir}/heatmap.html + heatmap_data.json + summary.md")
+    print(f"  {data['game']}")
     print(f"  {t['modules']} modules · {t['functions']:,} functions · "
-          f"{t['named']:,} identified ({100.0 * t['named'] / max(t['functions'], 1):.1f}%) · "
+          f"{t['named']:,} identified "
+          f"({100.0 * t['named'] / max(t['functions'], 1):.1f}%) · "
           f"{t['decompiled']:,} decompiled · {t['recomp']:,} recomp-covered · "
           f"{t['verified']} verified · link-ok {t['linkVerified']}/{t['modules']}")
-    return data
-
-
-def input_fingerprint(args):
-    src = args.source_root
-    paths = [os.path.join(args.recomp or os.path.join(src, "recomp"),
-                          "entries.c")]
-    paths += glob.glob(os.path.join(args.recomp or os.path.join(src, "recomp"),
-                                    "*_functions.h"))
-    for d in (args.symbols or os.path.join(src, "pipeline", "symbols"),
-              args.cro or os.path.join(src, "cro_extracted")):
-        paths += glob.glob(os.path.join(d, "*", "symbols.tsv"))
-        paths += glob.glob(os.path.join(d, "*.csv"))
-        paths += glob.glob(os.path.join(d, "*", "imports.tsv"))
-    fp = []
-    for p in paths:
-        try:
-            st = os.stat(p)
-            fp.append(f"{p}:{st.st_mtime_ns}:{st.st_size}")
-        except OSError:
-            pass
-    return hashlib.sha256("|".join(fp).encode()).hexdigest()
-
-
-def serve(out_dir, port, watch_args=None):
-    import http.server
-    import functools
-    import threading
-
-    if watch_args is not None:
-        def _watch():
-            last = input_fingerprint(watch_args)
-            while True:
-                time.sleep(2)
-                cur = input_fingerprint(watch_args)
-                if cur != last:
-                    last = cur
-                    try:
-                        build(watch_args)
-                    except Exception as e:  # keep serving on regen errors
-                        print(f"watch: rebuild failed: {e}", file=sys.stderr)
-        threading.Thread(target=_watch, daemon=True).start()
-
-    handler = functools.partial(
-        http.server.SimpleHTTPRequestHandler, directory=out_dir)
-    url = f"http://127.0.0.1:{port}/heatmap.html"
-    print(f"serving {out_dir} -> {url} (Ctrl-C to stop)")
-    http.server.ThreadingHTTPServer(("127.0.0.1", port), handler).serve_forever()
-
-
-def main():
-    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--source-root", default=DEFAULT_SRC,
-                    help=f"default: {DEFAULT_SRC}")
-    ap.add_argument("--recomp", help="3dsrecomp port dir "
-                    "(default <src>/recomp)")
-    ap.add_argument("--symbols", help="pipeline symbols dir "
-                    "(default <src>/pipeline/symbols)")
-    ap.add_argument("--cro", help="cro_extracted root (default <src>/cro_extracted)")
-    ap.add_argument("--decomp", help="decomp corpus root (default <src>/decomp)")
-    ap.add_argument("--pipeline", help="matching-decomp pipeline dir "
-                    "(default <src>/pipeline)")
-    ap.add_argument("--hints", help="Zakuro interpreter hints file "
-                    "(addresses the AOT recomp didn't cover)")
-    ap.add_argument("--verified", help="JSON list of {module, addr} records "
-                    "verified natively (3dsrecomp verify / objdiff export)")
-    ap.add_argument("--out", default=os.path.join(DEFAULT_SRC, "heatmap_gui"))
-    ap.add_argument("--watch", action="store_true",
-                    help="rebuild when inputs change")
-    ap.add_argument("--serve", type=int, metavar="PORT", nargs="?", const=8765,
-                    help="serve the output dir over http (live page)")
-    args = ap.parse_args()
-
-    if args.serve is not None:
-        build(args)  # ensure fresh output before serving
-        serve(args.out, args.serve, watch_args=args if args.watch else None)
-        return
-    if args.watch:
-        last = input_fingerprint(args)
-        build(args)
-        while True:
-            time.sleep(2)
-            cur = input_fingerprint(args)
-            if cur != last:
-                last = cur
-                try:
-                    build(args)
-                except Exception as e:
-                    print(f"watch: rebuild failed: {e}", file=sys.stderr)
-    else:
-        build(args)
-
-
-if __name__ == "__main__":
-    main()
