@@ -29,7 +29,7 @@ fn norm(v: [f32; 3]) -> f32 {
 
 #[test]
 fn bulbasaur_high_poly_decodes() {
-    let Some(entries) = pc_entries("src_extracted/garc/a/0/0/7/0004.bin") else {
+    let Some(entries) = pc_entries("Source_Extracted/garc/a/0/0/7/0004.bin") else {
         eprintln!("skipping: golden asset not found");
         return;
     };
@@ -79,7 +79,7 @@ fn bulbasaur_high_poly_decodes() {
 
 #[test]
 fn bulbasaur_low_poly_and_shadow() {
-    let Some(entries) = pc_entries("src_extracted/garc/a/0/0/7/0004.bin") else {
+    let Some(entries) = pc_entries("Source_Extracted/garc/a/0/0/7/0004.bin") else {
         eprintln!("skipping: golden asset not found");
         return;
     };
@@ -99,7 +99,7 @@ fn bulbasaur_low_poly_and_shadow() {
 
 #[test]
 fn star_texture_decodes() {
-    let Some(entries) = pc_entries("src_extracted/garc/a/0/0/7/0001.bin") else {
+    let Some(entries) = pc_entries("Source_Extracted/garc/a/0/0/7/0001.bin") else {
         eprintln!("skipping: golden asset not found");
         return;
     };
@@ -125,7 +125,7 @@ fn form_group_layout_holds() {
     // a/0/0/6 value g → model PC at file 8g+4 (empirical rule, verified
     // for species 1-20). Species 1 = group 0 → 0004.bin; species 2 =
     // group 1 → 0012.bin (pm0002_00).
-    let Some(entries) = pc_entries("src_extracted/garc/a/0/0/7/0012.bin") else {
+    let Some(entries) = pc_entries("Source_Extracted/garc/a/0/0/7/0012.bin") else {
         eprintln!("skipping: golden asset not found");
         return;
     };
@@ -137,7 +137,7 @@ fn form_group_layout_holds() {
 fn corpus_sweep_model_pcs() {
     // Every 40th model PC in a/0/0/7 must decode with real geometry
     // (the full 981/981 sweep was run out-of-band, zero failures).
-    let Some(dir) = asset("src_extracted/garc/a/0/0/7") else {
+    let Some(dir) = asset("Source_Extracted/garc/a/0/0/7") else {
         eprintln!("skipping: golden asset dir not found");
         return;
     };
@@ -193,7 +193,7 @@ fn corpus_sweep_model_pcs() {
 #[test]
 fn pt_texture_container_decodes() {
     // Species 1 texture pack: 0006.bin (PT) → BCH → named RGBA8 textures.
-    let Some(entries) = pc_entries("src_extracted/garc/a/0/0/7/0006.bin") else {
+    let Some(entries) = pc_entries("Source_Extracted/garc/a/0/0/7/0006.bin") else {
         eprintln!("skipping: golden asset not found");
         return;
     };
@@ -230,7 +230,7 @@ fn pt_texture_container_decodes() {
 fn pf_material_animations_decode() {
     // Charizard (family group 7, model PC 0060.bin) motions: 0061.bin PF
     // entry 18 = `pm0006_00_loop01` fire material anim (UV scrolls).
-    let Some(entries) = pc_entries("src_extracted/garc/a/0/0/7/0061.bin") else {
+    let Some(entries) = pc_entries("Source_Extracted/garc/a/0/0/7/0061.bin") else {
         eprintln!("skipping: golden asset not found");
         return;
     };
@@ -284,7 +284,7 @@ fn mouth_visibility_anims_parse() {
     // anims (mouth01, eye01; 70 frames each), with empty element lists —
     // the actual curve data lives in XY's v2 motion bitstreams (see
     // PLAN.md).
-    let Some(entries) = pc_entries("src_extracted/garc/a/0/0/7/0005.bin") else {
+    let Some(entries) = pc_entries("Source_Extracted/garc/a/0/0/7/0005.bin") else {
         eprintln!("skipping: golden asset not found");
         return;
     };

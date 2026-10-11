@@ -1,5 +1,5 @@
 //! Golden test: RomFS extraction vs the `ctrtool --romfsdir` reference tree
-//! (`.Data/3ds_extracted/romfs`, 653 files — parity first verified by hand on
+//! (`.Data/Raw_Extracted/romfs`, 653 files — parity first verified by hand on
 //! 2026-10-05). Compares path sets, sizes, and FNV-1a content hashes.
 //!
 //! Skips cleanly when the dump or reference tree is absent.
@@ -19,8 +19,8 @@ fn data_root() -> PathBuf {
 #[test]
 fn romfs_matches_ctrtool_reference() {
     let root = data_root();
-    let cci = root.join("0004000000055D00_v00.3ds");
-    let reference = root.join("3ds_extracted/romfs");
+    let cci = root.join("Rom/X/Base/0004000000055D00_v00.3ds");
+    let reference = root.join("Raw_Extracted/romfs");
     if !cci.exists() || !reference.is_dir() {
         eprintln!("skipping: golden assets not found");
         return;

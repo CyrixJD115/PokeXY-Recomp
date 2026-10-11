@@ -1,5 +1,5 @@
 //! Golden test: full CGFX decode against the real Bulbasaur PC container
-//! (`src_extracted/garc/a/0/0/7/0001.bin`, recon 2026-10-06). Skips when
+//! (`Source_Extracted/garc/a/0/0/7/0001.bin`, recon 2026-10-06). Skips when
 //! the asset is absent.
 //!
 //! Pinned facts (hand-verified via hexdump before the port):
@@ -23,7 +23,7 @@ fn asset(rel: &str) -> Option<PathBuf> {
 }
 
 fn bulbasaur() -> Option<Vec<Vec<u8>>> {
-    let path = asset("src_extracted/garc/a/0/0/7/0001.bin")?;
+    let path = asset("Source_Extracted/garc/a/0/0/7/0001.bin")?;
     let bytes = std::fs::read(&path).unwrap();
     let pc = PkmnContainer::parse(&bytes).expect("pc parse");
     Some(pc.entries.iter().map(|e| e.to_vec()).collect())

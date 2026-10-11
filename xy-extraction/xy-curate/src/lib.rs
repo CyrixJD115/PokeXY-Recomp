@@ -1,7 +1,7 @@
 //! `xy-curate` — the final extract → rebuild → convert → organize pipeline.
 //!
 //! Library crate behind both the `xy curate` CLI subcommand and the GUI's
-//! curation workspace. Builds `src_extracted/curated/`: a fully
+//! curation workspace. Builds `Source_Extracted/curated/`: a fully
 //! self-contained tree of **real files** (never symlinks), converting
 //! proprietary formats into standard ones wherever a validated parser
 //! exists:
@@ -233,7 +233,7 @@ pub fn stage_name(stage: Stage) -> &'static str {
 
 /// One `manifest.tsv` row: original location → curated file → transformation.
 struct Row {
-    source: String, // relative to src_extracted (or "<generated>")
+    source: String, // relative to Source_Extracted (or "<generated>")
     path: String,   // relative to the curated root
     action: &'static str,
     detail: String,
@@ -883,7 +883,7 @@ fn stage_media(ctx: &mut Ctx) -> io::Result<()> {
                 "# audio\n\n{n} WAV files converted from `romfs/sound/*.aac` \
                  (plain ADTS AAC → ffmpeg pcm_s16le) plus the banner jingle \
                  (`xy audio bcwav`, DSP-ADPCM → RIFF WAV, 32,728 Hz stereo).\n\
-                 Raw sources remain in `.Data/3ds_extracted/romfs/sound/`.\n"
+                 Raw sources remain in `.Data/Raw_Extracted/romfs/sound/`.\n"
             ),
         )?;
     }
@@ -1531,11 +1531,11 @@ fn write_top_readme(ctx: &Ctx, stages: &[Stage]) -> io::Result<()> {
     let s = &ctx.summary;
     let text = format!(
         "# curated — the final human- and tool-friendly extraction\n\n\
-         Built by `xy curate -i <src_extracted>` (stages: {}). Deterministic: \
+         Built by `xy curate -i <Source_Extracted>` (stages: {}). Deterministic: \
          re-running produces identical structure and filenames. **Real files \
          only — no symlinks.**\n\n\
-         Provenance chain: `.Data/3ds_extracted/` (raw decrypted ROM) → \
-         `.Data/src_extracted/` (GARC/BCMA/CRO unpacking, Ghidra, ffmpeg) → \
+         Provenance chain: `.Data/Raw_Extracted/` (raw decrypted ROM) → \
+         `.Data/Source_Extracted/` (GARC/BCMA/CRO unpacking, Ghidra, ffmpeg) → \
          this tree (organization + standard-format conversion). Every file \
          here is listed in `manifest.tsv` (source → path → action → bytes) \
          and re-verified by `validation.tsv`.\n\n\
@@ -1554,7 +1554,7 @@ fn write_top_readme(ctx: &Ctx, stages: &[Stage]) -> io::Result<()> {
          streams and rev-9 CNOD meshes are open RE projects; battle tables \
          (`battle/*.*/`) are organized but not yet field-decoded; media \
          conversion (ffmpeg) happens in the rebuild script and is copied in.\n\n\
-         Rebuild: `cargo build --release && ./target/release/xy curate -i ../../.Data/src_extracted`\n\
+         Rebuild: `cargo build --release && ./target/release/xy curate -i ../../.Data/Source_Extracted`\n\
          (run from the `PokeXYZ-RDComp/` repo root).\n",
         stage_names.join(","),
         s.families,

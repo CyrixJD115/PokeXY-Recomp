@@ -31,11 +31,11 @@ README/index files; non-dot dirs are repo content; game tracks are
 ```bash
 # toolkit
 cargo build --release
-./target/release/xy gfx icon .Data/3ds_extracted/exefs/icon.bin -o icon.png
+./target/release/xy gfx icon .Data/Raw_Extracted/exefs/icon.bin -o icon.png
 
 # native standalone port (needs Rust, gcc/clang, ar; your own decrypted dump)
 ./.thirdparty/fetch.sh         # once — clones 3dsrecomp + zakuro
-./xy-recomp/build.sh --run     # picks up .Data/0004000000055D00_v00.3ds by default
+./xy-recomp/build.sh --run     # picks up .Data/Rom/X/Base/0004000000055D00_v00.3ds by default
 ```
 
 ## Status
@@ -46,8 +46,9 @@ cargo build --release
   generated splits (parity gate for future hand-written C).
 - **Toolkit**: 65/65 golden tests byte/pixel-identical against upstream
   references; clippy `-D warnings` clean.
-- **v1.5 update**: slot prepared at `.Data/update/` — see its README before
-  landing the update dumps.
+- **v1.5 update**: update partitions landed at `.Data/Rom/{X,Y}/Upd/`
+  (v1.5 `code.bin` = 5,169,152 B) — see `.Data/README.md` before building
+  against them.
 
 Details and the full roadmap: [`AGENTS.md`](AGENTS.md),
 [`PLAN.md`](PLAN.md), [`docs/findings.md`](docs/findings.md).

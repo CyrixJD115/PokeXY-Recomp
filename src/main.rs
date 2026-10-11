@@ -127,7 +127,7 @@ enum Cmd {
     /// Build the curated tree: real files, standard-format conversions,
     /// manifest + validation (never symlinks)
     Curate {
-        /// src_extracted root
+        /// Source_Extracted root
         #[arg(short, long)]
         input: PathBuf,
         /// Output root (default: <input>/curated)

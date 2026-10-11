@@ -28,7 +28,7 @@ All three golden tests landed and pass against the real assets:
 
 ## Phase 1 — GARC archives (the 1.5 GB prize) ✅ (extraction complete)
 
-`.Data/3ds_extracted/romfs/a/` holds the game's real content: maps, models,
+`.Data/Raw_Extracted/romfs/a/` holds the game's real content: maps, models,
 textures, scripts, encounter data — inside Gamefreak GARC containers.
 
 1. **Recon (Kuriimu2 CLI).** ✅ Done 2026-10-05 — with a twist: Kuriimu2
@@ -175,12 +175,12 @@ files), `a/0/1/3` 49 MB (171 files). Text banks: `a/0/1/0-9` BCLAN,
 ## Phase 5 — code decompilation ✅ corpus complete (naming/refinement open)
 
 - [x] `code.bin` Ghidra pass — 2026-10-05: project + 14,864 decompiled C
-      functions at `.Data/src_extracted/decomp/` (see MAP.md).
+      functions at `.Data/Source_Extracted/decomp/` (see MAP.md).
 - [x] **CRO modules unblocked + parsed** — 2026-10-05 correction: never
       encrypted (magic `CRO0`@0x80 after the SHA-256 hash block; entropy
       histogram + known-plaintext check broke the wrong assumption).
       `xy-archive/src/cro.rs` validated on all 134 files; `xy cro info/
-      extract`; all modules at `src_extracted/cro_extracted/<Name>/`;
+      extract`; all modules at `Source_Extracted/cro_extracted/<Name>/`;
       `static.crs` symbolicates code.bin (129/14,864 via 461 named
       exports, Thumb-bit match). boot9/otp/firm0 were never needed for
       CROs (kept, gitignored, for future crypto).
@@ -206,11 +206,13 @@ files), `a/0/1/3` 49 MB (171 files). Text banks: `a/0/1/0-9` BCLAN,
 
 ## Phase 4 — Pokémon Y rollout ⬜
 
-- [ ] Obtain a **Y** dump (title `0004000000055E00`, `kujira-2`) — this is the
-      missing game; the **X** dump (`0004000000055D00`, `kujira-1`) is already
-      in `.Data/` and is what all current golden tests validate against. (Fixup
-      2026-10-05: this entry previously had X/Y swapped — the SMDH in our
-      `0055D00` dump says "Pokémon X" in all 12 regions, matching AGENTS.md.)
+- [x] Obtain a **Y** dump (title `0004000000055E00`, `kujira-2`) ✅
+      2026-10-11 — landed at `.Data/Rom/Y/Base/` alongside the **X** dump
+      (`0004000000055D00`, `kujira-1`) that all current golden tests
+      validate against; both games' **v1.5 update partitions** are at
+      `.Data/Rom/{X,Y}/Upd/`. (Fixup 2026-10-05: this entry previously had
+      X/Y swapped — the SMDH in the `0055D00` dump says "Pokémon X" in all
+      12 regions, matching AGENTS.md.)
 - [ ] Run the whole pipeline end-to-end; the parsers are already
       game-agnostic, so this is a validation exercise: same golden checks with
       Y assets, watch for format-version drift (NCCH/IVFC/BCMA version fields).
@@ -222,7 +224,7 @@ files), `a/0/1/3` 49 MB (171 files). Text banks: `a/0/1/0-9` BCLAN,
       caveat; this unlocks real provenance for the ports).
 - [ ] Decide on committing small reference fixtures (banner jingle + a few
       GARCs) so golden tests survive `.Data/` moves.
-- [ ] Optional: rename `.Data/src_extracted/audio` WAVs to match in-game
+- [ ] Optional: rename `.Data/Source_Extracted/audio` WAVs to match in-game
       labels when a name table is available from the GARCs.
 
 ## Ground rules (inherited from AGENTS.md)
@@ -234,6 +236,18 @@ files), `a/0/1/3` 49 MB (171 files). Text banks: `a/0/1/0-9` BCLAN,
 - Don't hardcode title IDs; X first, Y by validation.
 
 ## Status log
+
+### 2026-10-11 — .Data reorganization + Y/v1.5 dumps landed ✅ (session 6)
+
+User reorganized `.Data/` by data stage: `3ds_extracted/` →
+`Raw_Extracted/`, `src_extracted/` → `Source_Extracted/`, per-game dumps
+under `Rom/{X,Y}/{Base,Upd}/`, console keys under `Rom/nand/`, final
+outputs under `Curated/` (ports). **The Y dump and both v1.5 update
+partitions landed** (`Rom/Y/Base/`, `Rom/{X,Y}/Upd/` — v1.5 code.bin =
+5,169,152 B, matching the pin). All references swept (24 files: golden
+tests, `build.sh` ROM candidates → `Rom/{X,Y}/Base/…`, ports →
+`Curated/ports/`, `rebuild_v2.sh`, ghidra driver, curate strings, docs);
+verified with `cargo test --workspace` + clippy.
 
 ### 2026-10-11 — restructure: function-named tracks + dot convention ✅ (session 6)
 

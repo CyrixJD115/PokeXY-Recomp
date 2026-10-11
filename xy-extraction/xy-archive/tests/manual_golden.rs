@@ -1,5 +1,5 @@
 //! Golden test: the full e-manual pipeline (BCMA → LZ10 → inner DARC)
-//! vs the validated reference tree at `.Data/src_extracted/manual`
+//! vs the validated reference tree at `.Data/Source_Extracted/manual`
 //! (3663 assets from 206 pages — byte-parity first verified by hand on
 //! 2026-10-05). Compares relative path sets and FNV-1a content hashes.
 //!
@@ -28,8 +28,8 @@ fn page_stem(name: &str) -> String {
 #[test]
 fn manual_pipeline_matches_reference_tree() {
     let root = data_root();
-    let bcma_path = root.join("3ds_extracted/part1_romfs/Manual.bcma");
-    let reference = root.join("src_extracted/manual");
+    let bcma_path = root.join("Raw_Extracted/part1_romfs/Manual.bcma");
+    let reference = root.join("Source_Extracted/manual");
     if !bcma_path.exists() || !reference.is_dir() {
         eprintln!("skipping: golden assets not found");
         return;

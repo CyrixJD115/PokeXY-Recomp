@@ -15,7 +15,7 @@ fn data_root() -> PathBuf {
 
 #[test]
 fn dll_battle_parses_with_symbols() {
-    let path = data_root().join("3ds_extracted/romfs/DllBattle.cro");
+    let path = data_root().join("Raw_Extracted/romfs/DllBattle.cro");
     let Ok(bytes) = std::fs::read(&path) else {
         eprintln!("skipping: golden asset not found");
         return;
@@ -51,7 +51,7 @@ fn dll_battle_parses_with_symbols() {
 
 #[test]
 fn static_crs_is_the_static_module() {
-    let path = data_root().join("3ds_extracted/romfs/static.crs");
+    let path = data_root().join("Raw_Extracted/romfs/static.crs");
     let Ok(bytes) = std::fs::read(&path) else {
         eprintln!("skipping: golden asset not found");
         return;

@@ -18,7 +18,7 @@ helper scripts under `scripts/`; Rust is the daily driver.
 | `xy-runtime/` | runtime track: zakuro-based native runtime (working clone gitignored, README tracked) |
 | `scripts/` | cross-cutting helpers: `heatmap.py` (decomp↔recomp bridge), `rebuild_v2.sh`, legacy build shim |
 | `.thirdparty/` | machine-local upstream checkouts (3dsrecomp, zakuro, 3DS-Decomp-Pipeline, objdiff) — `fetch.sh` recreates them |
-| `.Data/` | **machine-local, never share**: dumps, `3ds_extracted/` (read-only sources), `src_extracted/` (all derived output — index: `.Data/src_extracted/MAP.md`), `update/` (v1.5 slot), `ports/` |
+| `.Data/` | **machine-local, never share**: `Rom/` (dumps + keys + v1.5 update partitions), `Raw_Extracted/` (read-only sources), `Source_Extracted/` (all derived output — index: `.Data/Source_Extracted/MAP.md`), `Curated/` (final outputs: `ports/`) |
 | `docs/` | `findings.md` (recomp + matching-decomp metrics/gotchas), `ghidra-scripts.md` (PyGhidra setup + patches) |
 | `reference/` | early python prototypes kept for parity reference |
 
@@ -33,15 +33,17 @@ package (`src/` + root `Cargo.toml`) lives at the repo root.
 
 | Path | Contents |
 |---|---|
-| `.Data/0004000000055D00_v00.3ds`, `.Data/*.dec.code` | Source cartridge dump (title ID `...0055D00` = **Pokémon X**, internal name `kujira-1`, confirmed by its own SMDH long name "Pokémon X" in all 12 regions; Pokémon Y is `...0055E00`, `kujira-2`) |
-| `.Data/3ds_extracted/` | Raw decrypted RomFS/ExeFS/partition dumps — treat as **read-only source data** |
-| `.Data/src_extracted/garc/` | All 272 GARCs unpacked (44,519 files) + `manifest.tsv` |
-| `.Data/src_extracted/decomp/` | `code.bin` + Ghidra project + 38,385 decompiled C functions (14,864 code.bin + 23,521 across all 133 CRO modules) |
-| `.Data/src_extracted/pipeline/` | Matching-decomp workspace: `orig/` + `symbols/` CSVs + generated `split/` + `out/` (134/134 byte-identical recreates) + `objdiff.json` |
-| `.Data/src_extracted/recomp/` | 3dsrecomp analyze/build output + the standalone port project (`port/`) |
-| `.Data/src_extracted/text/` | gametext/storytext JSON, 8 languages (4,600 banks) |
-| `.Data/src_extracted/cro/` | The 133 plaintext `.cro` modules + `static.crs` (CRO0 magic at 0x80 — parser landed; **not** encrypted) |
-| `.Data/update/` | v1.5 update dump slot — see its README before touching v1.5 |
+| `.Data/Rom/X/Base/`, `.Data/Rom/Y/Base/` | Source cartridge dumps — title ID `...0055D00` = **Pokémon X** (internal name `kujira-1`, confirmed by its own SMDH long name in all 12 regions), `...0055E00` = **Y** (`kujira-2`); each with its decrypted `.dec.code` |
+| `.Data/Rom/X/Upd/`, `.Data/Rom/Y/Upd/` | **v1.5 update partitions** (title `0004000E…` CXI + decrypted v1.5 `code.bin`, 5,169,152 B) |
+| `.Data/Rom/nand/` | Console key material (`boot9.bin`, `firm0.bin`, `otp.mem`) — never commit or share |
+| `.Data/Raw_Extracted/` | Raw decrypted RomFS/ExeFS/partition dumps — treat as **read-only source data** |
+| `.Data/Source_Extracted/garc/` | All 272 GARCs unpacked (44,519 files) + `manifest.tsv` |
+| `.Data/Source_Extracted/decomp/` | `code.bin` + Ghidra project + 38,385 decompiled C functions (14,864 code.bin + 23,521 across all 133 CRO modules) |
+| `.Data/Source_Extracted/pipeline/` | Matching-decomp workspace: `orig/` + `symbols/` CSVs + generated `split/` + `out/` (134/134 byte-identical recreates) + `objdiff.json` |
+| `.Data/Source_Extracted/recomp/` | 3dsrecomp analyze/build output + the standalone port project (`port/`) |
+| `.Data/Source_Extracted/text/` | gametext/storytext JSON, 8 languages (4,600 banks) |
+| `.Data/Source_Extracted/cro/` | The 133 plaintext `.cro` modules + `static.crs` (CRO0 magic at 0x80 — parser landed; **not** encrypted) |
+| `.Data/Curated/` | Final outputs — `Curated/ports/` holds the port trees `xy-recomp/build.sh` generates |
 | `.thirdparty/reference/` | Third-party **reference** library (azahar source, CTR format tools, pk3DS/XAMX/Ohana3DS format references, Ghidra script suites incl. the RTTI lever) — gitignored, has its own README index; the four tools this repo executes directly are in `.thirdparty/` proper. The old `PokeXYZ-PC/` project space was deleted 2026-10-11 — this repo is the only home. |
 
 
@@ -57,13 +59,13 @@ Romfs quick map (Pokémon X/Y):
   first 0x80 bytes are SHA-256 hashes and look encrypted; they aren't.
 - `shaders/` — 4 SDK system `.shbin` shader binaries (game shaders live
   inside the BCRES model files).
-- `part7_romfs` (in `3ds_extracted/`) — card update partition: 64
+- `part7_romfs` (in `Raw_Extracted/`) — card update partition: 64
   system-title CIAs, zero game content; not processed.
 - Completeness audit 2026-10-05 (`xy archive audit`): 14,452 0x11-prefixed
   sub-files, 14,409 decompress, the 43 raw keeps are genuinely raw —
   **no missed compressions**; full format census in MAP.md.
 - `sounddebug/` — plain text debug output, not audio.
-- `src_extracted/banner_jingle.bcwav` — banner sound, the first format this
+- `Source_Extracted/banner_jingle.bcwav` — banner sound, the first format this
   toolkit parsed.
 
 ## Goals & scope
@@ -111,49 +113,49 @@ cargo clippy --all-targets -- -D warnings
 cargo fmt              # rustfmt defaults
 
 # examples (run from repo root; binary is `xy`)
-./target/release/xy info  .Data/0004000000055D00_v00.3ds
-./target/release/xy audio bcwav .Data/src_extracted/banner_jingle.bcwav -o out.wav
-./target/release/xy gfx icon   .Data/3ds_extracted/exefs/icon.bin -o icon.png
-./target/release/xy archive romfs .Data/0004000000055D00_v00.3ds out_dir/  # CCI -> full RomFS
-./target/release/xy archive darc  .Data/3ds_extracted/part1_romfs/Manual.bcma out_dir/
-./target/release/xy archive manual .Data/3ds_extracted/part1_romfs/Manual.bcma out_dir/
+./target/release/xy info  .Data/Rom/X/Base/0004000000055D00_v00.3ds
+./target/release/xy audio bcwav .Data/Source_Extracted/banner_jingle.bcwav -o out.wav
+./target/release/xy gfx icon   .Data/Raw_Extracted/exefs/icon.bin -o icon.png
+./target/release/xy archive romfs .Data/Rom/X/Base/0004000000055D00_v00.3ds out_dir/  # CCI -> full RomFS
+./target/release/xy archive darc  .Data/Raw_Extracted/part1_romfs/Manual.bcma out_dir/
+./target/release/xy archive manual .Data/Raw_Extracted/part1_romfs/Manual.bcma out_dir/
 ./target/release/xy core lz file.lz -o file.dec
-./target/release/xy archive list .Data/3ds_extracted/romfs/btl_ai.garc
-./target/release/xy archive unpack -i .Data/3ds_extracted/romfs/a/0/1/2 -o out_dir/ --decompress
-./target/release/xy archive extract-tree -i .Data/3ds_extracted/romfs/a -o .Data/src_extracted/garc --decompress
-./target/release/xy script text .Data/src_extracted/garc/a/0/7/4/080.bin -o names.json
-./target/release/xy gfx bcres-info .Data/src_extracted/garc/a/0/0/1/0.bin
-./target/release/xy gfx parse-model .Data/src_extracted/garc/a/0/0/7/0004.bin -o out_dir/  # BCH -> OBJ+MTL
-./target/release/xy gfx texture     .Data/src_extracted/garc/a/0/0/7/0006.bin -o out_dir/  # BCH/CGFX/PC/PT -> PNG
-./target/release/xy cro info .Data/src_extracted/cro/DllBattle.cro
-./target/release/xy cro extract .Data/src_extracted/cro/DllBattle.cro -o .Data/src_extracted/cro_extracted/DllBattle
-./target/release/xy archive audit --input .Data/3ds_extracted/romfs/a  # compression audit
-./target/release/xy curate -i .Data/src_extracted                     # full curated rebuild (all stages)
-./target/release/xy curate -i .Data/src_extracted --stage pokemon,csharp  # subset: data,text,pokemon,media,code,csharp,unknown,all
-./target/release/xy convert glb .Data/src_extracted/garc/a/0/0/7/0004.bin -o out_dir/ --textures .../0006.bin --validate
+./target/release/xy archive list .Data/Raw_Extracted/romfs/btl_ai.garc
+./target/release/xy archive unpack -i .Data/Raw_Extracted/romfs/a/0/1/2 -o out_dir/ --decompress
+./target/release/xy archive extract-tree -i .Data/Raw_Extracted/romfs/a -o .Data/Source_Extracted/garc --decompress
+./target/release/xy script text .Data/Source_Extracted/garc/a/0/7/4/080.bin -o names.json
+./target/release/xy gfx bcres-info .Data/Source_Extracted/garc/a/0/0/1/0.bin
+./target/release/xy gfx parse-model .Data/Source_Extracted/garc/a/0/0/7/0004.bin -o out_dir/  # BCH -> OBJ+MTL
+./target/release/xy gfx texture     .Data/Source_Extracted/garc/a/0/0/7/0006.bin -o out_dir/  # BCH/CGFX/PC/PT -> PNG
+./target/release/xy cro info .Data/Source_Extracted/cro/DllBattle.cro
+./target/release/xy cro extract .Data/Source_Extracted/cro/DllBattle.cro -o .Data/Source_Extracted/cro_extracted/DllBattle
+./target/release/xy archive audit --input .Data/Raw_Extracted/romfs/a  # compression audit
+./target/release/xy curate -i .Data/Source_Extracted                     # full curated rebuild (all stages)
+./target/release/xy curate -i .Data/Source_Extracted --stage pokemon,csharp  # subset: data,text,pokemon,media,code,csharp,unknown,all
+./target/release/xy convert glb .Data/Source_Extracted/garc/a/0/0/7/0004.bin -o out_dir/ --textures .../0006.bin --validate
                          # BCH/CGFX/PC -> Blender-ready GLB: TRS skeleton, embedded
                          # PNG textures (--textures merges a family PT/CGFX pack),
                          # --validate parses every output with the gltf crate
-./target/release/xy convert png .Data/src_extracted/garc/a/0/0/7/0006.bin -o out_dir/  # textures -> PNG
-./target/release/xy gfx render .Data/src_extracted/garc/a/0/0/7/0004.bin --mode textured --yaw 35 --width 800   # software-render model -> PNG
+./target/release/xy convert png .Data/Source_Extracted/garc/a/0/0/7/0006.bin -o out_dir/  # textures -> PNG
+./target/release/xy gfx render .Data/Source_Extracted/garc/a/0/0/7/0004.bin --mode textured --yaw 35 --width 800   # software-render model -> PNG
 ./target/release/xy gfx render ...0004.bin --turntable 8 --out out_dir/  # 8-frame turntable sequence
 ./target/release/xy gfx render ...0004.bin --textures ...0006.bin --mode textured  # merge a family PT/CGFX texture pack
                          # (model PCs carry no textures; modes: textured|material|wireframe|normals|skeleton)
-./target/release/xy inspect .Data/src_extracted/garc/a/0/0/7/0004.bin --hashes  # kind + magic + CRC32/FNV/SHA-256 + model/texture census
-./target/release/xy search name .Data/src_extracted/garc 0004 --limit 50        # file-name substring search
-./target/release/xy search kind .Data/src_extracted/curated model               # files whose detected kind matches (model/texture/...)
-./target/release/xy media info .Data/3ds_extracted/romfs/m/OP001.moflex         # ffprobe container/stream metadata
-./target/release/xy media frames .Data/3ds_extracted/romfs/m/OP001.moflex -o frames/ --fps 5 --max 100 --width 640
-./target/release/xy media mp4 .Data/3ds_extracted/romfs/m/OP001.moflex -o OP001.mp4  # moflex -> H.264+AAC MP4
-./target/release/xy manifest list .Data/src_extracted/curated moves --limit 100 # browse manifest.tsv (filter + limit)
-./target/release/xy manifest lookup .Data/src_extracted/curated <file>          # provenance: curated <-> raw source
-./target/release/xy manifest validate .Data/src_extracted/curated               # re-verify rows on disk (existence + size)
+./target/release/xy inspect .Data/Source_Extracted/garc/a/0/0/7/0004.bin --hashes  # kind + magic + CRC32/FNV/SHA-256 + model/texture census
+./target/release/xy search name .Data/Source_Extracted/garc 0004 --limit 50        # file-name substring search
+./target/release/xy search kind .Data/Source_Extracted/curated model               # files whose detected kind matches (model/texture/...)
+./target/release/xy media info .Data/Raw_Extracted/romfs/m/OP001.moflex         # ffprobe container/stream metadata
+./target/release/xy media frames .Data/Raw_Extracted/romfs/m/OP001.moflex -o frames/ --fps 5 --max 100 --width 640
+./target/release/xy media mp4 .Data/Raw_Extracted/romfs/m/OP001.moflex -o OP001.mp4  # moflex -> H.264+AAC MP4
+./target/release/xy manifest list .Data/Source_Extracted/curated moves --limit 100 # browse manifest.tsv (filter + limit)
+./target/release/xy manifest lookup .Data/Source_Extracted/curated <file>          # provenance: curated <-> raw source
+./target/release/xy manifest validate .Data/Source_Extracted/curated               # re-verify rows on disk (existence + size)
 ./target/release/xy hex <file> --offset 0x100 --len 64                            # hex+ASCII dump of a byte window
 ```
 
 ## Curated extraction — the final extract → rebuild → convert → organize layer
 
-`xy curate` builds `.Data/src_extracted/curated/`: a fully self-contained tree
+`xy curate` builds `.Data/Source_Extracted/curated/`: a fully self-contained tree
 of **real files (never symlinks)** with proprietary formats converted into
 standard ones wherever a validated parser exists. Deterministic: sorted
 iteration, stable names, no timestamps — same input, byte-identical
@@ -218,7 +220,7 @@ xy-extraction/xy-archive/src/
   lzss.rs                # LZ-0x11 payload decoder (dsdecmp flavor, pk3DS port)
   cro.rs                 # CRO0 code modules (info/extract; plaintext, magic @0x80)
 xy-extraction/xy-archive/tests/
-  garc_golden.rs          # golden tests vs .Data/3ds_extracted/romfs (skips if absent)
+  garc_golden.rs          # golden tests vs .Data/Raw_Extracted/romfs (skips if absent)
 xy-extraction/xy-audio/src/
   bcwav.rs               # CWAV parser (both layout variants) + DSP-ADPCM decoder
   wav.rs                 # canonical RIFF/WAV writer
@@ -240,10 +242,10 @@ xy-extraction/xy-gfx/src/
 xy-extraction/xy-script/src/
   textfile.rs             # Gen6 text banks (XOR line crypt + VAR codes, pk3DS port)
 xy-extraction/xy-script/tests/
-  textfile_golden.rs       # golden vs src_extracted/garc/a/0/7/* (skips if absent)
+  textfile_golden.rs       # golden vs Source_Extracted/garc/a/0/7/* (skips if absent)
 xy-extraction/xy-gfx/tests/
-  smdh_golden.rs           # icon pixels vs src_extracted/icon.png
-  bcres_golden.rs          # model container vs src_extracted/garc/a/0/0/1
+  smdh_golden.rs           # icon pixels vs Source_Extracted/icon.png
+  bcres_golden.rs          # model container vs Source_Extracted/garc/a/0/0/1
   cgfx_golden.rs           # CGFX textures/materials vs garc/a/0/0/7 (0001/0004)
   bch_golden.rs            # BCH models/textures vs garc/a/0/0/7 (pm0001_00)
 xy-decomp/ghidra/
@@ -251,7 +253,7 @@ xy-decomp/ghidra/
                            # (force-creates module_entry for zero-function stubs)
 scripts/
   heatmap.py, rebuild_v2.sh  # cross-cutting: decomp↔recomp status heatmap,
-                           # full clean-slate re-dump of .Data/src_extracted
+                           # full clean-slate re-dump of .Data/Source_Extracted
 xy-extraction/xy-curate/src/
   lib.rs                 # `xy curate` pipeline (stages, manifest, validation,
                          # progress + cancellation) — real files only, never
@@ -344,7 +346,7 @@ xy-extraction/xy-battle/        # stub — stats / encounters / trainers (data n
 3. Subcommand (or group variant) in `src/main.rs` (clap derive), wires lib →
    output files. Print a one-line summary per file: `input -> output (params)`.
 4. Golden-file test in the owning crate's `tests/` if a real asset exists
-   under `.Data/3ds_extracted/` or `.Data/src_extracted/`.
+   under `.Data/Raw_Extracted/` or `.Data/Source_Extracted/`.
 
 ## Format knowledge
 
@@ -534,7 +536,7 @@ boot9/otp/firm0 were **not needed** (kept gitignored for future crypto).
   `addr & !1`); 78 import modules = every game subsystem by name.
 - CLI: `xy cro info` / `xy cro extract` (segment bins at load base
   0x00100000, symbols.tsv, imports.tsv). All modules extracted to
-  `src_extracted/cro_extracted/<Name>/`.
+  `Source_Extracted/cro_extracted/<Name>/`.
 - Ghidra: `DllBattle` battle engine imported + decompiled (same pipeline
   as code.bin); remaining 132 modules queued via the same command shape.
 - Format spec: 3dbrew "CRO0" (offset table in the module docs).
@@ -596,6 +598,6 @@ chunked (bannertool/GYTB banners). Key facts:
   `radare2`, `blender`, `python3` + PIL.
 - This repo has git history — restructures land as tracked renames; ask
   before bulk-moving anything outside this repo and
-  `.Data/src_extracted/`.
+  `.Data/Source_Extracted/`.
 - Kuriimu2 1.2.1: `DOTNET_ROLL_FORWARD=LatestMajor`, copy inputs to /tmp
   (mangles `/mnt` paths), and its GARC4 plugin rejects XY's v4 GARCs.

@@ -8,11 +8,11 @@ hand-written C file has a hard parity gate. The loop:
    `Label3dsCTRFns` → `Set3dsTlsType`) driven by `xy_ghidra_3ds.py`, and
    `DecompileAll.java` (exports every function to C; force-creates
    `module_entry` for zero-function stub modules). Output:
-   `.Data/src_extracted/decomp/` — 38,385 C functions (14,864 code.bin +
+   `.Data/Source_Extracted/decomp/` — 38,385 C functions (14,864 code.bin +
    23,521 across the 133 CRO modules).
 2. **Symbols** — `ghidra/ExportSymbolsHeadless.py` exports per-binary
    symbol CSVs (`Location,Name,Namespace,Mode,Size,Segment`) in
-   3DS-Decomp-Pipeline format into `.Data/src_extracted/pipeline/symbols/`
+   3DS-Decomp-Pipeline format into `.Data/Source_Extracted/pipeline/symbols/`
    (code.bin: 16,545 symbols; CRO CSVs shifted −0x100000 into the
    pipeline's text-offset frame; duplicate `thunk_FUN_*` names deduped).
 3. **Split → relink → diff** — 3DS-Decomp-Pipeline (`.thirdparty/`)
@@ -26,6 +26,6 @@ use plain `--objdiff`; `getImageBase()` returns 0 for raw-binary imports
 (use `getMinAddress()`). Setup + patches: `docs/ghidra-scripts.md`;
 metrics: `docs/findings.md`.
 
-Workspace (game-derived, machine-local): `.Data/src_extracted/pipeline/` —
+Workspace (game-derived, machine-local): `.Data/Source_Extracted/pipeline/` —
 `orig/`, `symbols/`, `split/`, `out/`, `objdiff.json`. See
-`.Data/src_extracted/MAP.md` for the full index.
+`.Data/Source_Extracted/MAP.md` for the full index.

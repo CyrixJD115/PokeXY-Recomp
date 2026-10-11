@@ -6,13 +6,13 @@
 #   ./xy-recomp/build.sh [--rom /path/to/PokemonX.3ds] [--run]
 #
 # Nothing game-derived leaves .Data/: the generated port projects land in
-# .Data/ports/<name> and the binaries are gitignored. Compilation of the
+# .Data/Curated/ports/<name> and the binaries are gitignored. Compilation of the
 # port is intentionally manual (first link pulls in hundreds of MiB).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 THIRD="$ROOT/.thirdparty"
-PORTS="$ROOT/.Data/ports"
+PORTS="$ROOT/.Data/Curated/ports"
 RUN=0
 ROM=""
 
@@ -51,7 +51,7 @@ fi
 RECOMP="$THIRD/3dsrecomp/target/release/3dsrecomp"
 
 if [ -z "$ROM" ]; then
-  for cand in "$ROOT/.Data/0004000000055D00_v00.3ds" "$ROOT/.Data/0004000000055E00_v00.3ds"; do
+  for cand in "$ROOT/.Data/Rom/X/Base/0004000000055D00_v00.3ds" "$ROOT/.Data/Rom/Y/Base/0004000000055E00_v00.3ds"; do
     [ -f "$cand" ] && ROM="$cand" && break
   done
 fi

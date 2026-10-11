@@ -14,5 +14,5 @@ crates).
   README is committed.
 
 Related: `xy-recomp/` (produces the recompiled code + standalone port),
-`.Data/src_extracted/recomp/` (analyze/build output), `.Data/ports/`
+`.Data/Source_Extracted/recomp/` (analyze/build output), `.Data/Curated/ports/`
 (generated port trees).

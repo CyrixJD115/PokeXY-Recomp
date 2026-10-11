@@ -1,5 +1,5 @@
 //! Golden test: BCRES inspection against a real extracted model
-//! (`src_extracted/garc/a/0/0/1/0.bin` — validated against `strings`
+//! (`Source_Extracted/garc/a/0/0/1/0.bin` — validated against `strings`
 //! output on 2026-10-05). Skips when the asset is absent.
 
 use std::path::PathBuf;
@@ -16,7 +16,7 @@ fn asset(rel: &str) -> Option<PathBuf> {
 
 #[test]
 fn model_container_inspects() {
-    let Some(path) = asset("src_extracted/garc/a/0/0/1/0.bin") else {
+    let Some(path) = asset("Source_Extracted/garc/a/0/0/1/0.bin") else {
         eprintln!("skipping: golden asset not found");
         return;
     };

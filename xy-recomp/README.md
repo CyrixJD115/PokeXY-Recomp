@@ -6,10 +6,10 @@ Everything here drives [3dsrecomp](https://github.com/fearkov/3dsrecomp) and
 binary.
 
 ```
-./xy-recomp/build.sh --rom .Data/0004000000055D00_v00.3ds --run
+./xy-recomp/build.sh --rom .Data/Rom/X/Base/0004000000055D00_v00.3ds --run
 ```
 
-- Generated port projects land in `.Data/ports/<name>/` (game-derived — never
+- Generated port projects land in `.Data/Curated/ports/<name>/` (game-derived — never
   commit or share). The C translation is ~679 MiB; the first link takes a
   while even with ccache.
 - `overrides/` holds our C override shims — hand-written replacements that
@@ -25,7 +25,7 @@ binary.
   smooth, near-zero lag). Y works the same way from upstream (`99.8%`
   reached, 2,886 verify mismatches upstream — not yet re-verified here).
 - Pins: **v1.0 code.bin = 5,156,864 bytes**. Update v1.5 code.bin is
-  5,169,152 bytes — see `.Data/update/README.md` before pointing any of this
+  5,169,152 bytes — updates landed at `.Data/Rom/{X,Y}/Upd/` before pointing any of this
   at an update dump.
 
 See `docs/findings.md` for the full metrics, gotchas (CRO address shift,

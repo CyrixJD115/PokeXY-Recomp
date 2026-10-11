@@ -1,5 +1,5 @@
 //! Golden test: Gen 6 text-bank decoder against real gametext banks.
-//! `.Data/src_extracted/garc/a/0/7/` language variants, mapped empirically
+//! `.Data/Source_Extracted/garc/a/0/7/` language variants, mapped empirically
 //! 2026-10-05 by decoding bank 080 of each: 2 & 3 = Japanese, 4 = English,
 //! 5 = French, 6 = Italian, 7 = German, 8 = Spanish, 9 = Korean.
 //! Skips cleanly when assets are absent.
@@ -16,7 +16,7 @@ fn data_root() -> PathBuf {
 
 fn bank(garc: &str, file: &str) -> Option<PathBuf> {
     let p = data_root()
-        .join("src_extracted/garc")
+        .join("Source_Extracted/garc")
         .join(garc)
         .join(format!("{file}.bin"));
     p.exists().then_some(p)

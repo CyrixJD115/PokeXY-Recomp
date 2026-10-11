@@ -8,8 +8,8 @@ use std::path::PathBuf;
 use xy_audio::bcwav::{Bcwav, Codec};
 
 /// Data root for golden assets: `XY_DATA_ROOT` override, else the repo's
-/// `.Data/` (asset layout: `.Data/3ds_extracted/` raw dumps,
-/// `.Data/src_extracted/` converted outputs).
+/// `.Data/` (asset layout: `.Data/Raw_Extracted/` raw dumps,
+/// `.Data/Source_Extracted/` converted outputs).
 fn data_root() -> PathBuf {
     if let Ok(root) = std::env::var("XY_DATA_ROOT") {
         return PathBuf::from(root);
@@ -26,7 +26,7 @@ fn asset(rel: &str) -> Option<PathBuf> {
 /// Python reference decoder (vgmstream-equivalent output).
 #[test]
 fn banner_jingle_decodes() {
-    let Some(path) = asset("src_extracted/banner_jingle.bcwav") else {
+    let Some(path) = asset("Source_Extracted/banner_jingle.bcwav") else {
         eprintln!("skipping: golden asset not found");
         return;
     };
@@ -64,11 +64,11 @@ fn banner_jingle_decodes() {
 /// same vgmstream algorithm) — guards the entire pipeline end to end.
 #[test]
 fn banner_jingle_matches_reference_wav() {
-    let Some(src) = asset("src_extracted/banner_jingle.bcwav") else {
+    let Some(src) = asset("Source_Extracted/banner_jingle.bcwav") else {
         eprintln!("skipping: golden asset not found");
         return;
     };
-    let Some(reference) = asset("src_extracted/audio/banner_jingle.wav") else {
+    let Some(reference) = asset("Source_Extracted/audio/banner_jingle.wav") else {
         eprintln!("skipping: reference WAV not found");
         return;
     };
@@ -95,7 +95,7 @@ fn banner_jingle_matches_reference_wav() {
 /// The other banner CWAV (extracted from ExeFS banner.bin alongside the CBMD).
 #[test]
 fn banner_bcwav_from_exefs_parses() {
-    let Some(path) = asset("src_extracted/banner/banner.bcwav") else {
+    let Some(path) = asset("Source_Extracted/banner/banner.bcwav") else {
         eprintln!("skipping: golden asset not found");
         return;
     };

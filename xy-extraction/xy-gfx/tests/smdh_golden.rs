@@ -27,7 +27,7 @@ fn lum(rgb: &[u8], i: usize) -> i32 {
 
 #[test]
 fn icon_decode_is_structured_not_noise() {
-    let path = data_root().join("3ds_extracted/exefs/icon.bin");
+    let path = data_root().join("Raw_Extracted/exefs/icon.bin");
     let Ok(bytes) = std::fs::read(&path) else {
         eprintln!("skipping: golden asset not found");
         return;
