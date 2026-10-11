@@ -305,7 +305,11 @@ xy-extraction/xy-battle/        # stub — stats / encounters / trainers (data n
 - RomFS extraction: byte-identical to `ctrtool --romfsdir` output (653 files).
 - Manual pipeline: byte-identical to the Python prototype (3663 assets).
 - Banner CWAV DSP-ADPCM: byte-identical to the vgmstream-port reference WAV.
-- SMDH icon: pixel-identical to the Python/PIL reference.
+- SMDH icon: pixel-identical to an independent Python port of **Azahar's**
+  `SMDH::GetIcon` (fixed 2026-10-11 — the original decoder read the large
+  icon linearly from the small-icon slot at 0x2040 and produced noise that
+  a same-mistake PIL reference "validated"; real layout = two Morton-tiled
+  RGB565 icons at 0x2040 (24×24) / 0x24C0 (48×48)).
 - GARC v4 + LZ-0x11: pk3DS `GARC.cs`/`LZSS.cs` semantics, validated by
   self-describing cross-checks and a 255-GARC corpus sweep (zero failures,
   ~4,600 payloads decode to their exact declared size); Kuriimu2 refuses

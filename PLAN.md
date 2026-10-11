@@ -237,6 +237,21 @@ files), `a/0/1/3` 49 MB (171 files). Text banks: `a/0/1/0-9` BCLAN,
 
 ## Status log
 
+### 2026-10-11 — SMDH icon decode fixed via Azahar parity ✅ (session 6)
+
+While exercising the REA MCP on both ROMs (verdict: cannot ingest CCI —
+no 3DS provider; deep providers unconfigured without `GHIDRA_INSTALL_DIR`
+in the server env), the byte-by-byte icon walk exposed that `smdh.rs`
+rendered noise: it read the *large* icon linearly from the *small*-icon
+slot at 0x2040, and the 2026-10-05 PIL "parity" reference shared the
+mistake. Fixed by porting Azahar's `SMDH::GetIcon`/`GetMortonOffset`
+(reference checkout): two Morton-tiled RGB565 icons — 24×24 @0x2040,
+48×48 @0x24C0. Rust render is pixel-identical to an independent Python
+port; goldens re-pinned from that port; `.Data` icon.png/icon_8x.png
+regenerated. Icon chain proven byte-exact from raw .3ds: NCSD@0x100 →
+partition0 → ExeFS (no magic; table @+0x00, byte offsets, data @+0x200) →
+`icon` entry → SMDH.
+
 ### 2026-10-11 — .Data reorganization + Y/v1.5 dumps landed ✅ (session 6)
 
 User reorganized `.Data/` by data stage: `3ds_extracted/` →

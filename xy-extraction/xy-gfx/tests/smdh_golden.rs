@@ -1,10 +1,13 @@
 //! Golden test: SMDH icon decode against the real ExeFS icon.
 //!
-//! The icon is a dithered dark-navy image and *looks* like noise at 48×48 —
-//! a 2026-10-05 session almost shipped a "fix" for it. These guards pin the
-//! actual content: pixel (0,0) is white (the 0xFFFF cluster found in the
-//! raw RGB565), and adjacent-pixel correlation must be well below random
-//! (i.e., a real image, not scrambled bytes). Skips when assets are absent.
+//! History worth keeping: the first version of this test pinned a *wrong*
+//! decode — the parser read the large icon linearly out of the small-icon
+//! slot at 0x2040, producing noise, and a 2026-10-05 session "validated"
+//! that noise against a same-mistake reference image (a later session even
+//! almost shipped the fix and was talked out of it by these guards). The
+//! real layout (two Morton-tiled RGB565 icons at 0x2040/0x24C0) was settled
+//! 2026-10-11 by porting Azahar's `SMDH::GetIcon`; the pins below come from
+//! that independent Python port. Skips when assets are absent.
 
 use std::path::PathBuf;
 
@@ -26,7 +29,7 @@ fn lum(rgb: &[u8], i: usize) -> i32 {
 }
 
 #[test]
-fn icon_decode_is_structured_not_noise() {
+fn icon_decode_matches_azahar_reference() {
     let path = data_root().join("Raw_Extracted/exefs/icon.bin");
     let Ok(bytes) = std::fs::read(&path) else {
         eprintln!("skipping: golden asset not found");
@@ -41,9 +44,14 @@ fn icon_decode_is_structured_not_noise() {
     let rgb = smdh.icon_rgb();
     assert_eq!(rgb.len(), 48 * 48 * 3);
 
-    // Pixel (0,0) is white — the 0xFFFF RGB565 cluster starts at index 0.
-    // (Shift-based 5/6/5→8-bit expansion maxes out at 248/252/248.)
-    assert_eq!((rgb[0], rgb[1], rgb[2]), (248, 252, 248), "corner pixel");
+    // Pins from the independent Python port of Azahar's GetIcon: the corners
+    // sit on the white rainbow-border ring, the interior hits the dark X art.
+    let px = |x: usize, y: usize| (rgb[y * 48 * 3 + x * 3], rgb[y * 48 * 3 + x * 3 + 1], rgb[y * 48 * 3 + x * 3 + 2]);
+    assert_eq!(px(0, 0), (248, 252, 248), "top-left corner (border)");
+    assert_eq!(px(0, 47), (248, 252, 248), "bottom-left corner (border)");
+    assert_eq!(px(24, 24), (40, 16, 16), "center (dark X art)");
+    assert_eq!(px(10, 30), (16, 60, 96), "lower-left (navy art)");
+    assert_eq!(px(40, 8), (0, 56, 56), "upper-right (navy art)");
 
     // Not-noise guard: adjacent-pixel differences must be much smaller than
     // random-pair differences (a real image correlates spatially).
@@ -73,6 +81,11 @@ fn icon_decode_is_structured_not_noise() {
         adj_mean < rnd_mean * 0.8,
         "adjacent diff {adj_mean:.1} should be well under random {rnd_mean:.1}"
     );
+
+    // Small icon decodes too (24×24, white border corner).
+    let small = smdh.small_icon_rgb();
+    assert_eq!(small.len(), 24 * 24 * 3);
+    assert_eq!((small[0], small[1], small[2]), (248, 252, 248));
 
     // Upscale sanity: 8× keeps corner white and dimensions.
     let scaled = smdh.icon_rgb_scaled(8);
