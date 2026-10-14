@@ -5,7 +5,7 @@
 //! | group | crate | contents |
 //! |---|---|---|
 //! | `xy core` | `xy-core` | LZ10/LZ11 stream decompression |
-//! | `xy archive` | `xy-archive` | RomFS, DARC (e-manual), GARC |
+//! | `xy archive` | `xy-archive` | RomFS, ExeFS, BLZ (ExeFS .code), DARC (e-manual), GARC |
 //! | `xy audio` | `xy-audio` | BCWAV → WAV |
 //! | `xy gfx` | `xy-gfx` | SMDH icons |
 //!
@@ -21,7 +21,7 @@ use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 use xy_archive::bcma::unique_name;
-use xy_archive::{bcma, garc, lzss, romfs};
+use xy_archive::{bcma, blz, exefs, garc, lzss, romfs};
 use xy_audio::bcwav;
 use xy_core::util::json_escape;
 use xy_core::{lz10, sniff};
@@ -154,6 +154,19 @@ enum CoreCmd {
 enum ArchiveCmd {
     /// Extract RomFS from a CCI/.3ds, bare NCCH, or raw IVFC image
     Romfs { path: PathBuf, outdir: PathBuf },
+
+    /// Extract ExeFS sections (.code/icon/banner/logo) from a CCI/.3ds, a
+    /// standalone CXI (e.g. sliced out of a CIA's content region), or a raw
+    /// ExeFS region
+    Exefs { path: PathBuf, outdir: PathBuf },
+
+    /// Decompress a 3DS ExeFS `.code` backward-LZSS ("BLZ") buffer
+    Blz {
+        path: PathBuf,
+        /// Output file (default: input with .dec appended)
+        #[arg(short, long)]
+        out: Option<PathBuf>,
+    },
 
     /// Extract a BCMA-DARC archive (XY e-manual container)
     Darc { path: PathBuf, outdir: PathBuf },
@@ -721,6 +734,33 @@ fn archive_cmd(cmd: ArchiveCmd) -> Result<(), CliError> {
             let romfs = romfs::Romfs::open(&data)?;
             let n = romfs.extract(&outdir)?;
             println!("extracted {n} files -> {}", outdir.display());
+            Ok(())
+        }
+
+        ArchiveCmd::Exefs { path, outdir } => {
+            let data = fs::read(&path)?;
+            let exefs = exefs::Exefs::open(&data)?;
+            let n = exefs.extract(&outdir)?;
+            println!("extracted {n} files -> {}", outdir.display());
+            Ok(())
+        }
+
+        ArchiveCmd::Blz { path, out } => {
+            let data = fs::read(&path)?;
+            let dec = blz::decompress(&data)?;
+            let out = out.unwrap_or_else(|| {
+                let mut s = path.clone().into_os_string();
+                s.push(".dec");
+                PathBuf::from(s)
+            });
+            fs::write(&out, &dec)?;
+            println!(
+                "{} -> {} ({} -> {} bytes)",
+                path.display(),
+                out.display(),
+                data.len(),
+                dec.len()
+            );
             Ok(())
         }
 

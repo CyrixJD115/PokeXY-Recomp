@@ -155,6 +155,8 @@ python3 xy-heatmap/heatmap.py readme                 # regen docs/assets/ README
 ./target/release/xy audio bcwav .Data/Source_Extracted/banner_jingle.bcwav -o out.wav
 ./target/release/xy gfx icon   .Data/Raw_Extracted/exefs/icon.bin -o icon.png
 ./target/release/xy archive romfs .Data/Rom/X/Base/0004000000055D00_v00.3ds out_dir/  # CCI -> full RomFS
+./target/release/xy archive exefs .Data/Rom/X/Upd/update_x.cxi out_dir/  # CCI/CXI -> .code/icon/banner/logo sections
+./target/release/xy archive blz .Data/Rom/X/Upd/exefs/.code -o code.bin  # decompress ExeFS .code -> real code.bin
 ./target/release/xy archive darc  .Data/Raw_Extracted/part1_romfs/Manual.bcma out_dir/
 ./target/release/xy archive manual .Data/Raw_Extracted/part1_romfs/Manual.bcma out_dir/
 ./target/release/xy core lz file.lz -o file.dec
@@ -253,6 +255,10 @@ xy-extraction/xy-core/src/
   lz10.rs                # Nintendo LZ10/LZ11 decompressor
 xy-extraction/xy-archive/src/
   romfs.rs               # RomFS/NCCH/CCI extraction
+  exefs.rs               # ExeFS extraction (.code/icon/banner/logo), from
+                         # CCI/CXI or a CIA's sliced-out content region
+  blz.rs                 # ExeFS .code backward-LZSS decompression (port of
+                         # Luma3DS's lzss_decompress)
   bcma.rs                # XY e-manual DARC variant (12-byte nodes) — see module docs
   garc.rs                # GARC v4 game archives (CRAG/OTAF/BTAF/BMIF)
   lzss.rs                # LZ-0x11 payload decoder (dsdecmp flavor, pk3DS port)
@@ -629,6 +635,23 @@ chunked (bannertool/GYTB banners). Key facts:
   RomFS header (u32 fields, not u64!) is located by structural scan.
 - Only decrypted images (Crypto Key: None) — encrypted partitions are
   detected and rejected with a clear error.
+
+### ExeFS — implemented in `xy-archive/src/exefs.rs`; CIA still hand-parsed
+
+- `Exefs::open()` handles a CCI, a standalone CXI (signature + magic at
+  +0x100, e.g. a CIA's content slice), or a headerless NCCH, same
+  dispatch shape as `romfs.rs`. Header fixed at 0x200 bytes, 10×16-byte
+  entries `{name[8], offset u32 rel. to end of header, size u32}`.
+- `xy` has **no CIA parser** — a CIA's content (already a plaintext
+  NCCH/CXI when `Crypto Key: None`) must be sliced out by offset by hand;
+  see `docs/3ds/exefs-cia.md` for the CIA header layout and the exact
+  offsets for the v1.5 update partitions.
+- The v1.5 update partitions' `.code` ExeFS entry is **BLZ-compressed**
+  (Nintendo's backward-LZ `.code` scheme — not `xy-core::lz10` LZ10/LZ11,
+  not `xy-archive::lzss`'s GARC LZ-0x11); decoded by `xy archive blz`
+  (`xy-archive/src/blz.rs`, a port of Luma3DS's `lzss_decompress`,
+  validated against the recorded `5,169,152`-byte `code.bin` size).
+  Detail in `docs/3ds/exefs-cia.md`.
 
 ### Not parsers (by design)
 

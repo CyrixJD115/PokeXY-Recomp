@@ -24,4 +24,8 @@ notes here cover the platform context around it.
 
 ## Files
 
-— none yet.
+- [exefs-cia.md](exefs-cia.md) — ExeFS parser (`xy archive exefs`); CIA
+  container offsets (hand-derived, no parser yet); the v1.5 update
+  partitions' `.code` is BLZ-compressed — decoded by `xy archive blz`
+  (`xy-archive/src/blz.rs`, a Luma3DS port), verified against the
+  recorded `code.bin` size exactly.

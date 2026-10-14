@@ -21,6 +21,23 @@ crashes or silently misbehaves. Extract v1.5 from the update title with
 GodMode9 (`0004000e/00055d00` → exefs → `.code`, LZSS-decompressed) if you
 want it; just don't mix versions across tools.
 
+**2026-10-14:** the toolkit now decompresses v1.5 `.code` itself — no
+console round-trip needed. `xy archive blz` (`xy-archive/src/blz.rs`, a
+port of Luma3DS's `lzss_decompress`) decompresses the real update `.code`
+(`.Data/Rom/{X,Y}/Upd/exefs/.code`, 2,864,776 bytes) to exactly
+5,169,152 bytes for both X and Y, cross-checked against a GodMode9
+extraction of the same (raw, not decompressed) ExeFS section — byte-
+identical to our own `xy archive exefs` output. Resulting `code.bin`
+hashes:
+
+| Dump | SHA-256 |
+|---|---|
+| X v1.5 `code.bin` | `7dc08ac5e2a87adabc31c304e1dfa3120a598ef072441983d09c96768cf67e74` |
+| Y v1.5 `code.bin` | `4e7b5af641c1ccaddee0c182441be2af511d40da35e922be3f30c0f4992e0c26` |
+
+X and Y v1.5 differ in only 28 of 5,169,152 bytes — expected for two SKUs
+sharing one engine. Detail in `docs/3ds/exefs-cia.md`.
+
 ## Static recompilation (3dsrecomp)
 
 `3dsrecomp analyze PokemonX.3ds`:
