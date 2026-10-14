@@ -72,8 +72,20 @@ the pipeline splits every original binary into per-symbol ELF objects:
   **134/134 binaries SHA-256-identical** — the pipeline's split/link/recreate
   machinery is exact on these games.
 - `objdiff.json` (134 units) tracks per-function matching progress as
-  decompiled sources get added. Compiler parity (matching GCC version/flags)
-  is the next milestone; without it compiled-vs-original matching stays at 0 %.
+  decompiled sources get added. Compiler parity was the blocker here —
+  compiled-vs-original matching stayed at 0% without it.
+
+**2026-10-14 — compiler parity found: it's armcc, not GCC.** The retail
+game was built with the CTR SDK's **ARM Compiler 5 (armcc)**, confirmed
+available locally (`ARMCC_Nintendo_5`, version 5.04u5). "Matching GCC
+version/flags" above was simply the wrong toolchain family — no amount of
+GCC flag-tuning closes an armcc-vs-GCC codegen gap. 5 functions in
+`DllDialogCommon` are now proven **masked-matched** (instruction-identical
+modulo link-time branch targets) using armcc via Wine. Full writeup,
+setup, fingerprinted flags, and the open residue-class puzzle (evidence
+the *true* original may be an even earlier armcc) in
+`docs/decomp/armcc-toolchain.md`; the verifier + matched specimens live at
+`xy-decomp/armcc-matching/`.
 
 Gotchas hit along the way (relevant to any XY/Y setup):
 

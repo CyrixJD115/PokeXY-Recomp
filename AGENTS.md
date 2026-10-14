@@ -14,7 +14,7 @@ helper scripts under `xy-heatmap/`; Rust is the daily driver.
 |---|---|
 | `xy-extraction/` + `src/` | the extraction toolkit — 8 domain crates (`xy-core/archive/audio/gfx/script/battle/curate/convert`) behind the unified `xy` CLI: unpack → curate → convert |
 | `xy-recomp/` | recomp track: `build.sh` port builder, C `overrides/` |
-| `xy-decomp/` | matching-decomp track: `ghidra/` (patched 3ds suite + PyGhidra driver + symbol exporter), track README |
+| `xy-decomp/` | matching-decomp track: `ghidra/` (patched 3ds suite + PyGhidra driver + symbol exporter), `armcc-matching/` (the retail toolchain is ARM Compiler 5, not GCC — see `docs/decomp/armcc-toolchain.md`; 5 functions masked-matched so far), track README |
 | `xy-runtime/` | runtime track: zakuro-based native runtime (working clone gitignored, README tracked) |
 | `xy-heatmap/` | the progress-heatmap toolkit: `heatmap.py` CLI (build/serve/summary/roms/**readme**) over the `xhmap/` package (tabbed dashboard: Overview treemap / Modules grids / Namespaces; PNG/SVG export, ROM detection with `--rom`, live `serve --watch`; see `docs/runtime/runtime-architecture.md` §7) + `shell/rebuild_v2.sh` + `legacy/` (superseded v1 scripts) — README inside |
 | `xy-viz/` | charming (ECharts) renderer → committed README assets (`docs/assets/heatmap-{treemap,progress}.svg` from `heatmap_data.json`); vendored charming patch adds treemap `data` (upstream 0.6.0 lacks it) |
@@ -295,6 +295,10 @@ xy-extraction/xy-gfx/tests/
 xy-decomp/ghidra/
   DecompileAll.java        # Ghidra headless post-script: export all C functions
                            # (force-creates module_entry for zero-function stubs)
+xy-decomp/armcc-matching/  # the retail ARM Compiler 5 (armcc) matching toolchain
+  tools/fingerprint_fn.py  # compile a candidate .c with armcc (via Wine), masked-
+                           # word-compare against the real CRO bytes
+  matched/DllDialogCommon/ # 5 functions proven masked-matched (see README + doc)
 xy-heatmap/
   heatmap.py                  # CLI entry: build | serve --watch | summary | roms | readme
   xhmap/                      # cli / collect / romdetect / page / server modules

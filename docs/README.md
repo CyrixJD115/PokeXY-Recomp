@@ -85,6 +85,10 @@ notes belong; the pointers are starting points, not exhaustive briefs.
 5. **Per-function native verification** → `recomp/` — recomp covers 69,038
    functions (95 %) but **zero** are behaviorally verified; wiring the
    3dsrecomp verify / objdiff per-unit harness is the credibility gap.
+   Separately, matching-decomp's compiler-parity blocker is now identified
+   (armcc 5, not GCC) and 5 functions are masked-matched proof-of-concept
+   — see [decomp/armcc-toolchain.md](decomp/armcc-toolchain.md); scaling
+   that to the remaining ~38,380 functions is the follow-on work.
 6. **Independent GARC v4 parity** → `formats/` — current validation is
    self-describing cross-checks + the 255-GARC corpus sweep; Kuriimu2
    refuses XY's v4. Any independent implementation found is worth a
