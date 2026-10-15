@@ -142,8 +142,9 @@ If running count < cap, spawn `(cap - running)` new agents. Each spawn:
   branch: `<branch>` — stay on your own worktree branch, never check that
   one out; rebase onto `origin/<branch>` for freshness and push only your
   own branch (`git push -u origin HEAD`). Invoke the `armcc-decomp-executor`
-  skill now (via the Skill tool) and follow it to decompile and verify
-  exactly one function, then hand back. If you can't find that skill
+  skill now (via the Skill tool) and follow it to decompile and verify a
+  small batch of functions (its own cap: ~3 functions or ~45-60 min,
+  whichever first), then hand back. If you can't find that skill
   listed, read `.claude/skills/armcc-decomp-executor/SKILL.md` directly
   instead — it's committed in this repo. Suggested starting module to
   reduce collision with sibling agents: `<pick one not yet in
