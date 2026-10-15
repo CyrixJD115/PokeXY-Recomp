@@ -16,19 +16,20 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
 not depth. The swarm's executor skill deliberately mines the *easiest*
 win per module first (trivial 1-2 instruction virtual-override stubs and
 field setters have a near-100% hit rate — see "What reliably works"
-below), so as of this update **31 of 45 matched modules have exactly one
+below), so as of this update **32 of 47 matched modules have exactly one
 trivial `return 0`/`return 1`/field-setter/forwarder stub proven and
 nothing else** — the module itself still has its full remaining function
-count (typically hundreds) completely unaddressed. The other 14 modules
+count (typically hundreds) completely unaddressed. The other 15 modules
 (`DllDialogCommon`, `DllNumberInput`, `DllStrInput`, `DllFatalErrorProc`,
 `DllLangSelect`, `DllHeading`, `DllCommendation`, `DllBattleHouseConnect`,
 `DllGameClearSave`, `DllUSBigFourSteel`, `DllFriendEntry`,
-`DllBackGround`, `DllDendouDemo`, `DllBoxSearch`) have either multiple
-matched functions or at least one structurally meaningful match (a
-destructor/constructor/dispatcher, or a genuine multi-instruction compile
-like `DllBackGround`'s three-way predicate or the `DllDendouDemo`/
-`DllBoxSearch` conditional-accessor pair, not just a 1-2 word stub).
-Treat "M modules touched" as a
+`DllBackGround`, `DllDendouDemo`, `DllBoxSearch`, `DllBattlePartySelect`)
+have either multiple matched functions or at least one structurally
+meaningful match (a destructor/constructor/dispatcher, or a genuine
+multi-instruction compile like `DllBackGround`'s three-way predicate, the
+`DllDendouDemo`/`DllBoxSearch` conditional-accessor pair, or
+`DllBattlePartySelect`'s instruction-order-sensitive leaf predicate, not
+just a 1-2 word stub). Treat "M modules touched" as a
 toolchain-portability proof (the technique works on unrelated modules,
 not just the first one found), not as module
 completion.
@@ -661,6 +662,38 @@ completion.
 
   Module's first real function, right after the import-veneer table
   (`0x180`-`0x5b7`).
+
+- `matched/DllBattlePartySelect/` — 1 function, a **forty-sixth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x1684` | `0x10` | 4/4 | Prologue-less leaf predicate, `return c == 0` on the third argument (ignores `this` and the second arg). |
+
+  Source phrasing matters for instruction order here, not just value:
+  `return c == 0;` (direct or ternary) compiles to the right two
+  conditional movs but in the wrong order (`moveq` before `movne`); an
+  explicit `if (c != 0) r = 0; else r = 1;` reproduces the retail
+  binary's `movne`-before-`moveq` order exactly. Module layout: a
+  5-case jump-table dispatcher at `0x3d0` (same `--mask-ranges` shape
+  as `DllDialogCommon@0xdd8`, not attempted) and a long constructor at
+  `0x50c`; this candidate is the module's last function.
+
+- `matched/DllBattleMatch/` — 1 function, a **forty-seventh** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xd90` | `0x4` | 1/1 | Thin tail-call forwarder — entire body is a single `b <import veneer>` instruction, same idiom as `DllBattleVideoSave@0x454`/`DllDialogCommon@0x6e8`. |
+
+  Sandwiched between two bare `bx lr` no-op stubs (`0xd8c`/`0xd94`) at
+  the tail of the import-veneer table. A more interesting neighbor at
+  `0xd98` (vptr-install destructor, 0x28 bytes) was attempted and got
+  stuck at 5/10: the retail binary hoists the vtable-literal `ldr`
+  *before* the `push {r4,lr}` prologue and installs the vptr via a
+  post-indexed `str r1,[r0],#8` directly on the parameter register,
+  while every C idiom tried made armcc push first and route through
+  `r4` instead — a residue class distinct from the already-documented
+  vptr-scheduling one (that one is member-load-vs-vtable-load order;
+  this one is literal-load-vs-prologue-push order).
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
