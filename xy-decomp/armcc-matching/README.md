@@ -23,11 +23,11 @@ still have their full remaining function count (typically hundreds)
 completely unaddressed regardless of how many functions are proven in
 them. A module having **more than one** matched function is unambiguous
 evidence of that (recompute with `for d in matched/*/; do find "$d" -name
-'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **12 of 91**
+'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **15 of 94**
 as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllFatalErrorProc`, `DllIntro`, `DllSparringMenu`, `DllStatus`,
 `DllSubScreenTutorial`, `DllStartMenu`, `DllStaffRoll`, `DllWazaOboe`,
-`DllTrialDownload`). Many of the
+`DllTrialDownload`, `DllTradelist`, `DllZukan`, `DllTitle`). Many of the
 remaining single-match modules are also genuinely meaningful (a
 destructor/constructor/dispatcher/conditional-accessor, not a 1-2 word
 stub) — see each module's own entry above for which; that split isn't
@@ -1244,6 +1244,55 @@ module-disassembly cost across several matches instead of one.
   stubs at `0x708`/`0x70c`/`0x714`/`0x718`/`0x71c`/`0x720`/`0x724`, and
   a sibling destructor at `0x760` with the known-bad member-load-first
   ordering (skipped on sight).
+
+- `matched/DllTradelist/` — 5 functions, a **ninety-second** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xb40` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+  | `0xc04` | `0x38` | 14/14 | Destructor — same proven idiom as `DllFatalErrorProc@0x284` etc. |
+  | `0xb5f0` | `0x8` | 2/2 | Another trivial `return 1` stub. |
+  | `0x2dac` | `0xc` | 3/3 | Prologue-less tail-call forwarder with two literal args (`r1=22, r2=1`), passes original `r0` through, tail-branches to a local function — a fixed-args forwarder variant. |
+  | `0xc70` | `0x4` | 1/1 | Single `bx lr` no-op void stub, weak evidence. |
+
+  Attempted and logged to `attempted.md`: the neighboring `0xb6d0`/
+  `0xb6e4` struct-copy pair (same residue class as `DllConfig@0x31b8`).
+
+- `matched/DllZukan/` — 5 functions, a **ninety-third** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xf9c` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+  | `0xfac` | `0x8` | 2/2 | Twin `return 1` stub, same leaf-stub cluster. |
+  | `0x1be54` | `0x8` | 2/2 | Field getter, returns `long` at `this+0x28`. |
+  | `0x1be5c` | `0x8` | 2/2 | Field getter, returns `long` at `this+0xc`. |
+  | `0x1be64` | `0x8` | 2/2 | Field getter, returns `long` at `this+0x8` — 3rd of a sibling-getter run. |
+
+  Abandoned (not re-attempted, no formal write-up — it's the already-
+  documented vtable-pool-load-scheduling residue class): `0x1194`,
+  vtable-install + two import calls, stuck at 10/11 (armcc hoists the
+  VT literal load before the prologue and keeps `this` in `r0`; retail
+  moves `this` to `r4` first, loads VT after, re-materializes `r0=r4`
+  before each call). Unclaimed easy leads: two more `return 1` twins at
+  `0xfa4`/`0xfbc` plus bare `bx lr` stubs in the same `0xf98`-`0xfd7`
+  cluster; an array-indexed getter at `0x1be6c`
+  (`add r0,r0,r1,lsl#2; ldr r0,[r0,#56]; bx lr`); a stub cluster
+  starting at `0x1be78`.
+
+- `matched/DllTitle/` — 4 functions, a **ninety-fourth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xd770` | `0x8` | 2/2 | Trivial int field getter (`this+44`), no calls. |
+  | `0xd7a8` | `0x8` | 2/2 | Trivial int field getter (`this+12`), same shape. |
+  | `0xd778` | `0xc` | 3/3 | Int field setter (`this+44`), returns 1 unconditionally — pairs with `0xd770`. |
+  | `0xd534` | `0x18` | 6/6 | Field-copy helper: byte → `this+4`, signed halfword → `this+0`. A direct `(int)*(short*)(src+2)` cast fuses to `ldrsh`+`str` and does **not** match; the retail binary does separate `ldrh`+`sxth`+`str`, which only reproduces if the unsigned halfword load is its own statement (a temp variable) before the signed cast-and-store. |
+
+  See `attempted.md` for two stuck candidates in the same dense
+  getter/setter/predicate cluster (`0xd530`-`0xd8ac`): `0xd568` (a
+  4-int equality predicate, 6/10 — pure register-allocation swap) and
+  `0xd54c` (a 64-bit `ldrd` getter, stuck on an indirect-return-vs-
+  single-`ldrd` toolchain residue).
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 

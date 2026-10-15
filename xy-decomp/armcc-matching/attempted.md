@@ -211,3 +211,79 @@ Format per entry:
   it's the only real code in the file — so there is nothing else to try
   here until the jump-table/NOP-hint class itself is solved. Skip this
   module entirely (don't re-investigate) until that happens.
+
+## DllTradelist@0xb6d0 (size 0x14) and DllTradelist@0xb6e4 (size 0x14)
+
+- What it is: two adjacent struct-copy helper functions, no
+  branches/calls. `0xb6d0`: `ldr r2,[r1]; str r2,[r0]; ldrh r3,[r1,#4];
+  strh r3,[r0,#4]; bx lr` (copies a 4-byte field then a 2-byte field).
+  `0xb6e4`: `ldr r2,[r1]; ldr r3,[r1,#4]; str r2,[r0]; str r3,[r0,#4]; bx
+  lr` (loads both fields, then stores both — two 4-byte fields).
+- Tried: field-by-field assignment, reversed field order, `void*`
+  params with local casts, unsigned vs signed short, whole-struct
+  assignment (`*dst = *src;` — over-merges into `ldm`/`stm`), and a
+  volatile-source variant that got the load-both-then-store-both shape
+  right for `0xb6e4` but still picked the wrong registers/order.
+- Stuck on: armcc 5.04u5 always reuses `r1` (the `src` pointer register,
+  dead after its last load) for the second temp instead of allocating
+  `r3`, and/or orders the second store before the first. Every C idiom
+  tried either reproduces the retail register choice or the retail
+  store order, never both at once. Best ratio reached: 3/5 (`0xb6d0`),
+  2/5 (`0xb6e4`).
+- Lead for next time: this is the same general residue class already
+  documented for `DllConfig@0x31b8` (struct-copy store-merge/
+  register-allocation quirks) — a case of "two adjacent struct-copy
+  helpers, same symptom" rather than a new independent lead. Try
+  passing the struct by value (not pointer) to see if parameter-register
+  pressure changes allocation, or an explicit `register` hint, or
+  splitting into a helper that copies through an intermediate local
+  array.
+
+## DllTitle@0xd568 (size 0x28) and DllTitle@0xd54c (size 0x8)
+
+Two stuck candidates in the same dense getter/setter/predicate cluster
+(`0xd530`-`0xd8ac`) as this module's four matched functions.
+
+**`0xd568` (size `0x28`) is a 4-int equality predicate**: loads
+`this+16`/`+24`/`+28`/`+20` (in that exact order) into `r3`/`r1`/`r2`/`r0`,
+then XORs the `+16`/`+24` pair and the `+20`/`+28` pair, ORs the two
+diffs, and returns 1 if zero else 0 — a classic `(a==b) && (c==d)`
+compiled branchless via xor/or rather than cmp/cmp/and.
+
+- Tried, in order: `(p[4]==p[6]) && (p[5]==p[7])` — wrong shape entirely,
+  armcc kept it as short-circuit branches (12/10 words). `(p[4]==p[6]) &
+  (p[5]==p[7])` — still branchy, not the xor/or trick.
+  `((p[6]^p[4])|(p[5]^p[7]))==0` direct on a flat `int *p` — gets the
+  right op shape but armcc evaluates the two xor subexpressions one at a
+  time (5/10). Same expression with each of the 4 loads hoisted into its
+  own named int temp, in the exact declaration order matching the target
+  — reproduces the load order and instruction shape byte-for-byte
+  (10/10 words present, same opcodes in the same slots), **6/10 masked
+  match**. The remaining 4-word mismatch is pure register allocation:
+  target puts `+16` in `r3` and `+28` in `r2`; this candidate swaps them
+  (same values, same operations, swapped physical registers). Permuting
+  xor operand order and factoring the two xors into named intermediates
+  neither fixes nor changes the allocation (the intermediate version is
+  actually worse, 4/10, different load order entirely).
+- Lead for next time: not yet tried — reordering the 4 declarations as
+  b,a,d,c or a,b,d,c (same load-sequence constraint, different source
+  variable identity per load) might flip which temp lands in `r2` vs
+  `r3`.
+
+**`0xd54c` (size `0x8`) is `ldrd r0,[r0,#16]; bx lr`** — a straight
+64-bit field getter.
+
+- Tried: `long long` return cast through `char*`, a struct with an
+  8-byte-aligned `long long` field at the right offset, an 8-byte
+  `{int,int}` struct-by-value return. Every phrasing compiles to either
+  two separate `ldr`s (alignment not provable through the cast) or an
+  indirect-return calling convention (`add`/`ldm`/`stm`, treating `r0`
+  as a hidden return-pointer parameter instead of putting the pair
+  directly in `r0:r1`) — never the single `ldrd` the retail binary uses
+  for what should be the simplest possible getter shape.
+- Stuck on: this looks like the same family as the already-documented
+  vptr-scheduling/dtor residues — a toolchain-version default the
+  fingerprint harness's flag set doesn't trigger from any C source tried
+  so far. A sibling getter at `0xd560` (`ldrd r0,[r0,#24]; bx lr`, same
+  size/shape) will have the identical problem and shouldn't be
+  re-attempted until this one is solved.
