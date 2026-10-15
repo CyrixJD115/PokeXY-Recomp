@@ -1,0 +1,21 @@
+/* DllHeading@0x1ca8 (size 0x40) -- masked match.
+ * Style: trick(void-ptr-passthrough) -- callee declared void*, (char*)fn(p)-4 avoids a spare mov
+ * Sibling of @0x16f4: stores the vtable passed in r1 at this[0], pushes the two config ints (this+16, this+20) into the handle at this->q->h (q at +12, handle at q+0x18), then tail-calls the sub-object release on (this+4) with the base adjusted by -4.
+ *
+ * Verify: XY_ROMFS=.Data/Raw_Extracted/romfs python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllHeading 0x1ca8 0x40 xy-decomp/armcc-matching/matched/DllHeading/0x1ca8.c
+ */
+typedef struct Q { unsigned char pad[0x18]; void *h; } Q;
+typedef struct X { void *vptr; unsigned char sub[0x8]; Q *q; int fa; int fb; } X;
+extern void fn1e0(void *h, int a);
+extern void fn1e8(void *h, int a);
+extern void *fn1f0(void *s);
+extern void *fn1f8(void *s);
+void *Fn(X *o, void *vt)
+{
+    void *h;
+    o->vptr = vt;
+    h = o->q->h;
+    fn1e0(h, o->fa);
+    fn1e8(h, o->fb);
+    return fn1f8((char *)fn1f0(o->sub) - 4);
+}

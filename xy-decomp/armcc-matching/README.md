@@ -1693,15 +1693,16 @@ Kinds (find them all with
 
 | kind | what it is | files tagged |
 |---|---|---|
-| `volatile-strd` | `volatile` on a 64-bit global only to get `strd` | 9 (globals-init family) |
+| `volatile-strd` | `volatile` on a 64-bit global only to get `strd` | 10 (globals-init family, incl. DllSalon@0xdd0) |
 | `volatile-load` | `volatile` field only to keep armcc from narrowing/dropping a load | DllUSGymIce@0x278, DllSequence@0x10a80 |
-| `redundant-local` | named literal/temp local only to steer armcc's constant-register choice | DllKisekae@0xb6f0, DllBattle@0x39c0, DllGts@0x8850, DllUSGymEsper@0x480, DllPoke3Select@0x63c, DllWazaOmoidashi@0x924 |
+| `redundant-local` | named literal/temp local only to steer armcc's constant-register choice | DllKisekae@0xb6f0, DllBattle@0x39c0, DllGts@0x8850, DllUSGymEsper@0x480, DllPoke3Select@0x63c, DllWazaOmoidashi@0x924, DllField@0x10c34, 0x10c54 |
 | `split-expression` | one expression split across statements only to stop armcc fusing a load (`ldrsh`) | DllTitle@0xd534 |
-| `extra-arg` | unused pass-through int arg(s) to shift register allocation (1 arg -> vtable in r2, 2 -> r3) | DllTownmap@0xb10, 0x3554, 0x35f4 |
+| `extra-arg` | unused pass-through int arg(s) to shift register allocation (1 arg -> vtable in r2, 2 -> r3) | DllTownmap@0xb10, 0x3554, 0x35f4, 0xd68, DllBattle@0x7a780 |
 | `static-helper` | one-use static helper to pin an argument register / reproduce r0 reuse | DllEshop@0x1b10, DllHologramMail@0xe970 |
-| `void-ptr-passthrough` | callee declared `void*`, result offset `(char*)fn(p) - N`, to avoid a spare `mov r4,r0` | DllPuzzle@0x1e90, 0x4ba0 |
+| `void-ptr-passthrough` | callee declared `void*`, result offset `(char*)fn(p) - N`, to avoid a spare `mov r4,r0` | DllPuzzle@0x1e90, 0x4ba0, DllSalon@0x790, DllHeading@0x868, 0x16f4, 0x8ac, 0x1738 |
 | `pointer-walk` | sequential pointer-cursor moves only to reproduce retail's immediate splits / pre-indexed stores | DllSequence@0x1140, DllNumberInput@0x18fc |
-| `ordering-local` | locals (`vt = VT`, hoisted member loads) only to fix load / pool-load order | the `vt`-local destructor family (15: DllBattleHouseConnect@0x2fc, DllCommendation@0xc94, DllEshop@0x554, DllFatalErrorProc@0x284, DllFriendEntry@0x4c4, DllGameClearSave@0xd6c, DllGameSync@0x5e0, DllLiveCup@0x764, DllRandomTrade@0x8b4, DllStaffRoll@0x2c44, DllSubScreenTutorial@0x12cc, DllTrainerCase@0x37e4, DllTrialDownload@0x728, DllTrialHouseResult@0x2648, DllTradelist@0xc04) + DllGts@0x5be0, 0x53e4, 0x5ba8, 0x5bc4 |
+| `live-r1-passthrough` | return type widened (`long long` built from `this` and the incoming 2nd arg) only to keep r1 live so a shared zero lands in r2 — least natural form; true signature unknown | DllField@0xae58, 0xe3fc, 0xe380 |
+| `ordering-local` | locals (`vt = VT`, hoisted member loads) only to fix load / pool-load order | the `vt`-local destructor family (15: DllBattleHouseConnect@0x2fc, DllCommendation@0xc94, DllEshop@0x554, DllFatalErrorProc@0x284, DllFriendEntry@0x4c4, DllGameClearSave@0xd6c, DllGameSync@0x5e0, DllLiveCup@0x764, DllRandomTrade@0x8b4, DllStaffRoll@0x2c44, DllSubScreenTutorial@0x12cc, DllTrainerCase@0x37e4, DllTrialDownload@0x728, DllTrialHouseResult@0x2648, DllTradelist@0xc04) + DllGts@0x5be0, 0x53e4, 0x5ba8, 0x5bc4, 0x5ad4, DllSalon@0xd5c, DllBag@0x13848, DllPuzzle@0xbf80, DllTownmap@0x31d4, DllPhotoViewer@0x193c, DllStatus@0xa304, DllKisekae@0xb674, 0xb6ac |
 
 **Audit (2026-10-15):** all 377 matched files were screened — a script flagged
 `volatile` / static functions / armcc extensions / literal-assigned locals /
@@ -1724,7 +1725,7 @@ set the tag (see `pending/README.md`).
 `--relax-nops` (nop words dropped from both sides, pool offsets masked) is
 filed under `relaxed/<Module>/<offset>.c` and excluded from the totals; it is
 the analogue of a row in `pokebw2`'s `docs/nonmatching-functions.md`. Current
-list: `relaxed/DllBattle/0x30a4.c` (26/26 relaxed, destructor).
+list: `relaxed/DllBattle/0x30a4.c` (26/26 relaxed, destructor); DllTownmap@0xaa4 and 0xa34 (same shape; source not saved, see `attempted.md`); DllStatus@0x2fd8 and 0x2e90 (search loop, nop between `cmp` and `beq`; source in `attempted.md`).
 
 ## 2026-10-15 swarm batch (9 functions, independently re-verified)
 
@@ -1902,6 +1903,192 @@ Open: DllPuzzle `0xb3fc`/`0xbf80` (0x38, free `this+0x14` + tail-call base), `0x
 
 - `DllBox@0x1dde8` (0x48, 18/18): init helper — stores `arg->f` into the owned sub-object, two veneer calls, stores `(*(f->[28])) + 0x13650`, returns 1. `arg->f` must be loaded once into a `void*` local and reused or the register schedule is wrong. `0x1dd60` (0x88, 34/34): teardown — walks `this->in->p`; if non-null and `q->c != 1`, virtual call (slot 9) plus four helper calls, then tail-calls a helper on `p->x` if non-null (matched first try).
 - Open: DllBox small `ldr r0,[r0,#N]` getters near `0x12840`-`0x128a0`; switch tails around `0x1c9f4`-`0x1ce78`.
+
+## 2026-10-15 swarm batch 21 (all `Style: natural`)
+
+- `DllZukan@0x344c` (0x20): calls an import with `this->p` (+0x3c), returns `this->byte40 != 0`. `0x20b8` (0x28): vtable slot 0x20 on `this->p` (+0x44), returns `this->byte48 != 0`. `0xab20` (0x28): same as `0x20b8` with `+0x3c`/`byte40`.
+- `0x8a70` (0x24): if `this->p` (+0xd0) non-null, vtable slot 1 with `(p, a)`, returns 0. `0x8a94` (0x24): same, slot 0. Retail loads the vtable pointer into r2, so the C takes the forwarded `int a` (it is passed on to the callee, so kept as natural).
+- Open: `0x8338` (masked-matches the `0x344c` source, unwritten), `0x8ab8` (same as `0x8a70`, slot offset 12, untested).
+
+## 2026-10-15 swarm batch 22 (all `Style: natural`)
+
+- `DllStatus@0x2f80` (0x14, 5/5): tail-call wrapper `fn(this->f16, b, a)` with the two int args swapped. `0x2f94` (0x24, 9/9): next index with wrap — `n = fnCount(this->f8); return (i+1 < n) ? i+1 : 0`. `0x2fb8` (0x20, 8/8): previous index with wrap — `return i ? i-1 : n-1`.
+- `0xa378` (0x88, 34/34): `obj = this->f4`; for k in {0,1,11,13} calls obj vtable slot {0,1,2,3}(obj) and returns 1, else 0 — a plain `switch` matches. `0x8724` (0x88, 34/34): same dispatch with the object at `this->f136`.
+
+## 2026-10-15 swarm batch 23
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllBox` | `0x17514` (0x30, 12/12) | natural | state-step: 5-arg import `(ctx->h, 25, &o->b, ctx->f, 0)` via `o->ctx`, returns 38. Using `o->ctx->x` directly gives retail's store-0-first order; a local `ctx` or `int z=0` loads ctx first (9/12) |
+| | `0xeedc` (0x48, 18/18) | natural | check-then-act: `Chk(ctx->h->f4, 2, ctx->s24) == 0` -> 1, else `Do(ctx->h, ctx->b, s24, s26)` -> 0 (source recovered from the agent's scratch file) |
+| | `0x11098` (0x54, 21/21) | natural | pairwise table search comparing `t[i]`/`t[i+1]` for i=start,+2 while i<12, returns `i+105`/`i+106`; miss -> error import, return 105. Must be a `do-while` (a `for` adds an entry precheck). Trailing zero pad word excluded from size |
+| `DllField` | `0x5be0` (0x10, 4/4) | natural | `if (c) return 0; return 1;` (`arg3 == 0`) |
+| | `0x76ec` (0xc, 3/3) | natural | stores arg1/arg2 into the int pair at +28/+32 (`add r0,#28; stm`) |
+| | `0x5e34` (0x1c, 7/7) | natural | zeroes four floats at +4..+16 via `vldr` from the pool word + 4x `vstr` (size includes the pool word) |
+| | `0xe3f4` (0x8, 2/2) | natural | stub returning -1 |
+| | `0x10c34` (0x20, 8/8) | **trick(redundant-local)** | `sub[84]=0; sub[85]=1; this[73]=1`; locals `z=0, o=1` stop armcc hoisting the sub-pointer into r2 and mis-allocating constants |
+
+Open DllField: `0x76f8`/`0x9ae0`/`0x9ae8` (`mov r0,#1` stubs), `0x7970`/`0x58b8` (`strb #1,[r0,#28]` setters), `0x630c`/`0x8604` (`ldr r0,[r0,#164]; mov r1,#0; b` tail calls), `0x10c54` (mirror of `0x10c34`), `0x112c8`/`0x112dc`/`0x112f0` (vtable-call wrappers). DllBox: `0x12868`-`0x12888` and `0x1c9f4`-`0x1ce78` are switch case bodies, not standalone functions; `0x12840` itself is a jump-table switch (untried).
+
+## 2026-10-15 swarm batch 24
+
+- `DllTownmap@0x5ac` (0x54, 21/21, natural): release helper — virtual-deletes members `[0x14]` (vtable slot 6) and `[0x18]` (slot 1) if set, zeroing each, then `fn(this+0x1c)`, returns `this->[0xc]`. `0xd68` (0x1c, 7/7, **trick(extra-arg)**): virtual wrapper — if `this->[0x88]`, tail-calls vtable slot 3 forwarding two int args (two args put the vtable in r3, one arg in r2, as in `0xb10`). `0xd84` (0x10, 4/4, natural): tail-call thunk `fn(this->[0x5c], this->[0x58], 0)`.
+- **Relaxed-only (not counted):** `DllTownmap@0xaa4` (0x6c) — dtor stage, 26/26 with `--relax-nops`, 21/27 masked; sibling `0xa34` same body with a tail `b`. Same signature as `relaxed/DllBattle/0x30a4.c`: a destructor whose retail has one nop before a `bl`. Two independent cases now — the nop is the only difference — suggesting a recurring post-link relaxation window after the virtual-delete sequence.
+
+## 2026-10-15 swarm batch 25
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllField` | `0x76f8`, `0x9ae0` (0x8, 2/2) | natural | return-true stubs |
+| | `0x7970` (0xc, 3/3) | natural | sets byte at this+28 to 1 |
+| | `0x630c` (0xc, 3/3) | natural | tail-calls `fn(this->p /*+164*/, 0)` |
+| | `0x10c54` (0x20, 8/8) | **trick(redundant-local)** | mirror of `0x10c34`: `sub[84]=1; sub[85]=0; this[73]=1`; locals `z=0, o=1` required |
+| `DllBag` | `0x11398` (0x2c, 11/11) | natural | dtor stage storing a passed-in vtable, `g1(o->sub->m)`, tail-call `g3((char*)g2(o+0x50)-0x50)` |
+| | `0x113c8` (0x30, 12/12) | natural | same body, vtable from the pool word (size includes it); returns `(char*)g2(o+0x50)-0x50` |
+
+Open DllField: `0x8604` (looks identical to `0x630c`), `0x9ae8` (return-1 stub), `0x112c8`/`0x112dc`/`0x112f0` (vtable-call wrappers returning 0, slots 0/4/8). DllBag `0x13880`/`0x137f0` (destructor/stateful) untried.
+
+## 2026-10-15 swarm batch 26 (all `Style: natural`)
+
+- `DllBattle@0x2c9bc` (0x30, 12/12): `if (this->vt[0x98/4](this)) tail-call fn(this->+0x12c);` void. `0x2c9f4` (0x34, 13/13): same, `return fn(...)` else `return 1`. `0x2c8c0` (0x38, 14/14): same, else `return 0.0f` (float; size includes the trailing pool word). `0x2d5a0` (0x38, 14/14): same source as `0x2c8c0`, different tail-call target. C: struct with vtable pointer, `pad[0x128]`, int at 0x12c; test is `o->vt[38](o)`.
+- Their tail-call callees (`0xa94`/`0xaa4`/`0xaac`/`0xb04`) look like a related accessor family; ~120 small `blx`-using functions remain past `0x3a00` in DllBattle.
+
+## 2026-10-15 swarm batch 27
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllStatus` | `0x2e54` (0x20, 8/8) | natural | `f470(c, f468(this->f8))` with the 3rd arg kept in r4 across the call, tail-calling `f470` |
+| | `0x2e74` (0x1c, 7/7) | natural | tail-calls `f470(f478(this->f8), c)` |
+| `DllGts` | `0x5ad4` (0x1c, 7/7) | **trick(ordering-local)** | `f4f4(**(this+16), *(int*)(this+48))`, returns 50; only matches with two locals (`q`, `v`) |
+| | `0x36d4` (0x18, 6/6) | natural | `f314(this+32)`, returns int at `this+20` |
+| | `0x486c` (0x18, 6/6) | natural | tail-calls `f4ec(f4cc(this), c)` |
+| `DllSalon` | `0xd5c` (0x38, 14/14) | **trick(ordering-local)** | dtor stage: installs the vtable, frees member +0x14, tail-calls a second import (size includes its pool word at 0xd90) |
+| | `0xd94` (0x34, 13/13) | natural | dtor stage: loads member +0x14 first, installs the vtable, frees if non-null, returns `this` — plain C matches here |
+| | `0xdd0` (0x2c, 11/11) | **trick(volatile-strd)** | globals init: -1 via `strd` to `g_a[1]` (array base +8), 0 to a second 64-bit global |
+| | `0x790` (0x20, 8/8) | **trick(void-ptr-passthrough)** | secondary-base thunk: import, post-indexed vtable store at +0x24, second import on the advanced pointer, returns result-0x24 |
+
+**Relaxed-only (not counted):** `DllStatus@0x2fd8` (0x64) and `0x2e90` — search loop, match only with `--relax-nops`; retail has a nop between `cmp r0,#0` and `beq` (a third nop-window variant besides the DllBattle@0x30a4 / DllTownmap@0xaa4 dtors).
+
+Open DllSalon: `0xdfc` (5-case property switch, needs `--mask-ranges`), `0x4ac` (call chain ending in `ldrd` + tail call), large functions `0x3a0`/`0x500`/`0x83c`/`0xaa0`. DllStatus `0x4184` (`f6280(); tail f310()`) matched but wasn't saved — a quick pickup.
+
+## 2026-10-15 swarm batch 28 (all `Style: natural`)
+
+- `DllField@0x8604` (0xc, 3/3): tail-calls an import veneer with `(this->field@0xa4, 0)`. `0x9ae8` (0x8, 2/2): returns 1. `0x142cc` (0x1c, 7/7): sets byte `this+0x25` = 1, `(this+0x20)->+0x1c` = 0, tail-calls a veneer with `(this->+4, 0)`. `0x142e8` (0x20, 8/8): same, sub-object byte set to 2.
+- `0x112c8`/`0x112dc`/`0x112f0` are **case bodies** of one switch function (`cmp r1,#0x21/#0x27/#0x3c` at `0x112a8`-`0x112bc`, shared `pop {r4,pc}` epilogue), not standalone functions; the enclosing switch is the real candidate.
+
+## 2026-10-15 swarm batch 29 (all `Style: natural`)
+
+- `DllBattle@0xc9220` (0x2c, 11/11): `fa(o->x /*+0xc*/, o->vt[23](o))` — virtual call whose result is tail-called with a field. `0xc9298` (0x2c, 11/11): same with `vt[24]`. `0xc92c4` (0x2c, 11/11): same shape as `0xc9298`, different callee. `0xc8eb0` (0x1c, 7/7): `return o->vt[18](o) != 0`. `0xc8f94` (0x20, 8/8): `if (o->vt[24](o) != 4) return 1; return 0;`.
+- Open: `0xc9018` (0x2c) masks 11/11 as `void fn(O *o, int a) { fa(o->x /*+0x14*/, o->vt[68](o, a)); }` but needs an unused `int a` (would be `trick(extra-arg)`); `0x2cbfc` (`if (vt[0x98](o)) { o->b346 = a; tail fn(o); }`) and `0x2cdc4` (`if (vt[0x98](o)) fn(o->x, a)`) — gated tail-call siblings of the `0x2c9bc` family; compare-and-return wrappers `0x42c0c`/`0x42c30` (`vt[0x80]`, `r == 160 || r == 161` and `r == 103 || r == 104`); `0x39884`.
+
+## 2026-10-15 swarm batch 30
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllStatus` | `0x4184` (0x10, 4/4) | natural | `f6280(); tail f310()` |
+| `DllBag` | `0x137f0` (0x3c, 15/15) | natural | clears field +0x88, calls two helpers, sets the field to 1 if the 2nd call is nonzero and the field is still 0; written `void` (retail leaves r0 live at the pop) |
+| | `0x1382c` (0x10, 4/4) | natural | `fc78(); tail f300()` |
+| | `0x13848` (0x38, 14/14) | **trick(ordering-local)** | dtor stage: vtable, free `buf` at +0x14 if non-null + zero, tail-call `f300(this)`; `void *vt = VT;` local forces the pool load ahead of the member load (natural form: 10/14) |
+| | `0x13880` (0x34, 13/13) | natural | same dtor without the tail call, returns `this` |
+
+**Docs findings (DllBag dtor agent):** declare the vtable as an array / `extern char VT[];`, not a scalar pointer — `void *VT` adds a dereference of the pool word and breaks the match; and the size passed to `fingerprint_fn.py` must include the trailing literal-pool word for dtors. Worth retrying the known-bad destructors (see `attempted.md`) with these in mind.
+
+## 2026-10-15 swarm batch 31
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllZukan` | `0x8338` (0x20, 8/8) | natural | `fn(this->p@0x3c)`, returns `byte@0x40 != 0` (same source as `0x344c`) |
+| | `0x8ab8` (0x24, 9/9) | natural | sibling of `0x8a70`/`0x8a94`: if `p@0xd0`, vtable slot 3 (+12) with `(p, a)`, returns 0; `a` must be forwarded (6/9 without) |
+| `DllGts` | `0x7e50`, `0x80f0` (0x3c, 15/15) | natural | `fn(c@0x20, this+0x24, 3 / 4, 0, p->byte@0x226 / 0x227, 0)` — two stack args, returns 5 |
+| | `0x93ac` (0x34, 13/13) | natural | if `fn(this)` non-zero return `r@0x1c`; else if `byte@4` store 6 to `r@0x14` and return 1; else return 2 |
+| `DllBattle` | `0xc9018` (0x2c, 11/11) | natural | `void fn(O *o, int a) { fa(o->x /*+0x14*/, o->vt[68](o, a)); }` (the arg is forwarded to the call, so natural) |
+| | `0x42c0c` (0x24, 9/9) | natural | `r = o->vt[32](o, a); return r == 160 \|\| r == 161;` |
+| | `0x42c30` (0x24, 9/9) | natural | same, `r == 103 \|\| r == 104` |
+| `DllHeading` | `0x55d8` (0x48, 18/18) | natural | looks up an 8-byte table entry by index; two imports on the sub-object at +4 with the entry's byte (2nd takes stack arg 1) |
+| | `0x868` (0x40), `0x16f4` (0x40) | **trick(void-ptr-passthrough)** | passed-in vtable stored, two fields forwarded to `o->q->h`, tail-call with base adjusted by -4 (`(char*)fn(p) - 4`) |
+| | `0x8ac` (0x44), `0x1738` (0x44) | **trick(void-ptr-passthrough)** | same with the vtable from the literal pool; returns the adjusted pointer |
+
+Open DllHeading: the same two shapes also masked-match at `0x1ca8`/`0x3df0`/`0x8c58` (tail form, size 0x40) and `0x1cec`/`0x3e34`/`0x8c9c` (literal-pool form, size 0x44) — unsaved; plus dtors `0x87e4` (0x38) / `0x881c` (0x34) at 12/14 / 11/13 (retail zeroes the member via r1). Open DllBattle: `0x39884` (long chain of virtual calls and compares), `0x2cbfc`/`0x2cdc4` (gated tail-call siblings). DllGts `0x7c74` (`fn(this->c@0x20, 1); return 4`, masks 6/6, unsaved).
+
+## 2026-10-15 swarm batch 32 (all `Style: natural`)
+
+- `DllBattle@0x2ca28` (0x44, 17/17): `if (vt[0x98](o)) fa(o->x /*+0x12c*/, a)` with a `float` arg. `0x2d5d8` (0x44, 17/17): same shape. `0x393d8` (0x20, 8/8): `return vt[0x3e](o)->b5 != 0`. `0x2cdfc` (0x8, 2/2): tail call `fa(o->x /*+0x12c*/)`. `0x2cc34` (0xc, 3/3): `return vt[0x98](o)` (virtual tail call).
+- **Int-arg gated tail-calls don't match yet:** `0x2cbfc`, `0x2cdc4`, `0x2ce44` (and likely `0x2c630`, 0x50) stop at 12/14 — retail does `mov r5,r1; ldr r1,[r0,#0x98]; blx r1`, armcc emits `ldr r2 ... blx r2` whenever an int arg is live across the virtual call (float-arg siblings match since the arg is in s0). See `attempted.md`.
+- Scan caveat: the agent only scanned functions starting with `push {..., lr}` in `0x2c000`-`0x2e000` / `0x39000`-`0x3a000`; push-less leaf functions weren't scanned.
+
+## 2026-10-15 swarm batch 33 — the destructor recipe
+
+Retrying the "known-bad destructors" with two findings (array-declared vtable; a `void *vt = VT;` local forcing the pool load ahead of the member load) matched **6 of 12**. Recipe: `extern char VT[];` (never a scalar pointer), `void *vt = VT;` first, then the member load, `o->vptr = vt;`, free-if-non-null + zero, then tail-call or return `this`; verify at the size including the trailing literal-pool word.
+
+| Module | Offset (size, match) | Style |
+|---|---|---|
+| `DllPuzzle` | `0xbf80` (0x38, 14/14) | **trick(ordering-local)** — tail-call dtor |
+| `DllTownmap` | `0x31d4` (0x38, 14/14) | **trick(ordering-local)** |
+| `DllPhotoViewer` | `0x193c` (0x38, 14/14) | **trick(ordering-local)** |
+| | `0x1974` (0x34, 13/13) | natural — returns `this` via `pop {r4,pc}` |
+| `DllStatus` | `0xa304` (0x38, 14/14) | **trick(ordering-local)** |
+| | `0xa33c` (0x34, 13/13) | natural — returns `this` |
+
+Still failing (`attempted.md`): DllPuzzle@0xb3fc (12/14), DllBox@0x1dfac (23/25) and 0x1df3c (20/28) — all blocked by the zero-in-r1 diff (retail `mov r1,#0; str r1,[...]`, ours r0); DllTownmap@0x31a0 ctor wrapper (8/12); DllBattle@0x3038 and DllPokeList@0xa50 are relaxed-only at best (post-link nop words).
+
+## 2026-10-15 swarm batch 34
+
+- `DllBattle@0x42bf4` (0x18, 6/6, natural): `vt[0x3e](this)` then returns the byte at +0x27 of the result.
+- `DllBattle@0x7a780` (0x30, 12/12, **trick(extra-arg)**): takes `this` as the second argument; if `vt[0x42](this)` returns 0, tail-calls a function with `this->+0x190`. The unused first argument only puts `this` in r1.
+- `DllBattle@0x39884` (0x150, 84/84, natural): state classifier via a chain of virtual calls, returns 0-3 — 0 if `vt[0x42](this)` is set or `vt[0x10](this)` isn't 1-3; 3 for specific `vt[0x20](this,1)` results (4 and 39-45); 2 or 1 from the `vt[0x3a]`/`vt[0x39]`/`vt[0x35]` probes. The vtable must be typed `int (**vt)()` (unprototyped) because the slots take different argument counts. **Largest real-logic match so far.**
+- Open: `0x224c` (0x30, same shape as matched `0x2c60`). Scans of `0x40000`-`0x44000` and `0xc0000`-`0xd0000` found only these; the other hits were mid-function fragments.
+
+## 2026-10-15 swarm batch 35
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllHeading` | `0x1ca8`, `0x3df0`, `0x8c58` (0x40, 16/16) | **trick(void-ptr-passthrough)** | tail form: store the vtable passed in r1 at `this[0]`, push the two config ints (`this+16`, `this+20`) into the handle at `this->q->h` (`q` at +12, handle at `q+0x18`), tail-call with the sub-object (`this+4`) base adjusted by -4 |
+| | `0x1cec`, `0x3e34`, `0x8c9c` (0x44, 17/17) | **trick(void-ptr-passthrough)** | literal-pool form: own vtable from the pool (`extern void *VT[];`), same pushes, returns the sub-object base minus 4 |
+| `DllGts` | `0x16aec` (0x14, 5/5) | natural | sets the byte at `*(this+0xc)` to 1 and `this->byte@0x3c` to 1 |
+| | `0xb054` (0x14, 5/5) | natural | `this->ctx@0x24->byte@0x624 = 1`, returns 5 |
+| | `0xb0f4` (0x18, 6/6) | natural | `this->byte@0x40 = 1`, clears `this->ctx@0x24->byte@0x624` |
+| `DllPuzzle` | `0x99dc` (0x24, 9/9) | natural | copies four ints from a source struct into `this+0x3c/+0x40/+0xb0/+0xb4` |
+| `DllEshop` | `0x9a8` (0x10, 4/4) | natural | `this->byte@0xe4 = 1`, returns 1 |
+
+Push-less leaf scan (`armcc-decomp-55`): few leaves in DllBox (1), DllBag (1), DllGts (22), DllPuzzle (6), DllEshop (2); **DllBattle has 794 and DllField 293 — those lists weren't examined**. Not matched: DllGts `0x2a08` (2/4, zero through r2 vs r1 — the zero-register class), `0x7c8c` (1 word: retail hoists `mov r1,#1`), DllPuzzle `0x100c` (3 words: retail avoids conditional execution where armcc emits `moveq`/`strbeq`).
+
+## 2026-10-15 swarm batch 36 (all `Style: natural`)
+
+- `DllGts@0x7c74` (0x18, 6/6): import call `(this->child@0x20, 1)`, returns 4. `0x824c` (0x3c, 15/15): 6-arg import call — 5th/6th spill to the stack and armcc packs them with `strd` — args `(this->child@0x20, &this->f24, 0, &state+0x250, state->int@0x218, 0)` with `state` = object at `this+0xc`; returns 5. `0x8354` (0x3c, 15/15): same shape, arg 3 = 1 and the int at `state+0x21c`; returns 13.
+- Remaining DllGts near `0x7cb0`-`0x8100` are large state-machine handlers.
+
+## 2026-10-15 swarm batch 37
+
+- `DllKisekae@0xb674` (0x38, 14/14, **trick(ordering-local)**): installs the vtable, frees the owned member at +0x14 if non-null and zeroes it, tail-calls the base dtor; needs `void *vt = VT; void *m = o->m;` so the pool load precedes the member load. `0xb6ac` (0x34, 13/13, **trick(ordering-local)**): frees the member and zeroes it, installs the vtable, returns `this`; here the member load comes first, so the hoisted `m = o->m` (no `vt` local) is what the ordering needs; size includes the trailing pool word (0x30 omits it and fails). The two look alike but need opposite load orders; a plain `o->vptr = VT; if (o->m) ...` fails on both.
+
+## 2026-10-15 swarm batch 38 — DllBattle push-less leaves (all `Style: natural`)
+
+- `0x567e0` (0x18, 6/6): fills 8 bytes by replicating the low byte of the arg into a u32 and storing it twice. `0x6fd18` (0x18, 6/6): same fill over 6 bytes (u32 + u16). `0xc9e84` (0x1c, 7/7): over 10 bytes (u32, u32, u16).
+- `0x5daf8` (0x14, 5/5): counted array getter `i < p[24] ? ((u32*)p)[i] : 0` (the `ldrhi/movls` conditional-execution form matches). `0x76360` (0x24, 9/9): zero-inits a struct with six u32 stores and a zero byte at +24.
+- **Scan:** functions of 0xc-0x60 bytes with no `push` and no `b`/`bl` ending in `bx lr` (bounds from the Ghidra `cro_c` filenames), minus anything in `matched/` — 59 non-trivial candidates remained; offsets are valid for `fingerprint_fn.py`.
+- **Families for the next round:**
+  - counted u32 array getter: `0x76384` (identical bytes to `0x5daf8`, same C should match); byte-array variant `0xc87a0` (`ldrbhi/movls #6`, count at +25)
+  - zero-init structs: `0xc5c18` (0x28, strb at +24/+25 plus six u32 stores), `0x71840` (u32+u16), `0xc9e58` (u32+u8), `0xc9e30` (0x28, two small functions)
+  - field copies: `0x5fa8c` (u32+u16), `0x5faa0` (u32+u8), `0xc9e68` (u32+u16+u8), `0x747fc` (2×u32)
+  - bit-test getters: `0x4aa9c`, `0x51c28` (`ldrb [27]; and #64/#32; lsr`); bitset-test `0x4c818`, `0x4ca4c`
+  - `add r0,r0,#N; ldrh` getters: `0x1cc04`, `0xc86c8`, `0xc8754`, `0x4c278`, `0x4c7fc`
+  - bit-pack builders: `0x704ac`, `0x76e20`, `0x797b0`
+
+## 2026-10-15 swarm batch 39 — DllField push-less leaves (all `Style: natural`)
+
+- `0x412d0` (0xc, 3/3): pair setter, stores arg1/arg2 at `this+28/+32` (`add r0,#28; stm`). `0x36d18` (0x10, 4/4): `this+24 = owner; this+32 = owner->+408`. `0x74dc8` (0x10, 4/4): sets `this->kind` (+134) to 1, returns `&arg1->sub` (+256). `0x7f60c` (0x10, 4/4): table getter — u16 at +10 of the 12-byte entry `[i]` with the table pointer in r3 (4th arg). `0x9ff58` (0xc, 3/3): getter `this->+68->+148`.
+- **Sibling families for the next round** (same C, only constants change):
+  - pair setter (`add r0,#28; stm`): `0x1959c`, `0x41f24`, `0x42f7c`, `0x444f0`, `0x4344c`, `0x9888` (store at +28); `0x417f8` (+44)
+  - owner-init (`str r1,[r0,#24]; ldr r1,[r1,#408]; str r1,[r0,#N]`): `0x2aec4`, `0x343b4` (N=28); `0x3424c` (N=36); `0x387c0`, `0x3e5c8` (N=32)
+  - kind setter + sub-record address: `0x74dd8` (K=2, +276), `0x74de8` (K=3, +296), `0x74df8` (K=3, +308), `0x74e08` (K=3, +320), `0x74e18` (K=4, +332)
+  - table getters: `0x7f628` (+22), `0x7f65c` (+8), `0x7f678` (+20); chain getters: `0xa0bdc` (+152), `0xa0024` (`ldrb`, +160)
+  - other shapes worth a try: `ldr r1,[pc,#4]; str r1,[r0]; bx lr` vptr setters (`0x28b24`, `0x28dc0`, `0x2905c`, `0x2907c`, `0x2941c`, `0x29abc`, `0x29e1c`); range predicates (`0x4a408`, `0x57d1c`, `0x57d54`); `vldr`/`vstr` zero-float inits (`0x7f40`, `0x7fb78`); `ldmia`/`vstmia` struct copies (`0x72534`, `0x72554`, `0x7dbc4`, `0x70f58`)
+- **Scan caveat:** Ghidra's function list omits push-less leaves (why they were unexamined); the scan cuts chunks at push/pop/b/bl/bx and leading literal-pool words show up as junk instructions that need stripping — the recipe is in the `0x412d0` header.
+
+## 2026-10-15 swarm batch 40 — zero-in-r1 leaf class cracked
+
+- `DllField@0xae58` (this+20/+24), `0xe3fc` (this+20/+24) and `0xe380` (this+24/+28) (each 0x10, 4/4, **trick(live-r1-passthrough)**): zero two adjacent ints, retail zeroes through r2. Mechanism: armcc puts the shared zero in the lowest free scratch register after r0 (`this`); retail had r1 live (an incoming arg handed back). An unused extra parameter does NOT keep r1 live; declaring `long long f(T *t, int x)` and returning `((long long)x << 32) | (unsigned)t` does, with zero extra code. **The real signature is unknown — this is the least natural trick form in the tree**; rewrite when the true signature is found.
+- The dtor variant of this class (`DllPuzzle@0xb3fc`, `DllHeading@0x87e4`/`0x881c`, `DllBox@0x1dfac`/`0x1df3c`, `DllGts@0x9824`) is still open, but its instruction ordering is solved (`void **vt = VT; void *m = o->f14; o->vptr = vt; if (m) {...}`); only the zero register differs. See `attempted.md`.
 
 ## What this does *not* do yet
 
