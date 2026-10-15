@@ -1,2 +1,0 @@
-DllStatus 0x25c8 (size 0x18): target = vmov s0,r0; vmov s1,r1; vcvt.f32.u32 s2,s0; vcvt s1,s1; vdiv s0,s2,s1; bx lr.
-`float fn(unsigned a,unsigned b){return (float)a/(float)b;}` gives 2/6: armcc interleaves (vmov s0,r0; vcvt s1,s0; vmov s0,r1; ...) and swaps divide operands. Statement-order, temps, fpmode/fpu flag variants did not change it. Union float-arg variant yields the right vcvt/vdiv core but no vmovs (hard ABI args already in s regs).

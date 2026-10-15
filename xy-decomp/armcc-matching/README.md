@@ -1759,6 +1759,29 @@ Open leads: DllGts `0x4174`, `0x43e8`, `0x453c`, `0x5320`, `0x7bd8`, `0x9874`, `
 
 - `DllZukan@0x1dcc8` (+4), `0x1dcd0` (+0x1c), `0x1dce8` (+0xc): `add r0,r0,#N` getters, 0x8, 2/2 each, re-verified (weak evidence). Open siblings `0x1dcd8` (+8), `0x1dce0` (+4); return-const stubs `0x1be18`/`0x1be20`/`0x1be28`/`0x1bdb8`.
 
+## 2026-10-15 swarm batch 9 (17 functions, all re-verified)
+
+| Module | Offset (size, match) | What |
+|---|---|---|
+| `DllBattle` | `0x2c3c` (0x24, 9/9) | virtual call slot 3 via `this+0x24`, returns `result==0` (same if/return idiom as `0x2228`) |
+| | `0x2c90` (0x10, 4/4) | tail-calls virtual slot 5 of `this+0x24` |
+| | `0x2c60` (0x30, 12/12) | if `this+0x24` set: vtbl slot 1 (delete), free `this+0x20` via import, return 1 |
+| | `0x2ef0` (0x44, 17/17) | if `this+0xc` set: vtbl slot 4, then slot 1 if still set, zero the field |
+| | `0x2d88` (0x18, 6/6) | `p = import(); *p = vtable ptr` (pool word is a relocation) |
+| `DllField` | `0x1a448` (0x14, 5/5) | stores -1 to three u16 fields +0/+2/+4 |
+| | `0x30734` (0x10, 4/4) | stores -1 to two ints +0/+4 |
+| | `0x1bd48` (0x14, 5/5) | `+0x18 = arg2`, `+0x20 = arg2->[+0x50]->[+0x30]` |
+| | `0x297d4` (0x10, 4/4) | zero byte@0 + word@4 |
+| | `0x3296c` (0x1c, 7/7) | zero-inits five fields; the `strb` at +0x14 must precede the `str` at +0x10 in source |
+| `DllGts` | `0x7bd8`, `0x9874` (0xc, 3/3) | `strb 1` setter +0x3c |
+| | `0x119a8` (0xc, 3/3) | `strb 1` setter +0x40 |
+| | `0x125cc` (0x8, 2/2) | returns 0x1b |
+| | `0x9898` (0x1c, 7/7) | if `this->obj@0x20`, tail-calls its vtable slot 9 |
+| `DllStatus` | `0x4590` (0xc, 3/3) | byte setter `((u8*)arg3)[12]=1` |
+| | `0x4654` (0x30, 12/12) | loads u32 at arg3+0x1dc; calls one import with `(this[0x58], v, 0)`, tail-calls another with `(this[0x58], v, 1)` |
+
+Open: DllGts `0x119b4` (0x44) and `0x125d4`+ untried; DllField `0xe380`/`0xe3fc` (zero-init using r2 where armcc picks r1, 1/4) unlogged.
+
 ## What this does *not* do yet
 
 This is per-function fingerprinting (prove a candidate's instruction

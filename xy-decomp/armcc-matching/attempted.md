@@ -15,6 +15,41 @@ file is only for things still unsolved.
 Format per entry:
 
 ```
+## DllGts@0x9880 (size 0x18)
+
+- What it is: stores constants then loads others (5/6 words matched).
+- Tried: see note. Retail hoists `mov r2,#10` and `mov r1,#1` before the first store; armcc emits `mov r1,#1` after it (word 0x988c).
+- Stuck on: 5/6, constant-hoisting order.
+- Lead for next time: none yet.
+
+## DllPokeList@0xaac (size 0x54; same shape at 0xa50 size 0x5c)
+
+- What it is: multiple-inheritance destructor.
+- Tried: `--relax-nops`, struct-typed fields, locals `vt = VT`, char*/void**/unsigned* vtable types, member load before/after stores.
+- Stuck on: best 12/20. Retail loads the vtable pool word into r1 BEFORE `push {r4,lr}` and keeps it live with independent `add r0,r1,#16` / `add r2,r1,#32`; armcc loads it after `push` and chains the adds. Store order target `[12],[0],[32]`.
+- Lead for next time: three separate vtable externs (VT0/VT1/VT2 at +0/+16/+32 of one object) might force independent address materialisation — untried.
+
+## DllStatus@0x459c (size 0xb8)
+
+- What it is: byte-toggle region at `this+0xf5`.
+- Tried: if/else, ternary, local variable, goto join.
+- Stuck on: best 26/46. Retail never hoists constants #0/#1 into registers (re-materializes `mov r0,#1; mov r3,r0`), armcc does in every shape.
+- Lead for next time: none yet.
+
+## DllStatus@0x6f74 (size 0x1c)
+
+- What it is: vldmia/vstmia copy of 32 bytes src+0 -> dst+32, then 8-byte copy src+32 -> dst+64.
+- Tried: u32[8]/float[8] struct assignment, loops, unrolled float assigns, V4 structs.
+- Stuck on: armcc gives ldm/stm or vldr/vstr, never vldmia.
+- Lead for next time: none yet.
+
+## DllStatus@0x25c8 (size 0x18)
+
+- What it is: `(float)a/(float)b` from two u32 args.
+- Tried: `float fn(unsigned a,unsigned b){return (float)a/(float)b;}`.
+- Stuck on: 2/6. Target does both `vmov` first and divides s2/s1; armcc interleaves vmov/vcvt and swaps the divide operands.
+- Lead for next time: none yet.
+
 ## DllZukan@0x1bdc0 (size 0x58)
 
 - What it is: `if (this[0xe0]) { a = vA(x) != 0; b = vB(x) != 0 }` then `return (vC(this)|a|b) != 0`.
