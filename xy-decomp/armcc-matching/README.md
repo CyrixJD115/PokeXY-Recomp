@@ -152,6 +152,25 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
   toolchain's residue notes (don't assume the "obvious" value is what's
   actually live in the register).
 
+- `matched/DllConfig/` — 1 function, a **fifth** module, mined from the
+  tail stub cluster:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x3a74` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+
+  Same shape as the other modules' tail-cluster stubs, isolated between
+  two destructor-stage helpers that were recognized on sight as the
+  vptr-install-scheduling residue class and skipped. `DllConfig@0x31b8`
+  (a 5-field struct-copy with no branches/calls) was also attempted: got
+  to 5/8 masked-match (the 3-word `ldm` read side matches exactly) but
+  the store side never reproduced the retail binary's `str`+`strd` split
+  — every C idiom tried (flat field assignment, a local struct-copy
+  temp, a nested 3-word sub-struct) either emitted zero merged stores or
+  over-merged into one 3-word `stm`/`stmia!`, never the target's
+  "store the far field alone, then `strd` the adjacent pair" split.
+  Logged as an open item in `attempted.md` rather than re-attempted.
+
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
 Some larger dispatcher functions (`DllDialogCommon@0x300`/`0xdd8`,
