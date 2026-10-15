@@ -169,9 +169,23 @@ since the last pass, and the current true totals.
 
 `main` is never written to directly — not by agents, not by you. When the
 user asks to get swarm progress onto `main` (or periodically, so review
-diffs stay a manageable size instead of one giant dump), open a PR from
-`dev`:
+diffs stay a manageable size instead of one giant dump):
 
+**First, regenerate the heatmap** (cheap — ~0.7s once `xy-viz` is already
+built; only rebuilds `xy-viz` itself the very first time, which takes
+~55s):
+```sh
+python3 xy-heatmap/heatmap.py readme
+git status --short docs/assets/
+```
+This derives from the Ghidra/recomp corpus (`decomp/`, `recomp/`), not
+from `xy-decomp/armcc-matching/`, so a PR that's pure armcc-matching work
+will usually only bump the embedded `generated` timestamp (not the
+counts) — commit it anyway, on `dev`, before opening the PR. Only treat a
+counts change as notable; a timestamp-only diff is expected and fine to
+commit quietly.
+
+Then open the PR:
 ```sh
 gh pr create --base main --head dev --title "..." --body "..."
 ```
