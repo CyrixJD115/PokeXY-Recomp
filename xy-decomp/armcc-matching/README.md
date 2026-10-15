@@ -16,7 +16,7 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
 not depth. The swarm's executor skill deliberately mines the *easiest*
 win per module first (trivial 1-2 instruction virtual-override stubs and
 field setters have a near-100% hit rate — see "What reliably works"
-below), so as of this update **53 of 79 matched modules have exactly one
+below), so as of this update **57 of 84 matched modules have exactly one
 trivial `return 0`/`return 1`/field-setter/forwarder stub proven and
 nothing else** — the module itself still has its full remaining function
 count (typically hundreds) completely unaddressed. The other 22 modules
@@ -1054,6 +1054,60 @@ completion.
   = `return 1`, `0x8a0`-`0x8b0` = four bare `bx lr`), and a
   near-identical sibling dtor sits right after at `0x8ec`
   (member-load-vs-vtable-load order not yet checked).
+
+- `matched/DllSparring/` — 1 function, an **eightieth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x10178` | `0x8` | 2/2 | Trivial virtual-override stub, `return 8`, ignores `this`. |
+
+  One of three near-identical 2-word constant-getter stubs right after
+  the module's second real function (a dispatcher ending at `0x10174`):
+  `return 8` (claimed), `return 16` at `0x10180` and `return 4` at
+  `0x10188` (both unclaimed). Module layout: a 244-entry import-veneer
+  table (`0x180`-`0x91f`), then a large unattempted constructor at
+  `0x920` (~`0x8c0` bytes).
+
+- `matched/DllShinkaDemo/` — 1 function, an **eighty-first** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xfdc` | `0x8` | 2/2 | Trivial signed-byte field getter: `return *(signed char*)(obj+0x82);`. |
+
+  Right after a dispatcher function (ends `0xfd4`) and its literal pool
+  (`0xfd8`). An identical twin getter for the adjacent byte (`+0x83`)
+  sits at `0xfe4`, unclaimed.
+
+- `matched/DllReport/` — 1 function, an **eighty-second** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x728` | `0x1c` | 7/7 | Conditional accessor, same idiom as `DllLangSelect@0x5b0`/`DllDendouDemo@0x798`/`DllBoxSearch@0x5b8`/`DllDendouPC@0x650`/`DllEggDemo@0x568`/`DllPCMenu@0x6b8`: veneer call gates between a member load (here `+84`) and a re-materialized constant `2`. |
+
+  Module's first real function, right after its import-veneer table
+  (`0x180`-`0x727`).
+
+- `matched/DllSequence/` — 1 function, an **eighty-third** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x1135c` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+
+  Inside the recurring tail-of-import-veneer-table leaf-stub cluster
+  (bare `bx lr` stubs on both sides). Module has an unusually large
+  import-veneer table; three more untried `return 1`-shaped leads at
+  `0xee90`, `0xef98`, `0x10a88`.
+
+- `matched/DllField/` — 1 function, an **eighty-fourth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x58c8` | `0xc` | 3/3 | Trivial hardcoded-true byte-field setter: unconditionally sets `this+0x1c` to 1, ignores any 2nd argument, void return. |
+
+  Right after DllField's large import-veneer table (`0x180`-`0x5767`)
+  and a run of small veneer-calling wrappers/float helpers
+  (`0x5740`-`0x58c4`); plenty of unmined ground remains in this module
+  (~9,227 functions — one of the largest CRO modules).
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
