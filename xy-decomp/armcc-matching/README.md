@@ -16,21 +16,22 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
 not depth. The swarm's executor skill deliberately mines the *easiest*
 win per module first (trivial 1-2 instruction virtual-override stubs and
 field setters have a near-100% hit rate — see "What reliably works"
-below), so as of this update **33 of 50 matched modules have exactly one
+below), so as of this update **36 of 54 matched modules have exactly one
 trivial `return 0`/`return 1`/field-setter/forwarder stub proven and
 nothing else** — the module itself still has its full remaining function
-count (typically hundreds) completely unaddressed. The other 17 modules
+count (typically hundreds) completely unaddressed. The other 18 modules
 (`DllDialogCommon`, `DllNumberInput`, `DllStrInput`, `DllFatalErrorProc`,
 `DllLangSelect`, `DllHeading`, `DllCommendation`, `DllBattleHouseConnect`,
 `DllGameClearSave`, `DllUSBigFourSteel`, `DllFriendEntry`,
 `DllBackGround`, `DllDendouDemo`, `DllBoxSearch`, `DllBattlePartySelect`,
-`DllDendouPC`, `DllEggDemo`) have either multiple matched functions or at
-least one structurally meaningful match (a destructor/constructor/
-dispatcher, or a genuine multi-instruction compile like `DllBackGround`'s
-three-way predicate, the `DllDendouDemo`/`DllBoxSearch`/`DllDendouPC`/
-`DllEggDemo` conditional-accessor family, or `DllBattlePartySelect`'s
-instruction-order-sensitive leaf predicate, not just a 1-2 word stub).
-Treat "M modules touched" as a
+`DllDendouPC`, `DllEggDemo`, `DllEshop`) have either multiple matched
+functions or at least one structurally meaningful match (a destructor/
+constructor/dispatcher, or a genuine multi-instruction compile like
+`DllBackGround`'s three-way predicate, the `DllDendouDemo`/`DllBoxSearch`/
+`DllDendouPC`/`DllEggDemo` conditional-accessor family, `DllEshop`'s
+tail-calling destructor, or `DllBattlePartySelect`'s instruction-order-
+sensitive leaf predicate, not just a 1-2 word stub). Treat "M modules
+touched" as a
 toolchain-portability proof (the technique works on unrelated modules,
 not just the first one found), not as module
 completion.
@@ -726,6 +727,55 @@ completion.
 
   Module's first real function, right after a ~125-entry import-veneer
   table (`0x180`-`0x567`).
+
+- `matched/DllEshop/` — 1 function, a **fifty-first** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x554` | `0x38` | 14/14 | Destructor: installs a new vtable, frees owned member at `+0x14` if non-null, tail-calls a second import instead of returning `this` directly. |
+
+  Identical idiom to `DllFatalErrorProc@0x284`/`DllCommendation@0xc94`/
+  `DllBattleHouseConnect@0x2fc`/`DllGameClearSave@0xd6c`/
+  `DllFriendEntry@0x4c4`: same "good" load ordering (vtable literal into
+  `r1` before the member load into `r0`), same size gotcha (own literal
+  pool word at `0x588` pushes real size to `0x38`, not the naive
+  `0x34`). Mined from the stub cluster right after the import-veneer
+  table (`0x180`-`0x52f`); two trivial `mov r0,#1; bx lr` stubs at
+  `0x530`/`0x538` and six bare `bx lr` weak-evidence stubs at
+  `0x53c`-`0x550` precede it, unclaimed. A sibling dtor-shaped function
+  immediately follows at `0x58c` (same shape, load-order not yet
+  checked).
+
+- `matched/DllFieldEventEntranceIn/` — 1 function, a **fifty-second**
+  module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x628` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+
+  Sits mid-module rather than right after the import-veneer table
+  (`0x180`-`0x2df`, 44 entries): a literal-pool word precedes it at
+  `0x624`, two bare `bx lr` weak-evidence stubs follow at
+  `0x630`/`0x634`, and a boolean getter starts right after at `0x638`.
+
+- `matched/DllFieldEventPlayer/` — 1 function, a **fifty-third** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x624` | `0x8` | 2/2 | Trivial int field setter (`*(int*)((char*)this+32) = v;`). |
+
+  A two-field setter at `0x494` (`str r1,[r0,#28]; strb r2,[r0,#32]; bx
+  lr`, size `0xc`) looks equally tractable and wasn't attempted; two
+  dispatcher functions at `0x4ac` and `0x63c` also look promising.
+
+- `matched/DllFieldDemo/` — 1 function, a **fifty-fourth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x1edc` | `0x8` | 2/2 | `xy_system::bg::System::SetIsCallDraw(bool)` — same shared setter as `DllTrainingAppManager@0xd68`/`DllPssConfig@0x1c20`/`DllCaptureRegister@0x27b0`/`DllColosseum@0x46fc`. |
+
+  An untried `return 1` stub sits right next door at `0x1ee4`, and a
+  small struct-zero init function at `0x1eec`-`0x1f0c`.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
