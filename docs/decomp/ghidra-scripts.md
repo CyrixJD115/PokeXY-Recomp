@@ -63,3 +63,37 @@ Fetch the upstream suite, apply these fixes (all small):
   project — see [../general/findings.md](../general/findings.md) for the
   coordinate-frame and thunk-dedup gotchas before feeding them to
   3DS-Decomp-Pipeline.
+
+## 5. Gotcha: the Ghidra project location can't live under a dot-prefixed directory
+
+2026-10-15, rebuilding `.Data/Source_Extracted` from scratch on a fresh
+machine: `analyzeHeadless .Data/Source_Extracted/decomp/ghidra_project
+PokemonX -import …` aborted immediately with `Abort due to Headless
+analyzer error: Path element starting with '.' is not permitted`
+(`NamingUtilities.checkName` via `ProjectLocator`), even though the path
+was already absolute (AGENTS.md's existing "requires absolute paths"
+note is about a *different* failure mode — a truly relative path — and
+doesn't cover this one).
+
+Ghidra's `ProjectLocator`/`NamingUtilities` reject **any** path element
+that starts with `.`, not just a leading `.`/`..` for "relative path" —
+so `.../.Data/Source_Extracted/decomp/ghidra_project` fails purely
+because `.Data` is dot-prefixed, regardless of what comes after it or
+whether the whole path is absolute. This directly conflicts with this
+repo's own dot-prefixed-top-level-dir convention
+(`.Data/`/`.thirdparty/` = machine-local workspace material, see
+AGENTS.md's Repo layout section) for exactly the one artifact — the
+Ghidra project's `.gpr`/`.rep` store — that convention says should live
+there.
+
+**Workaround:** point the `<project_location>` argument of
+`analyzeHeadless` at any path with no dot-prefixed element (a plain
+`ghidra_project/` directory, repo-root or elsewhere, gitignored same as
+`.Data/`) — only the *project store* needs to move; input files
+(`code.bin`, CRO `.bin`s) and the `-postScript` output directory are
+ordinary CLI string arguments, not `ProjectLocator` paths, and can still
+live anywhere under `.Data/Source_Extracted/` without issue. Confirmed:
+moving only `PROJ` out from under `.Data/` let both the `code.bin` import
+and all 133 CRO module imports (`xy-heatmap/shell/rebuild_v2.sh` stages
+C1/C2 logic) complete normally, writing their decompiled C back into
+`.Data/Source_Extracted/decomp/{code_c,cro_c}/` as usual.
