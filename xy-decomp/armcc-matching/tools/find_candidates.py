@@ -52,7 +52,9 @@ import argparse
 import glob
 import os
 import re
+import subprocess
 import sys
+import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(HERE)))
@@ -83,6 +85,63 @@ def resolve_ci(directory, name):
     except OSError:
         pass
     return target
+
+
+# bx lr / pop{...,pc} are ordinary returns; a bare unconditional `b` (not
+# `bl`, not a conditional like `beq`/`bne` -- objdump never puts a tab
+# right after plain "b" for those) is this binary's tail-call idiom:
+# `pop {r4,lr}; b <target>` restores lr then branches, relying on the
+# callee's own `bx lr` to return. Safe to treat as a terminator here only
+# because classify() already restricts candidates to straight-line bodies
+# with no real branches/loops in their decompiled C -- a `b` inside one of
+# these is a tail call, never a loop back-edge.
+RETURN_WORD_RE = re.compile(r'\bbx\tlr\b|\bpop\t\{[^}]*\bpc\b|\bb\t')
+
+
+def romfs_dir():
+    return os.environ.get("XY_ROMFS", os.path.join(ROOT, ".Data", "Raw_Extracted", "romfs"))
+
+
+def shrink_to_real_end(module, off, hinted_size):
+    """Trim a gap-derived size down to the first return instruction, so a
+    hint doesn't overrun into untracked trailing stubs (confirmed to
+    happen in practice: both of the first two agents to use this tool hit
+    exactly this on DllField -- every hinted call+return candidate that
+    round was a few words too long). Returns hinted_size unchanged if
+    nothing looks like a return within it (never grows the size)."""
+    cro = os.path.join(romfs_dir(), f"{module}.cro")
+    try:
+        data = open(cro, "rb").read()[off:off + hinted_size]
+    except OSError:
+        return hinted_size
+    if len(data) < 4:
+        return hinted_size
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".bin", delete=False) as fh:
+            fh.write(data)
+            name = fh.name
+        out = subprocess.run(
+            ["arm-none-eabi-objdump", "-D", "-b", "binary", "-m", "arm",
+             "--adjust-vma=0", name],
+            capture_output=True, text=True, timeout=10,
+        ).stdout
+        os.unlink(name)
+    except Exception:
+        return hinted_size
+    best = None
+    for line in out.splitlines():
+        line = line.strip()
+        if not line or ":" not in line.split("\t", 1)[0]:
+            continue
+        addr_part = line.split(":", 1)[0].strip()
+        try:
+            addr = int(addr_part, 16)
+        except ValueError:
+            continue
+        if RETURN_WORD_RE.search(line):
+            best = addr + 4   # end right after this return instruction
+            break
+    return best if best else hinted_size
 
 
 def module_rebase(module):
@@ -269,6 +328,7 @@ def main() -> int:
         n_calls = sum(1 for ln in body if CALL_RE.match(ln))
         if size > plausible_size(cls[0], n_assigns, n_calls):
             continue   # likely an untracked-neighbor gap, not this function
+        size = shrink_to_real_end(module, off, size)
         snippet = " ".join(body) or sig
         results.append((off, size, cls[0], cls[1], snippet[:100]))
 
