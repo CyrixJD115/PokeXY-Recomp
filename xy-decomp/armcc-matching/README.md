@@ -23,7 +23,7 @@ still have their full remaining function count (typically hundreds)
 completely unaddressed regardless of how many functions are proven in
 them. A module having **more than one** matched function is unambiguous
 evidence of that (recompute with `for d in matched/*/; do find "$d" -name
-'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **33 of 106**
+'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **39 of 107**
 as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllFatalErrorProc`, `DllIntro`, `DllSparringMenu`, `DllStatus`,
 `DllSubScreenTutorial`, `DllStartMenu`, `DllStaffRoll`, `DllWazaOboe`,
@@ -1675,6 +1675,22 @@ All 5 specimens above were re-verified against this repo's own freshly
 extracted `DllDialogCommon.cro` on migration day and reproduce their
 masked match exactly — the toolchain and verifier are proven portable,
 not a one-off result tied to the sibling repo's layout.
+
+## 2026-10-15 swarm batch (9 functions, independently re-verified)
+
+All re-run with `fingerprint_fn.py` -> `*** MASKED MATCH ***`.
+
+| Module | Offset | Size | Match | Note |
+|---|---|---|---|---|
+| `DllKisekae` | `0xb6e8` | `0x8` | 2/2 | virtual-override stub, `return 1` |
+| `DllKisekae` | `0xb6f0` | `0xc` | 3/3 | byte-field setter |
+| `DllPssCharaMenu` | `0x5e8` | `0x8` | stub | trivial stub |
+| `DllPssMainMenu` | `0x430` | `0x8` | stub | trivial stub |
+| `DllSalon` | `0x380` | `0x20` | 8/8 | predicate: returns 1 if in-module helper `0xaa0` (on `this->f48+4`) yields 0 |
+| `DllSparring` | `0x10180` | `0x8` | stub | trivial stub |
+| `DllSparring` | `0x10188` | `0x8` | stub | trivial stub |
+| `DllTestPGL` | `0x180` | `0x8` | 2/2 | `SetIsCallDraw` byte-field setter (new module) |
+| `DllUSPokecen` | `0x254` | `0x8` | stub | trivial stub |
 
 ## What this does *not* do yet
 
