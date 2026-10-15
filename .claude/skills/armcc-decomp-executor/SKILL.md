@@ -90,6 +90,14 @@ offset from the CRO header's segment table, right after the `CRO0` magic)
 and disassemble: `arm-none-eabi-objdump -D -b binary -m arm
 --adjust-vma=<text_file_offset> <extracted.bin>`.
 
+**Offset gotcha:** `xy cro info`'s reported segment offsets (e.g. "seg 0:
+.text @0x180") are already **absolute file offsets** into the `.cro` — do
+not add the `CRO0` header's `0x80` on top when hand-disassembling.
+`fingerprint_fn.py`'s own `<hex offset>` argument is likewise a raw
+absolute file offset (cross-checked against `DllDialogCommon@0x8d0`'s
+known-good bytes). Getting this wrong disassembles the wrong bytes
+entirely, not just a shifted view of the right ones.
+
 **What reliably works** (near-100% hit rate across every module mined so
 far — try these before anything fancier):
 

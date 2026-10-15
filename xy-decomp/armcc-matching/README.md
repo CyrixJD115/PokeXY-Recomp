@@ -23,12 +23,12 @@ still have their full remaining function count (typically hundreds)
 completely unaddressed regardless of how many functions are proven in
 them. A module having **more than one** matched function is unambiguous
 evidence of that (recompute with `for d in matched/*/; do find "$d" -name
-'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **16 of 95**
+'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **17 of 96**
 as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllFatalErrorProc`, `DllIntro`, `DllSparringMenu`, `DllStatus`,
 `DllSubScreenTutorial`, `DllStartMenu`, `DllStaffRoll`, `DllWazaOboe`,
 `DllTrialDownload`, `DllTradelist`, `DllZukan`, `DllTitle`,
-`DllTownmap`). Many of the
+`DllTownmap`, `DllTradeDemo`). Many of the
 remaining single-match modules are also genuinely meaningful (a
 destructor/constructor/dispatcher/conditional-accessor, not a 1-2 word
 stub) — see each module's own entry above for which; that split isn't
@@ -1311,6 +1311,25 @@ module-disassembly cost across several matches instead of one.
   (`mov r2,r1; stm r0,{r1,r2}; bx lr`). Several larger dispatcher/
   destructor-shaped functions (`0x498`, `0x4fc`, `0x5ac`, etc.) were
   seen but not attempted.
+
+- `matched/DllTradeDemo/` — 4 functions, a **ninety-sixth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x550` | `0x1c` | 7/7 | Conditional accessor, same idiom as `DllLangSelect`/`DllDendouDemo`/`DllBoxSearch`/`DllDendouPC`/`DllEggDemo`/`DllPCMenu`: veneer call gates between a member load (`+20`) and a re-materialized constant `3`. |
+  | `0x644` | `0x24` | 9/9 | Prologue-less leaf predicate: double-indirects through a `+24` pointer field to a leaf object's `+56` byte flag, conditionally stores 5 into `+16` and returns 2, else returns 4. |
+  | `0x1a68` | `0x8` | 2/2 | `xy_system::bg::System::SetIsCallDraw(bool)` — same shared setter as several other modules. |
+  | `0x1a70` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+
+  Stopped at 4/5 — the module's remaining functions are all harder
+  shapes: a dtor-style helper at `0x668` (conditional frees via
+  local+import calls, not the standard vptr-install idiom), a larger
+  dtor-like function at `0x740`/`0x97c`, 5-case jump-table dispatchers
+  at `0x1aa4` (the known unresolved `ldrcc pc,[pc,r1,lsl#2]` residue
+  class), and a two-64-bit-globals init leaf at `0x1a78` — the exact
+  same dead-end residue already logged for `DllFieldDebug@0x180`
+  (value-computed-first/`strd`-pair ordering), recognized on sight and
+  skipped rather than re-attempted.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
