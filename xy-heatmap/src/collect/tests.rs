@@ -275,15 +275,17 @@ fn build_armcc_tree(repo: &Path) {
         "/* DllBag @ 0x1c0 size 0x4 RELAXED (--relax-nops only). */\nvoid f(void) {}\n",
     );
     // attempted log: one unproven function, a two-address continuation
-    // row for another module, and a prose citation of an ALREADY-MATCHED
-    // function (must NOT be flagged attempted)
+    // row for another module, a module cited WITHOUT its Dll prefix
+    // (resolved by the dll-prefix fallback), and a prose citation of an
+    // ALREADY-MATCHED function (must NOT be flagged attempted)
     write(
         repo,
         "xy-decomp/armcc-matching/attempted.md",
         "# Attempted — not yet matched\n\n\
          ## DllBag@0x1d0 (size ?)\n\n\
          - Stuck on: armcc if-conversion vs retail branch.\n\n\
-         ## DllBox@0x180/0x184 destructor class\n\n\
+         ## Bag@0x1d8 destructor variant\n\n\
+         - Same residue class as the DllBox@0x180/0x184 destructor class.\n\n\
          - The leaf variant is cracked (see matched/ DllBag@0x190).\n",
     );
 }
@@ -319,12 +321,14 @@ fn armcc_matching_evidence_sets_verified_and_overlays() {
     // attempted: overlay flag on a raw cell
     assert!(at(0x1d0).attempted());
     assert_eq!(at(0x1d0).tier, 0);
+    // unprefixed module citation (Bag@0x1d8 -> DllBag): still attributed
+    assert!(at(0x1d8).attempted());
 
     // dataset-level counts
     assert_eq!(ds.tier_counts()[3], 2);
     assert_eq!(ds.hint_count(), 1);
-    // DllBag@0x1d0 + the DllBox@0x180/0x184 continuation pair
-    assert_eq!(ds.attempted_count(), 3);
+    // DllBag@0x1d0/0x1d8 + the DllBox@0x180/0x184 continuation pair
+    assert_eq!(ds.attempted_count(), 4);
 
     // DllBox has no other sources; its attempted.md continuation
     // addresses (/0x184 shares DllBox@0x180's module) still become cells

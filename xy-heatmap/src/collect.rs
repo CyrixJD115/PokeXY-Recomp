@@ -904,7 +904,12 @@ impl ProjectSource {
                     }
                 }
                 for (module, off) in &armcc.attempted {
-                    if !keys.contains(&module.as_str()) {
+                    // attempted.md sometimes cites modules without the Dll
+                    // prefix (`Puzzle@0x100c` for DllPuzzle); prose tokens
+                    // (`byte@0x10`, register names) match nothing either way
+                    let hit = keys.contains(&module.as_str())
+                        || keys.contains(&format!("dll{module}").as_str());
+                    if !hit {
                         continue;
                     }
                     let cell = accs.entry(Self::armcc_addr(is_main, *off)).or_default();
@@ -954,8 +959,12 @@ impl ProjectSource {
             });
         }
 
-        // armcc dirs/references naming no known module (casing, renamed
-        // CROs, typos) — surface rather than silently drop
+        // armcc matched/relaxed dirs naming no known module (casing,
+        // renamed CROs, typos) — surface rather than silently drop. The
+        // attempted.md log is NOT checked this way: it is prose and
+        // routinely contains non-reference tokens (`byte@0x10`), and its
+        // unprefixed module mentions are handled by the dll-prefix
+        // fallback during application.
         if let Some((armcc, dir)) = armcc.as_ref() {
             let known: std::collections::HashSet<String> = specs
                 .iter()
@@ -975,17 +984,6 @@ impl ProjectSource {
                     "armcc-matching: matched/relaxed module {k:?} matches no known module \
                      (under {})",
                     dir.display()
-                ));
-            }
-            let unknown_refs = armcc
-                .attempted
-                .iter()
-                .filter(|(m, _)| !known.contains(m))
-                .count();
-            if unknown_refs > 0 {
-                warnings.push(format!(
-                    "armcc-matching attempted.md: {unknown_refs} reference(s) to unknown \
-                     modules skipped"
                 ));
             }
         }

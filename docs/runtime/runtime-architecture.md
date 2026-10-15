@@ -16,7 +16,7 @@ rewrite of 2026-10-15 — see §7).
 | Identified/named functions | 592 (0.8 %) | static.crs 461 exports + CRO export tables (179 unique) + stray Ghidra names |
 | Decompiled to C | 38,385 (53 %) | `decomp/code_c` + `decomp/cro_c/<Dll>` |
 | Recomp-covered (3dsrecomp) | 69,038 (95 %) | port `functions.h` / `m*_functions.h` |
-| Natively verified (per-function) | 0 — harness ready | future: 3dsrecomp verify / objdiff per-unit |
+| Natively verified (per-function) | masked-matched functions across 113 modules (2026-10-15: 0.7 % of the heatmap inventory) | `xy-decomp/armcc-matching/matched/` — totals re-derive from the filesystem per its README; now the heatmap's **verified** tier |
 | Module relinks byte-identical | 134/134 | `pipeline/orig` vs `pipeline/out` |
 
 The bottleneck is **identification, not coverage or decompilation**: the
@@ -292,16 +292,43 @@ into one binary). Architecture:
   toolbar (tier filter, density) + a hover readout bar; views deep-link
   via URL hash.
 - Cell = one function (union inventory); colour = highest stage:
-  dark grey raw → teal decompiled → green identified → gold verified;
-  red ring = interpreter hints. Recomp-coverage is a per-function bit
+  dark grey raw (catalogued but still raw binary — no C, no name) →
+  teal decompiled → green named → gold verified. Overlays (outline
+  rings, per-cell in every view): red = relaxed armcc match, violet =
+  attempted-but-unmatched. Recomp-coverage is a per-function bit
   surfaced in tooltips and per-module/global stats.
 - Exports come from the **same Scene** the browser renders — SVG
   (hand-written serializer, byte-identical on re-run, native `<title>`
   tooltips) and PNG (integral-scale raster, real TTF fonts, DPI metadata).
-- Extension points (dataset schema): `hint` per cell (Zakuro interpreter
-  hits) and `verified` tier (from a future 3dsrecomp-verify / objdiff
-  export) — tiers 3/4 light up when those feeds exist, no layout change
-  needed. Generic datasets can also be loaded with `--dataset file.json`.
+- Extension points (dataset schema): `hint`/`attempted` per cell and the
+  `verified` tier; generic datasets can also be loaded with
+  `--dataset file.json`.
+- **2026-10-15 (same day, later) — the heatmap now eats the armcc
+  matching evidence**, so its tiers finally measure the real decomp
+  state (see `xy-decomp/armcc-matching/README.md` for the toolchain
+  story and `docs/decomp/armcc-toolchain.md` for the parity proof):
+  - `xy-decomp/armcc-matching/matched/<Mod>/<offset>.c` → **verified**
+    tier on that exact cell (offsets share the CRO module-relative
+    frame; the proven byte size is parsed from the file header);
+    offsets no other source knows become cells (prologue-less leaves
+    the Ghidra catalog misses). `Main`/`static` dirs map to the Main
+    module with a file-offset-vs-VA frame heuristic.
+  - `relaxed/<Mod>/…` → red overlay ring, **excluded from verified**
+    (the armcc README's rule); `attempted.md` refs → violet ring (with
+    a `Dll`-prefix fallback for unprefixed citations; prose tokens like
+    `byte@0x10` match nothing and are skipped).
+  - Tier-semantics fix in the same change: an anonymous `FUN_` row in
+    the Ghidra symbol CSV used to count as *decompiled* — it only
+    proves the function exists. The decompiled tier is now earned
+    solely by a decomp-corpus C file, so **raw** (≈ 33.2k, 45.6 % of
+    the 72,882-cell inventory) is visible for the first time and
+    `summary`'s columns are honest.
+  - Evidence lives in the source fingerprint: a new matched file
+    live-reloads the dashboard within one poll. Synthetic-fixture
+    tests cover every rule (`xy-heatmap/src/collect/tests.rs`).
+  - First measured state: verified 0.7 % (488 masked matches across
+    113 modules), decompiled 52.3 %, named 1.4 %, covered 94.7 %,
+    relaxed 1 (DllBattle@0x30a4), attempted 49.
 
 ## 8. Risks / open items
 

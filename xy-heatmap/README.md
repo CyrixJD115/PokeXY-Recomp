@@ -49,10 +49,15 @@ stops cleanly.
 | `namespaces` | subsystems visible in named symbols (demangled C++ paths, Ghidra labels): each row shows the count, the share of the corpus, and **which modules** those symbols live in; the unnamed remainder is called out explicitly |
 | `module:<NAME>` | one module's functions, address-ordered, with a facts header (counts, coverage, relink, imports) |
 
-Status ladder (color = highest stage reached): **raw** (grey) →
-**decompiled** (teal) → **named** (green) → **verified** (gold); red ring =
-interpreter hint. Recomp-coverage is a per-cell flag surfaced in tooltips
-and stats, never a color step.
+Status ladder (color = highest stage reached): **raw** (grey — catalogued
+but still raw binary: no decompiled C, no real name) → **decompiled**
+(teal — a C file exists in the decomp corpus) → **named** (green — a real
+symbol) → **verified** (gold — **armcc masked-match proven**: a candidate
+in `xy-decomp/armcc-matching/matched/` recompiles byte-identical to the
+retail binary). Overlays (outline rings, never color steps): red = relaxed
+match (`relaxed/`, needs `--relax-nops` — excluded from verified), violet =
+attempted (`attempted.md` — an agent burned its time cap here without a
+match). Recomp-coverage is a per-cell flag surfaced in tooltips and stats.
 
 All views accept a `min-tier` filter (exports: `--min-tier`; server: `?min=`;
 UI: the tier dropdown) and a column count for grids (`--cols` / `?cols=` /
@@ -86,9 +91,10 @@ canonicalized: Main = absolute 0x100000, CROs = module-relative 0x180):
 | Source | Gives |
 |---|---|
 | `recomp/entries.c` + `*_functions.h` | module table (name ↔ m-number) + recomp-covered starts |
-| `pipeline/symbols/*.csv` | Ghidra starts, sizes, real names, namespaces |
+| `pipeline/symbols/*.csv` | Ghidra starts, sizes, real names, namespaces (anonymous `FUN_` rows prove existence only — they stay raw) |
 | `cro_extracted/**/symbols.tsv` | real export symbols (Thumb bit stripped for `static`) |
 | `decomp/code_c`, `decomp/cro_c/<Mod>` | decompiled-to-C coverage |
+| `xy-decomp/armcc-matching/` | the **verified tier**: `matched/<Mod>/<offset>.c` = masked-match proven (size parsed from the file header), `relaxed/` = overlay ring, `attempted.md` = attempted overlay; discovered by walking up from the data root, silently absent when the tree isn't there |
 | `pipeline/orig` vs `pipeline/out` | per-module SHA-256 relink check |
 
 Any source may be missing — the collector warns and continues; only a
@@ -105,7 +111,8 @@ Without any project data, feed a generic JSON file (`--dataset file.json`):
     {"name": "DllBag", "relink_ok": true,
      "cells": [
        {"addr": "0x180", "size": 64, "name": "Bag_Open",
-        "covered": true, "decompiled": true, "named": true, "hint": false}
+        "covered": true, "decompiled": true, "named": true, "hint": false,
+        "attempted": false}
      ]}
   ]
 }
