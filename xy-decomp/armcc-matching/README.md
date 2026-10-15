@@ -109,21 +109,31 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
   as the same already-documented vptr-install-scheduling residue class
   on sight and skipped rather than re-attempted.
 
-- `matched/DllFatalErrorProc/` — 1 function, a **fourth** module, this
+- `matched/DllFatalErrorProc/` — 2 functions, a **fourth** module, this
   one unrelated to the `Dll*Input` family (fatal-error dialog proc):
 
   | Offset | Size | Match | Note |
   |---|---|---|---|
   | `0x2bc` | `0x34` | 13/13 | Destructor: vptr install, free member @+0x14, returns `this`. |
+  | `0x284` | `0x38` | 14/14 | Same dtor idiom, but tail-calls a second import (`pop {r4,lr}; b <import>`) instead of returning via `pop {r4,pc}` (2026-10-15). |
 
   Structurally byte-identical in shape to `DllDialogCommon@0xcdc` (same
   member offset `0x14`, same literal-pool vtable load, same `bl` to a
   masked free import) — confirms this dtor idiom is a shared-base-class
   pattern reused verbatim across unrelated Dll modules, not a coincidence
   tied to the dialog-input family. The module's neighboring `0x284`
-  function has the same prologue/body but tail-calls out (`pop {r4,lr};
-  b <import>`) instead of `pop {r4,pc}` — not attempted here, flagged as
-  a plausible next easy win for this module.
+  function (the "plausible next easy win" flagged from the first pass)
+  has the same body but tail-calls a second import instead of returning
+  `this` directly — matching it required a size correction (the real
+  function is `0x38` bytes, not `0x34`: its own literal pool sits inside
+  that range, right before the next function at `0x2bc` starts) and
+  getting the load/store scheduling order right. The retail binary loads
+  the vtable literal into `r1` **before** loading `o->buf` into `r0`,
+  deferring the `str` until after both loads — the opposite load order
+  from `0x2bc` (member first). Writing `vt = VT;` as its own local
+  *before* the member read, then `o->vptr = vt;` right after, reproduced
+  this exact scheduling; inlining `o->vptr = VT;` directly made armcc
+  store eagerly with one reused register instead, which didn't match.
 
 - `matched/DllLangSelect/` — 1 function, a **fifth** module (language
   select menu, unrelated to the `Dll*Input` family):

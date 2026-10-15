@@ -86,9 +86,9 @@ notes belong; the pointers are starting points, not exhaustive briefs.
    functions (95 %) but **zero** are behaviorally verified; wiring the
    3dsrecomp verify / objdiff per-unit harness is the credibility gap.
    Separately, matching-decomp's compiler-parity blocker is now identified
-   (armcc 5, not GCC) and 25 functions across five modules are masked-matched
+   (armcc 5, not GCC) and 26 functions across five modules are masked-matched
    proof-of-concept — see [decomp/armcc-toolchain.md](decomp/armcc-toolchain.md);
-   scaling that to the remaining ~38,360 functions is the follow-on work.
+   scaling that to the remaining ~38,359 functions is the follow-on work.
 6. **Independent GARC v4 parity** → `formats/` — current validation is
    self-describing cross-checks + the 255-GARC corpus sweep; Kuriimu2
    refuses XY's v4. Any independent implementation found is worth a
