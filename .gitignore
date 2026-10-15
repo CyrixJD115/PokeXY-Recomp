@@ -47,3 +47,4 @@ firm1.bin
 # Python scratch
 __pycache__/
 *.pyc
+*.egg-info/

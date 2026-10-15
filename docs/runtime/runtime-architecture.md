@@ -5,7 +5,8 @@ repo: 3dsrecomp port generated and linked (`xy-recomp/build.sh`), 134/134
 modules byte-identical relinks in the matching pipeline, 38,385 decompiled C
 functions in the Ghidra corpus, and the `xy-extraction` toolkit with
 validated decoders for every major asset family. Progress numbers below come
-from the live heatmap (`xy-heatmap/heatmap.py`).
+from the live heatmap (the standalone `xy-heatmap` package, rewritten
+2026-10-14 — see §7).
 
 ## 0. Where we stand (measured, not estimated)
 
@@ -245,43 +246,58 @@ Sequencing: A now (fallback + differential oracle), B grows underneath it
   in-game frame rendered natively; per-function verify tier feeding the
   heatmap gold.
 
-## 7. The live heatmap GUI (progress instrumentation)
+## 7. The live heatmap (progress instrumentation)
 
-Architecture:
+Rewritten 2026-10-14 as the **standalone `xy-heatmap` Python package**
+(run in place via `./xy-heatmap/xy-heatmap.py`, Pillow its only dependency;
+the previous HTML-artifact dashboard and the separate charming/ECharts Rust
+renderer were retired). Architecture:
 
 ```
 .Data/Source_Extracted/
   recomp/{entries.c,*_functions.h}     ┐
   pipeline/symbols/*.csv               │
-  cro_extracted/{*,static}/symbols.tsv ├─ xy-heatmap/heatmap.py ───→ heatmap.html
-  decomp/{code_c,cro_c}                │   (self-contained, data      heatmap_data.json
-  pipeline/{orig,out} (link check)     ┘    embedded; zero deps)      summary.md
-                                                                     ↑ polled every 3 s
-                                            browser (single page) ────┘
-                                            canvas grids · tooltips · namespace
-                                            filter · import graph · PNG/SVG export
+  cro_extracted/{*,static}/symbols.tsv ├─ collect (read-only) ──→ Dataset
+  decomp/{code_c,cro_c}                │                         (in memory)
+  pipeline/{orig,out} (link check)     ┘                             │
+                                            layout (pure geometry)   │
+                                            → Scene of primitives  ←─┘
+                                          ╱           ╲
+                          svg.py (deterministic)   png.py (Pillow, DPI)
+                          ╱            ╲                    ╲
+              web UI (stdlib HTTP    export CLI          export CLI
+              server, serves the     xy-heatmap export   xy-heatmap readme
+              same scenes, writes    --view/--format     → docs/assets/
+              NOTHING to disk)       --scale/--dpi       heatmap-*.svg
 ```
 
-- Run: `python3 xy-heatmap/heatmap.py serve --watch --port 8765`
-  (or `build` / `summary` / `roms [--rom <file>]` — the CLI identifies
-  .3ds/.cxi dumps by title ID and labels the dashboard accordingly);
-  or open `heatmap.html` directly from disk.
-- **Central treemap**: one canvas, every module a box (area ∝ function
-  count), cells filling each box in address order — the whole corpus at a
-  glance. Hover for details, click a box to jump to its module grid;
-  treemap SVG/PNG export included. Tabbed page: Overview / Modules /
-  Namespaces.
+- Run: `./xy-heatmap/xy-heatmap.py serve --watch --port 8765` (or
+  `summary` / `export --view treemap|overview|grid|namespaces|module:<Name>|all`
+  / `readme` / `selftest`). No `heatmap.html` or `heatmap_data.json` exists
+  anywhere — the page, the API payload and the rendered views all live in
+  memory; `--watch` is a source-fingerprint poll.
+- Views (UI redesigned 2026-10-14 as a fixed dashboard — no pan/zoom):
+  **treemap** (one squarified box per module, area ∝ function count,
+  filled with per-function cells + strong grid-line borders),
+  **overview** (100%-stacked tier-composition bar per module),
+  **grid** (the whole corpus as one address-ordered, per-module-sectioned
+  grid), **namespaces** (subsystems from named symbols, with module
+  attribution + explicit unnamed remainder), and per-module pages
+  (facts card incl. imports-from + address grid). The UI shell is a
+  fixed sidebar (all modules, tier mini-bars, relink marks, filter) +
+  toolbar (tier filter, density) + a hover readout bar; views deep-link
+  via URL hash.
 - Cell = one function (union inventory); colour = highest stage:
   dark grey raw → teal decompiled → green identified → gold verified;
-  red overlay = interpreter hints. Recomp-coverage is a per-function bit
+  red ring = interpreter hints. Recomp-coverage is a per-function bit
   surfaced in tooltips and per-module/global stats.
-- Exports: per-module and whole-corpus SVG (vector, arbitrary zoom) and
-  PNG (rasterized at 2–3×); every SVG rect carries a `<title>` with
-  address + symbol.
-- Extension points already wired: `--hints <file>` (Zakuro interpreter
-  hits) and `--verified <json>` (`[{module, addr}, …]` from a future
-  3dsrecomp-verify / objdiff export) — tier 3/4 light up when those feeds
-  exist, no GUI change needed.
+- Exports come from the **same Scene** the browser renders — SVG
+  (hand-written serializer, byte-identical on re-run, native `<title>`
+  tooltips) and PNG (integral-scale raster, real TTF fonts, DPI metadata).
+- Extension points (dataset schema): `hint` per cell (Zakuro interpreter
+  hits) and `verified` tier (from a future 3dsrecomp-verify / objdiff
+  export) — tiers 3/4 light up when those feeds exist, no layout change
+  needed. Generic datasets can also be loaded with `--dataset file.json`.
 
 ## 8. Risks / open items
 

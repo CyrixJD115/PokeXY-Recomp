@@ -24,7 +24,7 @@ is the map: keep it current whenever a file or folder is added.
 | [recomp/](recomp/) | Static-recomp track: 3dsrecomp/Zakuro usage, port build + overrides, per-function verification harness |
 | [runtime/](runtime/) | Native runtime track: Zakuro fork vs full-native decisions, asset bridge, runtime-vs-hardware parity |
 | [general/](general/) | Project-level: decisions + rationale, workflows, environment quirks, cross-track meta |
-| [assets/](assets/) | Generated images embedded in the root README (progress bar, central treemap) — regenerate with `python3 xy-heatmap/heatmap.py readme` (renderer: `xy-viz`, charming/ECharts) |
+| [assets/](assets/) | Generated images embedded in the root README (progress bars, central treemap) — regenerate with `./xy-heatmap/xy-heatmap.py readme` (renderer: the `xy-heatmap` package itself) |
 
 Each folder's own `README.md` holds its detailed charter and file index —
 the summaries above are one-line pointers. If a note has an obvious

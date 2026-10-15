@@ -237,6 +237,73 @@ files), `a/0/1/3` 49 MB (171 files). Text banks: `a/0/1/0-9` BCLAN,
 
 ## Status log
 
+### 2026-10-14 (later) — heatmap UI redesigned: fixed dashboard, function-cell treemap, corpus grid ✅
+
+User feedback: the pan/drag canvas had to go. The web UI is now a **fixed
+dashboard** — header stats → toolbar (view tabs, tier filter `min`, density
+`cols`, SVG/PNG export) → sidebar listing all modules (tier mini-bars,
+counts, relink marks, filter box) → main panel → hover **readout bar**
+(module · address · tier · symbol computed from compact `data-cells` SVG
+metadata, so 70k-cell views stay light) → legend footer; no panning,
+dragging or zooming anywhere, views deep-link via URL hash (`#grid`,
+`#module-DllField`). Views: **treemap** boxes now subdivide into
+per-function cells (address-ordered, `+N more` when capacity-bound) with
+strong borders; new first-class **grid** view = whole corpus as one
+address-ordered grid grouped into labeled per-module sections; **namespaces**
+explains itself (what a namespace is, per-row module attribution, explicit
+"(unnamed)" remainder); **module pages** gained a facts card (counts,
+coverage, address range, relink, imports-from — real dependency data from
+`cro_extracted/*/imports.tsv`, `|static|` mapped to Main) served via
+`/api/module/<Name>`. `Cells` scene primitive (one SVG path per tier /
+rect loop in PNG) keeps exports deterministic; `--min-tier`/`?min=` filters
+every view. 75/75 package tests; all views screenshot-verified against the
+real corpus in headless Chromium; README assets re-rendered (treemap now
+379 KB with cells).
+
+### 2026-10-14 (evening) — treemap hybrid + exact grid borders ✅
+
+User feedback round 2: treemap kept, but small modules were slivers and
+grid cells could escape their borders. The treemap is now a **hybrid**:
+modules above `--minor-max` (default 200 fns; `?minor=` on the server)
+share the squarified cell treemap; the ~95 smaller modules become
+fixed-size cards underneath, each card geometry-derived to hold **all**
+its cells (no truncation, no slivers — 150×~134 px cards, 7 per row).
+Grid views (corpus + module) draw an exact-fit border frame around every
+cells block, and two real geometry bugs are fixed: major-box row counts
+ignored the label band (cells could cross box bottoms by ~10 px) and the
+global stats line overlapped the title on narrow (module-grid) canvases —
+narrow chrome now drops the stats line. 78/78 tests (incl. hybrid split,
+all-cells cards, cells-inside-borders containment); hybrid render
+verified on the real corpus (2040-px-tall treemap: majors up top, 95
+fully-drawn cards below) and in the browser.
+
+### 2026-10-14 — heatmap rewritten as the standalone `xy-heatmap` package ✅ (session 7)
+
+Complete rewrite (old implementation not reused): one self-contained Python
+package at `xy-heatmap/`, run straight from the working tree via the
+executable launcher `./xy-heatmap/xy-heatmap.py …` (no install step; Pillow
+its only dependency). Design: every view is built once into a
+resolution-independent `Scene`; a hand-written deterministic SVG serializer
+and a Pillow PNG
+rasterizer both consume that scene, and the stdlib-HTTP web UI serves those
+exact bytes from memory — **no `heatmap.html`/`heatmap_data.json` anywhere,
+`serve` writes nothing to disk**. Views: squarified treemap, 100%-stacked
+per-module composition bars ("overview"), namespaces, address-ordered
+module grids; exports via `xy-heatmap export --view … --format svg|png
+--scale/--dpi` (byte-identical re-runs) and `readme` regenerates
+`docs/assets/heatmap-*.svg` itself. Collectors read the same five source
+families read-only and canonicalize frames (Main absolute, CROs
+module-relative; `cro_c` filenames carry the absolute Ghidra base — shifted;
+`entries.c` names can differ in case from the tree, e.g. DllEShop/DllEshop —
+lookups are case-insensitive). Retired: `xy-viz/` (charming renderer),
+`heatmap.py`/`xhmap/`/`legacy/`, stale `heatmap_gui/` output dir; the ROM
+`romdetect` helper was dropped (not heatmap work). Live numbers: union
+72,867 cells · covered 94.7% · decompiled 56.0% · named 1.4% · verified
+0.0% · relink 134/134 (union edges differ slightly from the older 72,418
+inventory — every cell traces to a source row). Gates: 69/69 package tests
+(`xy-heatmap selftest`), fresh-venv install check, server smoke test with
+zero-files assertion, cargo metadata green after workspace-member removal.
+
 ### 2026-10-11 — SMDH icon decode fixed via Azahar parity ✅ (session 6)
 
 While exercising the REA MCP on both ROMs (verdict: cannot ingest CCI —
