@@ -21,7 +21,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   --bg:#0f1115;--panel:#16181d;--panel2:#1b1e24;--border:#23262d;
   --text:#e8e8e8;--dim:#9aa0aa;--accent:#4fc3f7;
   --c-raw:#414650;--c-decomp:#2b6f8a;--c-named:#2ecc71;
-  --c-verified:#f0b429;--c-hint:#e74c3c;
+  --c-verified:#f0b429;--c-hint:#e74c3c;--c-armcc:#9b59b6;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);
@@ -154,8 +154,10 @@ footer{color:var(--dim);font-size:11px;margin-top:30px;border-top:
       Box area ∝ function count. Each box carries its functions in
       <b>address order</b> (left→right, top→bottom); colour = highest
       achieved stage: dark grey raw → teal decompiled → green identified →
-      gold verified; red = interpreted at runtime. Hover for
-      module/address/symbol; click a box to open it in the Modules tab.
+      gold verified → purple armcc masked-matched (proven byte-identical
+      against retail ARM Compiler 5 output); red = interpreted at runtime.
+      Hover for module/address/symbol; click a box to open it in the
+      Modules tab.
       <div class="btns">
         <button class="btn" id="expTreeSvg">Export treemap SVG</button>
         <button class="btn" id="expTreePng">Export treemap PNG</button>
@@ -199,11 +201,12 @@ const DATA = __DATA_JSON__;
 
 /* ---- stage model ---- */
 const STAGES = [
-  {bit:8, key:"hint",     label:"Interpreted (hints)",  color:"#e74c3c"},
-  {bit:4, key:"verified", label:"Natively Verified",    color:"#f0b429"},
-  {bit:1, key:"named",    label:"Identified / Named",   color:"#2ecc71"},
-  {bit:2, key:"decomp",   label:"Decompiled to C (unnamed)", color:"#2b6f8a"},
-  {bit:0, key:"raw",      label:"Raw Binary",           color:"#414650"},
+  {bit:8,  key:"hint",     label:"Interpreted (hints)",  color:"#e74c3c"},
+  {bit:32, key:"armcc",    label:"ARM Compiler 5 Masked-Matched", color:"#9b59b6"},
+  {bit:4,  key:"verified", label:"Natively Verified",    color:"#f0b429"},
+  {bit:1,  key:"named",    label:"Identified / Named",   color:"#2ecc71"},
+  {bit:2,  key:"decomp",   label:"Decompiled to C (unnamed)", color:"#2b6f8a"},
+  {bit:0,  key:"raw",      label:"Raw Binary",           color:"#414650"},
 ];
 function clsOf(st){ for(const s of STAGES){ if(st & s.bit) return s; }
   return STAGES[STAGES.length-1]; }
@@ -219,9 +222,9 @@ function decode(){
   });
 }
 function counts(m){
-  const c={raw:0,named:0,decomp:0,verified:0,hint:0,recomp:0};
+  const c={raw:0,named:0,decomp:0,verified:0,hint:0,recomp:0,armcc:0};
   for(const s of m.st){ if(s&8)c.hint++; if(s&4)c.verified++;
-    if(s&16)c.recomp++;
+    if(s&16)c.recomp++; if(s&32)c.armcc++;
     if(s&1)c.named++; else if(s&2)c.decomp++; else c.raw++; }
   return c;
 }
@@ -240,9 +243,10 @@ function renderHeader(){
     `<span class="chip">decompiled <b>${fmt(t.decompiled)}</b> (${pct(t.decompiled)})</span>`+
     `<span class="chip">recomp-covered <b>${fmt(t.recomp)}</b> (${pct(t.recomp)})</span>`+
     `<span class="chip">verified <b>${fmt(t.verified)}</b></span>`+
+    `<span class="chip">armcc-matched <b>${fmt(t.armcc)}</b></span>`+
     `<span class="chip">link-ok <b>${t.linkVerified}/${t.modules}</b></span>`+
     (t.hints?`<span class="chip">interpreted <b>${fmt(t.hints)}</b></span>`:"");
-  const T={raw:0,named:0,decomp:0,verified:0,hint:0};
+  const T={raw:0,named:0,decomp:0,verified:0,hint:0,armcc:0};
   for(const m of M){ const c=counts(m); for(const k in T) T[k]+=c[k]; }
   const bar=document.getElementById("stackbar"), lg=document.getElementById("legend");
   bar.innerHTML=""; lg.innerHTML="";
@@ -369,7 +373,9 @@ function renderSide(){
     const row=document.createElement("div"); row.className="modrow";
     row.innerHTML=`<span class="nm mono">${esc(m.name)}</span>`+
       `<span class="pct mono">${p.toFixed(1)}% · ${fmt(m.n)}</span>`+
-      `<div class="bar"><i style="width:${100*c.verified/m.n}%;`+
+      `<div class="bar"><i style="width:${100*c.armcc/m.n}%;`+
+      `background:${colorOf("armcc")}"></i>`+
+      `<i style="width:${100*c.verified/m.n}%;`+
       `background:${colorOf("verified")}"></i>`+
       `<i style="width:${100*nNamed/m.n}%;background:${colorOf("named")}"></i>`+
       `<i style="width:${100*c.decomp/m.n}%;background:${colorOf("decomp")}"></i>`+
@@ -455,6 +461,8 @@ function renderMods(){
       `<span class="meta">identified <b>${fmt(c.named)}</b></span>`+
       `<span class="meta">decompiled <b>${fmt(c.decomp+c.named)}</b></span>`+
       `<span class="meta">recomp <b>${fmt(c.recomp)}</b></span>`+
+      (c.armcc?`<span class="meta">armcc-matched <b style="color:#9b59b6">`+
+        `${fmt(c.armcc)}</b></span>`:"")+
       (c.verified?`<span class="meta">verified <b>${fmt(c.verified)}</b></span>`:"")+
       (c.hint?`<span class="meta">interpreted <b style="color:#e74c3c">`+
         `${fmt(c.hint)}</b></span>`:"")+
@@ -663,7 +671,7 @@ function allSvg(){
   parts.push(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${y}" viewBox="0 0 ${w} ${y}">`,
     `<rect width="100%" height="100%" fill="#0f1115"/>`,
     `<text x="${pad}" y="24" fill="#e8e8e8" font-family="monospace" font-size="15">PokeXYZ-RDComp heatmap — ${svgEsc(DATA.game)}</text>`,
-    `<text x="${pad}" y="44" fill="#9aa0aa" font-family="monospace" font-size="11">${DATA.generated} · ${fmt(t.functions)} functions · identified ${fmt(t.named)} · verified ${fmt(t.verified)} · link-ok ${t.linkVerified}/${t.modules}</text>`);
+    `<text x="${pad}" y="44" fill="#9aa0aa" font-family="monospace" font-size="11">${DATA.generated} · ${fmt(t.functions)} functions · identified ${fmt(t.named)} · verified ${fmt(t.verified)} · armcc-matched ${fmt(t.armcc)} · link-ok ${t.linkVerified}/${t.modules}</text>`);
   let lx=pad;
   for(const s of STAGES){
     parts.push(`<rect x="${lx}" y="52" width="9" height="9" fill="${s.color}"/>`,
@@ -787,24 +795,26 @@ drawTreemap(); renderMods(); activateTab("overview"); goLive();
 
 def render_summary(data, out_dir=None, stream=None):
     rows = ["| module | functions | named | named % | decompiled | recomp | "
-            "verified | hints | link-ok |",
-            "|---|---:|---:|---:|---:|---:|---:|---:|---|"]
+            "verified | armcc | hints | link-ok |",
+            "|---|---:|---:|---:|---:|---:|---:|---:|---:|---|"]
     for m in data["modules"]:
         named = sum(1 for s in m["st"] if s & 1)
         dec = sum(1 for s in m["st"] if s & 2)
         rec = sum(1 for s in m["st"] if s & 16)
         ver = sum(1 for s in m["st"] if s & 4)
         hint = sum(1 for s in m["st"] if s & 8)
+        am = sum(1 for s in m["st"] if s & 32)
         pct = 100.0 * named / max(m["n"], 1)
         rows.append(f"| {m['name']} | {m['n']} | {named} | {pct:.1f}% | "
-                    f"{dec} | {rec} | {ver} | {hint} | "
+                    f"{dec} | {rec} | {ver} | {am} | {hint} | "
                     f"{'yes' if m['linkOk'] else '—'} |")
     t = data["totals"]
     rows.append("")
     rows.append(f"**Total: {t['functions']} functions, {t['named']} named "
                 f"({100.0 * t['named'] / max(t['functions'], 1):.1f}%), "
                 f"{t['decompiled']} decompiled, {t['recomp']} recomp-covered, "
-                f"{t['verified']} verified, {t['hints']} interpreter hits, "
+                f"{t['verified']} verified, {t['armcc']} armcc masked-matched, "
+                f"{t['hints']} interpreter hits, "
                 f"{t['linkVerified']}/{t['modules']} modules link-verified.**")
     text = "# RDComp heatmap\n\n" + "\n".join(rows) + "\n"
     if stream is not None:
@@ -831,4 +841,5 @@ def build(data, out_dir):
           f"{t['named']:,} identified "
           f"({100.0 * t['named'] / max(t['functions'], 1):.1f}%) · "
           f"{t['decompiled']:,} decompiled · {t['recomp']:,} recomp-covered · "
-          f"{t['verified']} verified · link-ok {t['linkVerified']}/{t['modules']}")
+          f"{t['verified']} verified · {t['armcc']} armcc masked-matched · "
+          f"link-ok {t['linkVerified']}/{t['modules']}")

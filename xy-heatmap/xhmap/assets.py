@@ -17,6 +17,7 @@ import math
 # stage colours — keep in sync with page.py's STAGES
 COLORS = {
     "hint": "#e74c3c",
+    "armcc": "#9b59b6",
     "verified": "#f0b429",
     "named": "#2ecc71",
     "decomp": "#2b6f8a",
@@ -24,6 +25,7 @@ COLORS = {
 }
 LABELS = {
     "hint": "Interpreted (hints)",
+    "armcc": "ARM Compiler 5 Masked-Matched",
     "verified": "Natively Verified",
     "named": "Identified / Named",
     "decomp": "Decompiled to C (unnamed)",
@@ -35,6 +37,8 @@ def cls_of(st):
     """Highest-achieved stage colour key for a status bitmask."""
     if st & 8:
         return "hint"
+    if st & 32:
+        return "armcc"
     if st & 4:
         return "verified"
     if st & 1:
@@ -46,7 +50,7 @@ def cls_of(st):
 
 def counts_of(module):
     c = {"raw": 0, "named": 0, "decomp": 0, "verified": 0, "hint": 0,
-         "recomp": 0}
+         "recomp": 0, "armcc": 0}
     for s in module["st"]:
         if s & 8:
             c["hint"] += 1
@@ -54,6 +58,8 @@ def counts_of(module):
             c["verified"] += 1
         if s & 16:
             c["recomp"] += 1
+        if s & 32:
+            c["armcc"] += 1
         if s & 1:
             c["named"] += 1
         elif s & 2:
@@ -220,11 +226,12 @@ def progress_svg(data, width=880):
     t = data["totals"]
     total = max(t["functions"], 1)
     tiers = {k: 0 for k in
-             ("verified", "named", "decomp", "raw", "hint", "recomp")}
+             ("verified", "named", "decomp", "raw", "hint", "recomp",
+              "armcc")}
     for m in data["modules"]:
         for k, v in counts_of(m).items():
             tiers[k] += v
-    shown = [k for k in ("verified", "named", "decomp", "raw")
+    shown = [k for k in ("armcc", "verified", "named", "decomp", "raw")
              if tiers[k] or k in ("raw", "decomp")]
 
     title_y, bar_y, bar_h = 20, 32, 26

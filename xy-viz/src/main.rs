@@ -5,7 +5,7 @@
 //!
 //! - `heatmap-treemap.svg`   the central treemap: one box per CRO module
 //!   (area ∝ function count), each box subdivided into tier-coloured
-//!   sub-boxes (raw / decompiled / identified / verified)
+//!   sub-boxes (raw / decompiled / identified / verified / armcc-matched)
 //! - `heatmap-progress.svg`  stacked status-tier progress bar + legend
 //!
 //! ```text
@@ -28,7 +28,12 @@ use clap::Parser;
 use serde::Deserialize;
 
 /// Tier ladder — keep in sync with xy-heatmap-py/xhmap/assets.py COLORS.
+/// Order is priority order (first match wins per function), highest proof
+/// first: armcc masked-match (byte-identical vs retail armcc) outranks the
+/// recomp-track "natively verified" bit even though both are currently
+/// proof-of-concept scale.
 const TIERS: &[(&str, &str, u8)] = &[
+    ("ARM Compiler 5 Masked-Matched", "#9b59b6", 32),
     ("Natively Verified", "#f0b429", 4),
     ("Identified / Named", "#2ecc71", 1),
     ("Decompiled to C (unnamed)", "#2b6f8a", 2),
@@ -43,6 +48,7 @@ struct Totals {
     decompiled: usize,
     verified: usize,
     recomp: usize,
+    armcc: usize,
     modules: usize,
     link_verified: usize,
 }
@@ -63,19 +69,22 @@ struct HeatmapData {
 }
 
 impl Module {
-    fn tier_counts(&self) -> [usize; 4] {
-        // verified, named, decomp, raw — same exclusive counting as the
-        // Python/GUI side (bit 4 > 1 > 2 > 0; hint overlay ignored here)
-        let mut c = [0usize; 4];
+    fn tier_counts(&self) -> [usize; 5] {
+        // armcc, verified, named, decomp, raw — same exclusive counting as
+        // the Python/GUI side (bit 32 > 4 > 1 > 2 > 0; hint overlay ignored
+        // here), indices aligned 1:1 with TIERS above.
+        let mut c = [0usize; 5];
         for &s in &self.st {
-            if s & 4 != 0 {
+            if s & 32 != 0 {
                 c[0] += 1;
-            } else if s & 1 != 0 {
+            } else if s & 4 != 0 {
                 c[1] += 1;
-            } else if s & 2 != 0 {
+            } else if s & 1 != 0 {
                 c[2] += 1;
-            } else {
+            } else if s & 2 != 0 {
                 c[3] += 1;
+            } else {
+                c[4] += 1;
             }
         }
         c
@@ -108,7 +117,8 @@ fn progress_chart(d: &HeatmapData) -> Chart {
 
     let subtext = format!(
         "identified {} ({}) · decompiled {} ({}) · raw {} ({}) · \
-         recomp-covered {} ({}) · link-ok {}/{} · generated {}",
+         recomp-covered {} ({}) · armcc-matched {} · link-ok {}/{} · \
+         generated {}",
         t.named,
         pct(t.named, total),
         t.decompiled,
@@ -117,6 +127,7 @@ fn progress_chart(d: &HeatmapData) -> Chart {
         pct(raw, total),
         t.recomp,
         pct(t.recomp, total),
+        t.armcc,
         t.link_verified,
         t.modules,
         d.generated,
@@ -167,20 +178,8 @@ fn progress_chart(d: &HeatmapData) -> Chart {
                 .show(false)
                 .axis_label(AxisLabel::new().show(false)),
         );
-    for (label, color, bit) in TIERS {
-        let count: usize = d
-            .modules
-            .iter()
-            .map(|m| {
-                let c = m.tier_counts();
-                match bit {
-                    4 => c[0],
-                    1 => c[1],
-                    2 => c[2],
-                    _ => c[3],
-                }
-            })
-            .sum();
+    for (idx, (label, color, _bit)) in TIERS.iter().enumerate() {
+        let count: usize = d.modules.iter().map(|m| m.tier_counts()[idx]).sum();
         if count == 0 {
             continue;
         }
@@ -261,17 +260,8 @@ fn treemap_chart(d: &HeatmapData, width: u32, height: u32) -> Chart {
                 .data(nodes)
                 .breadcrumb(serde_json::json!({ "show": false }))
                 .label(Label::new().show(false))
-                .upper_label(
-                    Label::new()
-                        .show(true)
-                        .color("#c9ced6")
-                        .font_size(10),
-                )
-                .item_style(
-                    ItemStyle::new()
-                        .border_color("#101216")
-                        .border_width(1),
-                ),
+                .upper_label(Label::new().show(true).color("#c9ced6").font_size(10))
+                .item_style(ItemStyle::new().border_color("#101216").border_width(1)),
         )
 }
 
@@ -293,10 +283,12 @@ fn main() {
     let mut renderer = ImageRenderer::new(args.width, 190);
     let progress = progress_chart(&data);
     let progress_path = format!("{}/heatmap-progress.svg", args.out);
-    renderer.save(&progress, &progress_path).unwrap_or_else(|e| {
-        eprintln!("render {progress_path}: {e}");
-        std::process::exit(1);
-    });
+    renderer
+        .save(&progress, &progress_path)
+        .unwrap_or_else(|e| {
+            eprintln!("render {progress_path}: {e}");
+            std::process::exit(1);
+        });
 
     let mut renderer = ImageRenderer::new(args.width, args.height);
     let treemap = treemap_chart(&data, args.width, args.height);
