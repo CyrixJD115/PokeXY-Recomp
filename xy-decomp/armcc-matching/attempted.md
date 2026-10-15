@@ -15,6 +15,13 @@ file is only for things still unsolved.
 Format per entry:
 
 ```
+## DllBox@0x1dfac (size 0x6c; sibling 0x1df3c, size 0x70)
+
+- What it is: dtor — `vptr=VT1; if (o->[36]) f258(f910(f910(sub+108)-24)-84); f260(o->[32]); vptr=VT2; if (o->[20]) { f620(o->[20]); o->[20]=0; } return o`. 0x1df3c is the same body plus a tail-call of a base dtor instead of `return o`.
+- Tried: `f620` returning `void*`, int-cast zero, `p=0; o->buf14=p`, reading `p` before the VT2 store (22/27), vt2 held in a local (9/27).
+- Stuck on: 0x1dfac 25/27 — only diff: retail zeroes via `mov r1,#0; str r1,[r4,#20]`, ours `mov r0,#0; str r0,[r4,#20]`. 0x1df3c 20/28: same zero-register diff plus a `mov r4,r0` ordering diff (retail loads VT and sub before `mov r4,r0`).
+- Lead for next time: something keeps r0 live (or r1 free) across the zeroing store; try different inlined-helper shapes for the member release.
+
 ## DllPhotoViewer@0x19cc (size 0x3c)
 
 - What it is: this-0x24 thunk — checks state byte at +0x59 for values 7, 8, 11, then sets byte +0xb8 to 2 under a condition.

@@ -1848,6 +1848,11 @@ Open: DllPuzzle `0xb3fc`/`0xbf80` (0x38, free `this+0x14` + tail-call base), `0x
 
 - `DllPhotoViewer@0x19a8` (0x8, 2/2): byte setter `this[0xd9] = arg`. `0x19b0`, `0x19b8`, `0x1a08` (0x8, 2/2): virtual stubs returning 1. Tiny stubs remain at `0x1920`, `0x1928`-`0x1938`, `0x19c0`, `0x19c8` (weak evidence, unclaimed). `0x193c`/`0x1974` are dtor-stage helpers with the known-bad member-load-before-vtable ordering.
 
+## 2026-10-15 swarm batch 20
+
+- `DllBox@0x1dde8` (0x48, 18/18): init helper — stores `arg->f` into the owned sub-object, two veneer calls, stores `(*(f->[28])) + 0x13650`, returns 1. `arg->f` must be loaded once into a `void*` local and reused or the register schedule is wrong. `0x1dd60` (0x88, 34/34): teardown — walks `this->in->p`; if non-null and `q->c != 1`, virtual call (slot 9) plus four helper calls, then tail-calls a helper on `p->x` if non-null (matched first try).
+- Open: DllBox small `ldr r0,[r0,#N]` getters near `0x12840`-`0x128a0`; switch tails around `0x1c9f4`-`0x1ce78`.
+
 ## What this does *not* do yet
 
 This is per-function fingerprinting (prove a candidate's instruction
