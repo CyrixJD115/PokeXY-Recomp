@@ -23,7 +23,7 @@ still have their full remaining function count (typically hundreds)
 completely unaddressed regardless of how many functions are proven in
 them. A module having **more than one** matched function is unambiguous
 evidence of that (recompute with `for d in matched/*/; do find "$d" -name
-'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **32 of 106**
+'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **33 of 106**
 as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllFatalErrorProc`, `DllIntro`, `DllSparringMenu`, `DllStatus`,
 `DllSubScreenTutorial`, `DllStartMenu`, `DllStaffRoll`, `DllWazaOboe`,
@@ -32,7 +32,7 @@ as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllTrialHouseResult`, `DllUSGymFighting`, `DllUSKinomi`,
 `DllUSPassage`, `DllVSDemo`, `DllUSGymIce`, `DllWazaOmoidashi`,
 `DllBattle`, `DllBattleMatch`, `DllSequence`, `DllField`, `DllGts`,
-`DllBox`). Many of the
+`DllBox`, `DllHologramMail`). Many of the
 remaining single-match modules are also genuinely meaningful (a
 destructor/constructor/dispatcher/conditional-accessor, not a 1-2 word
 stub) — see each module's own entry above for which; that split isn't
@@ -876,16 +876,23 @@ of a second summary number.
   documented vtable-install/free-member idiom), and a second similar
   dtor at `0xb34`.
 
-- `matched/DllHologramMail/` — 1 function, a **sixty-first** module:
+- `matched/DllHologramMail/` — 5 functions, a **sixty-first** module:
 
   | Offset | Size | Match | Note |
   |---|---|---|---|
   | `0xf0c` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+  | `0xcccc` | `0x24` | 9/9 | Field-copy-and-call: derefs `this+20` at `+136`, calls a local helper with literal 13, stores literal 5 into `this+28`. Found via `find_candidates.py`. |
+  | `0xe970` | `0x24` | 9/9 | Calls an import veneer with `this+8` and 0, sets `this+17`/`this+16` to literal 2. Lever: wrapping the two stores in a tiny static `set_flags(T*,v)` helper pins the post-call constant into `r1` instead of the dead `r0` — a naive flat assignment only got 6/9. |
+  | `0xd424` | `0x24` | 9/9 | Derefs `this+36` at `+4`, calls an import veneer with the function's 3rd argument plus that object, stores literal 11 into `this+40`. |
+  | `0xd13c` | `0x24` | 9/9 | Byte-identical shape to `0xd424` (masked callee resolves elsewhere) — same candidate reused unmodified. |
 
   Right after the import-veneer table (`0x180`-`0xf07`) and a bare `bx
   lr` no-op stub at `0xf08`. The module's first real function at
   `0xf14` is a destructor-shaped helper with two conditional vtable
-  calls, untried.
+  calls, untried. Attempted: `0x10da8` (same idiom as `0xd424`/`0xd13c`
+  but with a `this -= 4` adjustment first) — stuck at 2/9, see
+  `attempted.md`; likely blocks siblings `0x10dcc` and the first half of
+  the `0x10cf0` compound candidate too.
 
 - `matched/DllGts/` — 6 functions, a **sixty-second** module:
 
