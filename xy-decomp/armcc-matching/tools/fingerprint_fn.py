@@ -19,6 +19,17 @@ Example (the project's first matched function, ported from the sibling
 
 Exit status: 0 on a full masked match, 1 otherwise.
 
+CAVEAT on --mask-ranges (jump-table data): masking a jump table's data
+words only proves the function has the right number of case-body blocks,
+in the right order, each byte-correct in isolation. It does NOT prove
+which case VALUE (0, 1, 2, ...) drives which block -- the table's real
+content (which case selects which address) is exactly what's masked out,
+since it's a link-time fact zeroed in the unlinked CRO. Any case-to-block
+assignment in a candidate using --mask-ranges is inferred from physical
+body order (assuming armcc emits case bodies in ascending case-value
+order) and is a hypothesis, not a verified fact. A matched file built
+this way must say so in its header comment, not claim "case 0 does X".
+
 Setup (see docs/decomp/armcc-toolchain.md for the full writeup):
   ARMCC_HOME            directory containing bin/armcc.exe
                         (default: ~/Documents/decomp/tools/armcc/ARMCC_Nintendo_5
@@ -149,6 +160,17 @@ def main() -> int:
                              "both sides and mask pc-relative literal offsets, "
                              "which those elisions shift; for originals whose "
                              "call sites carry nop-padded bl windows")
+    parser.add_argument("--mask-ranges", default=None,
+                        help="comma-separated byte ranges 'offset:length' (hex ok), "
+                             "relative to the function's own start, excluded from "
+                             "comparison -- for inline jump-table data words (raw "
+                             "branch-target addresses, not opcodes) whose values are "
+                             "link-time facts an isolated compile can't reproduce; "
+                             "word count at each range must still match. CAVEAT: "
+                             "this proves the case bodies are byte-correct and in "
+                             "the right order, NOT which case value selects which "
+                             "body -- that mapping is exactly what's masked out, "
+                             "so it's a hypothesis (see module docstring)")
     args = parser.parse_args()
 
     cro = _romfs_dir() / f"{args.module}.cro"
@@ -191,9 +213,29 @@ def main() -> int:
     if args.relax_nops:
         n = len(masked_words(target)) - len(tw)
         nops_elided = f", {n} relaxation nops elided, pool offsets masked"
+
+    ranges_note = ""
+    if args.mask_ranges:
+        word_idxs: set[int] = set()
+        for part in args.mask_ranges.split(","):
+            off_s, len_s = part.split(":")
+            off, length = int(off_s, 0), int(len_s, 0)
+            word_idxs.update(range(off // 4, (off + length) // 4))
+        for i in word_idxs:
+            if i < len(tw):
+                tw[i] = 0
+            if i < len(cw):
+                cw[i] = 0
+        ranges_note = f", {len(word_idxs)} jump-table words masked"
+
     same = sum(1 for a, b in zip(tw, cw) if a == b)
     print(f"target {len(tw)} words, candidate {len(cw)} words, "
-          f"{same}/{len(tw)} match (b/bl targets masked{nops_elided})")
+          f"{same}/{len(tw)} match (b/bl targets masked{nops_elided}{ranges_note})")
+    if args.mask_ranges:
+        print("NOTE: --mask-ranges proves the case bodies are byte-correct and "
+              "in the right order, NOT which case value selects which body -- "
+              "that mapping is masked out along with the table, so any "
+              "case-number assignment in the candidate is a hypothesis.")
     status = 0 if (same == len(tw) and len(tw) == len(cw)) else 1
     for i in range(max(len(tw), len(cw))):
         t = tw[i] if i < len(tw) else None

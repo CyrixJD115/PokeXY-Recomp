@@ -94,7 +94,52 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
   specimens turned out to use genuinely different source idioms rather
   than one rule explaining both. See `docs/decomp/armcc-toolchain.md`.
 
-## Reproducing a match in this repo
+- `matched/DllStrInput/` — 3 functions from a **third** module, confirming
+  the trivial-stub/simple-accessor cluster recurs near the tail of every
+  Dll module built on the shared dialog-proc base class:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x6148` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`. |
+  | `0x666c` | `0x8` | 2/2 | Trivial byte-field setter, void return. |
+  | `0x6674` | `0x14` | 5/5 | Boolean getter through one pointer indirection. |
+
+  This module also has three more `0x1974`-style destructor-stage
+  functions (around `0x6298`, `0x6600`, `0x6638`) that were recognized
+  as the same already-documented vptr-install-scheduling residue class
+  on sight and skipped rather than re-attempted.
+
+### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
+
+Some larger dispatcher functions (`DllDialogCommon@0x300`/`0xdd8`,
+`DllNumberInput@0x1af8`, ...) compile a `switch` into a jump table: a
+run of raw address words immediately after an `ldrcc pc,[pc,rX,lsl#2]`
+instruction. In the unlinked CRO those words are zero placeholders (the
+real addresses are a link-time fact), so they can never byte-match an
+isolated compile. `fingerprint_fn.py` now takes `--mask-ranges
+offset:length[,offset:length...]` (byte ranges relative to the
+function's own start) to exclude exactly those words from comparison.
+
+**Important limitation, not yet resolved:** masking the table proves the
+function has the right *number* of case-body blocks, each byte-correct
+in the right physical order — it does **not** prove which case *value*
+(0, 1, 2, ...) selects which block, because that mapping is exactly what
+the masked table encodes. Any case-number assignment in a candidate that
+uses this flag is inferred from physical body order (on the assumption
+armcc emits bodies in ascending case-value order) and must be documented
+as a hypothesis, never asserted as fact. The tool prints this caveat at
+runtime whenever `--mask-ranges` is used.
+
+First attempt with it, `DllDialogCommon@0xdd8` (a 5-case property
+setter/getter switch with no function calls at all), did not reach a
+full match: the retail binary has a `push {r4, lr}` / `pop {r4, pc}`
+frame the candidate didn't need (no calls in my reconstruction to
+justify saving `lr`), and the default case's three sequential pool
+loads are interleaved with `e320f000` NOP-hint words in the retail
+binary — the project's own marker for post-link branch-relaxation nops
+— suggesting the real default case made calls that got relaxed away
+entirely, not just argument-setup loads. Left as an open item; no
+case-to-block mapping was ever asserted for it since it never matched.
 
 ```sh
 # One-time: get the plaintext CRO onto disk (the game needs no AES key —

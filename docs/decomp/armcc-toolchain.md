@@ -221,6 +221,38 @@ stable base. So the two specimens use genuinely different source idioms
 rather than one hidden rule explaining both; `0x710`'s specific
 early-materialization gap remains unexplained and still open.
 
+### Open: `0xdd8` jump-table specimen, plus a tool caveat (not yet solved)
+
+`fingerprint_fn.py` gained `--mask-ranges offset:length[,...]` (byte
+ranges relative to the function's own start) to exclude a jump table's
+raw address words from comparison — those words are link-time facts,
+zero in the unlinked CRO, so an isolated compile can never reproduce
+them. **This proves only that the right number of case bodies exist, in
+the right order, each byte-correct — it does not and cannot prove which
+case value selects which body**, since that mapping is exactly what the
+masked table encodes. Any case-number assignment in a candidate using
+this flag is an inference from physical body order (assuming armcc
+emits bodies in ascending case-value order), not a verified fact; the
+tool prints this caveat whenever the flag is used, and a matched file
+built this way must state the assignment as a hypothesis, never as
+"case N does X."
+
+First attempt with the flag, `DllDialogCommon@0xdd8` (a 5-case property
+get/set switch, no function calls anywhere in it), did not reach a full
+match, so no case-to-block mapping was ever asserted for it. Two
+unresolved gaps: (1) the retail binary has a `push {r4, lr}` / `pop {r4,
+pc}` frame that the candidate — which makes no calls — had no reason to
+need; (2) the default case (selector ≥ 5) loads three pool constants in
+a row with `e320f000` NOP-hint words interleaved between them in the
+retail binary, which is this project's own marker for post-link
+branch-relaxation nops (see `--relax-nops` above) — suggesting the real
+default case made calls that were relaxed away entirely, not just
+argument-setup loads with nothing to call. Both point at the same
+missing piece (a call somewhere I haven't identified), which would
+plausibly explain the frame too. Left open; `DllNumberInput@0x1af8` has
+the same overall shape and wasn't attempted, since it would likely hit
+the same gap.
+
 ### Dead end avoided (now corrected)
 
 The earlier framing — "compiler parity (matching **GCC** version/flags)"
