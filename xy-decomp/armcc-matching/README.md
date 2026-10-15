@@ -1840,6 +1840,10 @@ Open: DllPuzzle `0xb3fc`/`0xbf80` (0x38, free `this+0x14` + tail-call base), `0x
 - `DllGts@0x119b4` (0x44, 17/17): three calls on `this->f24` (args `0x81,1,f50` / `6` / `1`), clears byte 0x41, returns 0x1a. `0x119f8` (0x18, 6/6): `fn(this->f24,1)`, returns 3. `0x11a10` (0x14, 5/5): stores 1 through `this->f10`, sets byte 0x40 = 1. `0x11a24` (0x70, 28/28): tick counter at 0x44; at 0x50 sets `f50=0x58`, calls, deletes `ctx->f9c` via vtable slot 1 after a null check; returns 0x18 or 0x19.
 - Open: `0x11a94` (~0x54), `0x11b48` (~0x170), `0x11cb8` — large branchy state machines, untried.
 
+## 2026-10-15 swarm batch 18
+
+- `DllTownmap@0x2dc0` (0x14, 5/5): forwarder tail-calling `fn(this->[0x5c], 0, 0x104, x)`. `0x2ec8` (0x24, 9/9): `fn(this->[0x5c], this->[0x58], 0)`, sets byte `[0xc1] = 1`, returns 1 (the stored 1 doubles as the return value).
+
 ## What this does *not* do yet
 
 This is per-function fingerprinting (prove a candidate's instruction

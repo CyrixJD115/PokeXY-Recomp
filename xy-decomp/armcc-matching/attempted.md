@@ -15,6 +15,27 @@ file is only for things still unsolved.
 Format per entry:
 
 ```
+## DllTownmap@0x32f0 (size 0x60)
+
+- What it is: table lookup `find(this, key, int *out)` — scans 64-byte entries (key +4, value +8) from a count at `[0]`, returns 0 or 1.
+- Tried: for loop, do-while inside `if (n > 0)`, char-pointer arithmetic with offset expressions.
+- Stuck on: best 4/24. Retail hoists constants 4 and 8 into registers (`mov r4,#4`, `mov r1,#8`) with a `push {r4,r5}` prologue; armcc folds the offsets into immediates every time.
+- Lead for next time: none yet.
+
+## DllTownmap@0x31d4 (size 0x38)
+
+- What it is: destructor — sets vtable, frees member `[0x14]` via a masked call, zeroes it, tail-calls.
+- Tried: two statement orderings.
+- Stuck on: 11/14. Retail loads the vtable pool word into r1 before the member load; both orderings put the member load first. Known-bad dtor shape.
+- Lead for next time: none yet.
+
+## DllTownmap@0x31a0 (size 0x30)
+
+- What it is: constructor — stores `vt` at `[0]` and `vt+0x40` at `[0x74]`, calls `fa`, tail-calls `fb`.
+- Tried: several store and local-variable orderings.
+- Stuck on: 8/12. Retail does `add r1,r0,#64` before the first store with `mov r0,r4` between the two stores.
+- Lead for next time: none yet.
+
 ## DllPuzzle@0xb3fc (size 0x38; twin 0xbf80)
 
 - What it is: dtor stage — store VT, `if (this->f14) { fn1f8(f14); f14 = 0; }`, tail-call base `fn268(this)`.
