@@ -1829,6 +1829,12 @@ Open: DllPuzzle `0xb3fc`/`0xbf80` (0x38, free `this+0x14` + tail-call base), `0x
 
 - `DllEshop@0x1b10` (0x2c, 11/11): calls an import with `(2,0,8,0)`, sets byte `this+0x58 = 1`, returns 22. **Idiom:** a `static void set(X*, int v)` helper reproduces retail's reuse of r0 for the constant (inline store emits `mov r1,#1`). `0x25c4` (0x10, 4/4): `tail188(inner(o))` with `inner` returning `void*` so r0 passes straight through (no `mov r4,r0`). DllEshop is mostly large state-machine functions; small candidates are exhausted.
 
+## 2026-10-15 swarm batch 16
+
+- `DllBag@0x7330` (0x50, 20/20): state handler — reads `q->b` at +1, tests `b == 0`; if zero stores `fnA(this)` at +0x38 and returns 0, else sets halfword +0x42 of the sub-object to 1 and returns 75; always calls `fnB(this)` first. The `b == 0` test form matters (`b != 0` / swapped branches: 7/20, 11/20). `0xc508` (0x50, 20/20): same, reads `q->b` at +0x12, tests `b == 1`.
+- `0xd03c` (0x3c, 15/15): `fnT(this->c->p->f8, 1, 97)`; zero -> return 14, else tail-call `fnU(this)`. `0x102f8` (return 18 on zero) and `0x10dbc` (return 36 on zero): same shape, 15/15.
+- Open: `0x10844` (sibling of `0x7330`/`0xc508`), `0x113c8`/`0x13880`/`0x137f0` (destructor/stateful, untried).
+
 ## What this does *not* do yet
 
 This is per-function fingerprinting (prove a candidate's instruction
