@@ -93,9 +93,9 @@ fn textures_decode_to_non_trivial_images() {
                 .unwrap_or_else(|e| panic!("texture {} decode: {e}", tex.name));
             assert_eq!(rgba.len(), tex.width * tex.height * 4);
             // Non-trivial: more than one distinct RGBA color.
-            let first = &rgba[..4];
+            let first: [u8; 4] = rgba[..4].try_into().unwrap();
             assert!(
-                rgba.chunks_exact(4).any(|px| px != first),
+                rgba.as_chunks::<4>().0.iter().any(|px| *px != first),
                 "texture {} decoded to a flat image",
                 tex.name
             );

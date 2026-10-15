@@ -168,6 +168,9 @@ mod tests {
         assert_eq!(morton_offset(7, 7, 48), (0x2a + 0x15) * 2);
         assert_eq!(morton_offset(8, 0, 48), 8 * 8 * 2);
         assert_eq!(morton_offset(0, 8, 48), 48 * 2 * 8);
-        assert_eq!(morton_offset(23, 23, 24), (16 * 8 + 0x15 + 0x2a) * 2 + 16 * 24 * 2);
+        assert_eq!(
+            morton_offset(23, 23, 24),
+            (16 * 8 + 0x15 + 0x2a) * 2 + 16 * 24 * 2
+        );
     }
 }

@@ -114,8 +114,9 @@ fn star_texture_decodes() {
     assert_eq!((tex.width, tex.height), (64, 64));
     let rgba = tex.decode_rgba().expect("decode");
     // Non-trivial image: mostly dark (star on black) with a bright center.
-    let bright = rgba.chunks_exact(4).filter(|p| p[0] > 200).count();
-    let dark = rgba.chunks_exact(4).filter(|p| p[0] < 30).count();
+    let px = rgba.as_chunks::<4>().0;
+    let bright = px.iter().filter(|p| p[0] > 200).count();
+    let dark = px.iter().filter(|p| p[0] < 30).count();
     assert_eq!(bright, 40, "star center pixels");
     assert_eq!(dark, 3431, "star background pixels");
 }
@@ -217,7 +218,9 @@ fn pt_texture_container_decodes() {
     // Body texture is predominantly green (g > r in most opaque pixels).
     let rgba = body.decode_rgba().expect("decode");
     let greenish = rgba
-        .chunks_exact(4)
+        .as_chunks::<4>()
+        .0
+        .iter()
         .filter(|p| p[1] as u32 > p[0] as u32 + 20 && p[3] > 0)
         .count();
     assert!(

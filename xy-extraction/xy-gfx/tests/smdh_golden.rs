@@ -46,7 +46,13 @@ fn icon_decode_matches_azahar_reference() {
 
     // Pins from the independent Python port of Azahar's GetIcon: the corners
     // sit on the white rainbow-border ring, the interior hits the dark X art.
-    let px = |x: usize, y: usize| (rgb[y * 48 * 3 + x * 3], rgb[y * 48 * 3 + x * 3 + 1], rgb[y * 48 * 3 + x * 3 + 2]);
+    let px = |x: usize, y: usize| {
+        (
+            rgb[y * 48 * 3 + x * 3],
+            rgb[y * 48 * 3 + x * 3 + 1],
+            rgb[y * 48 * 3 + x * 3 + 2],
+        )
+    };
     assert_eq!(px(0, 0), (248, 252, 248), "top-left corner (border)");
     assert_eq!(px(0, 47), (248, 252, 248), "bottom-left corner (border)");
     assert_eq!(px(24, 24), (40, 16, 16), "center (dark X art)");

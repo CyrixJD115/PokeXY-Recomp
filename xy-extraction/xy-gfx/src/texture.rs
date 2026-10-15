@@ -670,7 +670,9 @@ mod tests {
         let decoded = etc1_decode_block(&block);
         assert!(
             decoded
-                .chunks_exact(4)
+                .as_chunks::<4>()
+                .0
+                .iter()
                 .all(|px| px[0] == 2 && px[1] == 2 && px[2] == 2),
             "flat +2: {decoded:?}"
         );

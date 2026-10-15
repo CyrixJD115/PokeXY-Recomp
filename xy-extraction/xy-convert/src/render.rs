@@ -608,7 +608,13 @@ mod tests {
             64,
         );
         assert_eq!(r.rgba.len(), 64 * 64 * 4);
-        let opaque = r.rgba.chunks_exact(4).filter(|c| c[3] != 0).count();
+        let opaque = r
+            .rgba
+            .as_chunks::<4>()
+            .0
+            .iter()
+            .filter(|c| c[3] != 0)
+            .count();
         assert!(opaque > 50, "expected covered pixels, got {opaque}");
         assert_eq!(r.stats.triangles_drawn, 2);
     }
@@ -639,7 +645,7 @@ mod tests {
             64,
             64,
         );
-        assert!(r.rgba.chunks_exact(4).any(|c| c[3] != 0));
+        assert!(r.rgba.as_chunks::<4>().0.iter().any(|c| c[3] != 0));
     }
 
     #[test]
