@@ -15,6 +15,20 @@ file is only for things still unsolved.
 Format per entry:
 
 ```
+## DllBattle@0x3038 (size 0x6c)
+
+- What it is: same body as matched 0x30a4 but retail loads the vtable pool word into r1 BEFORE `push {r4,lr}`, and ends with tail `b`.
+- Tried: 0x30a4 shape plus tail call to extern fc(r).
+- Stuck on: 21/26; only the first 5 words differ (ldr r1,pool hoisted above push, str r1,[r0] before mov r4,r0).
+- Lead for next time: none yet.
+
+## DllBag@0x10e4 (size 0x6c)
+
+- What it is: lazy-init + conditional setup: `if (!this->ctx(+0x4c)) fnInit(this); if (fnTest(ctx->p0->f8)) { fnA(this,1); fnB(ctx->p0,1,1,1,1[stack]); tail fnC(this, this->f38); }`.
+- Tried: unsigned char param types, varargs, local `k = 1`, hoisting the first arg into a local.
+- Stuck on: 15/27. Words up to the `fnA` call match. Retail: loads ctx first then `mov r1,#1; mov r3,r1; mov r2,r1; ldr r0,[r0]; str r1,[sp]` (constant lives in r1); ours: `mov r0,#1; str r0,[sp]; ldr ctx; mov r3,#1...`.
+- Lead for next time: fnB signature (struct/bool mix) or the 1s coming from distinct sources.
+
 ## DllGts@0x9880 (size 0x18)
 
 - What it is: stores constants then loads others (5/6 words matched).

@@ -1792,6 +1792,30 @@ Open: DllGts `0x119b4` (0x44) and `0x125d4`+ untried; DllField `0xe380`/`0xe3fc`
 - `0x3248` (0xc, 3/3): double-indirection getter `return *this[1]`. `0x1530` (0x8, 2/2): returns 1. `0x1538` (0x1c, 7/7): void; if `this->[0x24]` and its `[0x14]` are non-null, tail-calls a function with `[0x14]`.
 - Open: `0x1324` (bounds check then `base + idx*8`), `0x3610` (`strd` init function).
 
+## 2026-10-15 swarm batch 12 (20 masked matches, all re-verified)
+
+| Module | Offset (size, match) | What |
+|---|---|---|
+| `DllBattle` | `0x39c0` (0x28, 10/10) | `if (fa(this)) this->+4->+0x14 = 1; return 1` — needs `B *b = self->b; int one = 1; b->f = one;` (direct `b->f = 1` swaps r0/r1, 7/10) |
+| | `0x39ac` (0x14, 5/5) | tail-call wrapper `fa(2,0,5,0)` |
+| | `0x39f4` (0xc, 3/3) | setter `this->+8 = 0` |
+| `DllPuzzle` | `0xf04` (0x2c, 11/11) | `mode==1 && fn(obj)` -> 1 else 0 |
+| | `0x1438` (0x38, 13/13) | dtor stage: vtable, base cleanup, `fn(this->p4->f14)` with 17, returns this |
+| | `0x1e90`, `0x4ba0` (0x14, 5/5) | `*o=v; return fn(o+N)-N` (N=0x18 / 4). **Idiom:** `return (char*)fn(p) - N;` with `fn` returning `void*`; keeping `o` in a local adds a spurious `mov r4,r0`. Real size 0x14 (trailing word is padding) |
+| | `0x9310` (0x2c, 11/11) | dtor stage: vtable, `fn(o->p12, o->p4->f34)`, returns this |
+| `DllBag` | `0x10c8` (0x1c, 7/7) | `veneer(this) ? this->f3c : 2` |
+| | `0xc558` (0x10, 4/4) | veneer on `this`, returns 42 |
+| | `0xe484` (0x24, 9/9) | `fnA(this); this->sub.f30 = fnB(this); return 0` — model `sub` as struct at +8 |
+| | `0xfee4` (0x24, 9/9) | `fnA(this->c->p); fnB(this); return 40` |
+| | `0x10334` (0x2c, 11/11) | `fnA(this); fnB(ctx->d->f8,2,3,1); return 71` (`this->ctx` +0x4c load hoisted above first call) |
+| | `0x1366c` (0x14, 5/5) | calls fn on `this->f24`, returns 1 |
+
+Open: DllPuzzle `0xb3fc`/`0xbf80` (0x38, free `this+0x14` + tail-call base), `0x92e4`/`0x1404` (tail-call dtor-stage variants).
+
+### Relaxed (not masked) match — kept out of the totals
+
+`relaxed/DllBattle/0x30a4.c` (0x68, 26/26 **only with `--relax-nops`**): destructor — installs vtable, releases owned object at +0xc via vcall slot 4 then slot 1 and zeroes it, frees +0x38, calls base sub-object dtor at +0x18, returns result-0x18. Pool load comes before the member load (the shape that works). Byte-match pending nop re-insertion; promote to `matched/` if relaxed matches are accepted.
+
 ## What this does *not* do yet
 
 This is per-function fingerprinting (prove a candidate's instruction
