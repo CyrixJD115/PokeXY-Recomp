@@ -16,17 +16,17 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
 executor skill deliberately mines the *easiest* win per module first
 (trivial 1-2 instruction virtual-override stubs and field setters have a
 near-100% hit rate — see "What reliably works" below), so as of this note
-**18 of 27 matched modules have exactly one trivial `return 0`/`return 1`/
+**21 of 31 matched modules have exactly one trivial `return 0`/`return 1`/
 field-setter stub proven and nothing else** — the module itself still has
 its full remaining function count (typically hundreds) completely
-unaddressed. Only 9 modules (`DllDialogCommon`, `DllNumberInput`,
+unaddressed. The other 10 modules (`DllDialogCommon`, `DllNumberInput`,
 `DllStrInput`, `DllFatalErrorProc`, `DllLangSelect`, `DllHeading`,
-`DllCommendation`, `DllBattleHouseConnect`, `DllGameClearSave`) have either
-multiple matched functions or at least one structurally meaningful match
-(a destructor/constructor/dispatcher, not just a 1-2 word stub). Treat
-"M modules touched" as a toolchain-portability proof (the technique works
-on unrelated modules, not just the first one found), not as module
-completion.
+`DllCommendation`, `DllBattleHouseConnect`, `DllGameClearSave`,
+`DllUSBigFourSteel`) have either multiple matched functions or at least
+one structurally meaningful match (a destructor/constructor/dispatcher,
+not just a 1-2 word stub). Treat "M modules touched" as a
+toolchain-portability proof (the technique works on unrelated modules, not
+just the first one found), not as module completion.
 
 ## What's here
 
@@ -441,6 +441,54 @@ completion.
   bare `bx lr` at `0x1928`-`0x1938`), right after a literal-pool word
   at `0x1914` and before a real `push {r4,lr}`-prologue function at
   `0x193c`.
+
+- `matched/DllUSBigFourFire/` — 1 function, a **twenty-eighth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x31c` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+
+  Same recurring stub cluster right after the import-veneer table
+  (`0x180`-`0x317`): a lone `bx lr` at `0x318`, three identical
+  `return 0` stubs at `0x31c`/`0x324`/`0x32c` (only `0x31c` claimed),
+  another lone `bx lr` at `0x334`, then the module's first real
+  function (a notification dispatcher) at `0x338`.
+
+- `matched/DllUSBigFourDragon/` — 1 function, a **twenty-ninth**
+  module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x2cc` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+
+  Same cluster shape: a lone `bx lr` at `0x2c8`, two more identical
+  `return 0` stubs at `0x2d4`/`0x2dc` (unclaimed), two more bare
+  `bx lr` at `0x2e4`/`0x2e8`, a prologue-less tail-virtual-call leaf at
+  `0x2ec`, another bare `bx lr` at `0x304`, then the module's first
+  real function at `0x308`.
+
+- `matched/DllUSBigFourWater/` — 1 function, a **thirtieth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x314` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+
+  Same cluster shape: a lone `bx lr` at `0x310`, three identical
+  `return 0` stubs at `0x314`/`0x31c`/`0x324` (only `0x314` claimed),
+  one more lone `bx lr` at `0x32c`, then a real function at `0x330`.
+
+- `matched/DllUSBigFourSteel/` — 1 function, a **thirty-first** module,
+  a genuine non-stub win:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x2f4` | `0x18` | 6/6 | Array-indexed virtual dispatch: looks up an owned object in an inline pointer array at `this+0x24`, tail-calls virtual slot 7 on it. |
+
+  The module's first real function, right after its own leaf-stub
+  cluster (`0x2d0`-`0x2f0`). Passes the caller's original 3rd argument
+  through (`mov r1, r2` before the tail `bx r3`) and the looked-up
+  object itself as the new `this` — the first array/vtable-indexing
+  specimen matched by this swarm, not another trivial stub.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
