@@ -1,5 +1,39 @@
 # The retail toolchain is ARM Compiler 5 (armcc), not GCC
 
+## 2026-10-15 — armcc-matching progress wired into the heatmap
+
+`xy-heatmap/heatmap.py`'s dashboard/treemap previously only tracked the
+Ghidra/3dsrecomp corpus (breadth: identified/decompiled/recomp-covered),
+with no visibility into this track's depth (byte-exact proof). Added a new
+status bit (32, "armcc masked-matched") alongside the existing
+`identified/decompiled/verified/hint/recomp` bits:
+
+- `xhmap/collect.py`'s `parse_armcc_matched()` auto-discovers
+  `xy-decomp/armcc-matching/matched/<Module>/<offset>.c(pp)` — no flag or
+  manual JSON needed (unlike bit 4 "Natively Verified", which still waits
+  on a real `--verified` producer). Lookup is case-insensitive against
+  `entries.c`'s module names (hit a real bug during validation: `DllEshop`
+  in `matched/` wasn't matching `entries.c`'s `DllEShop` and silently
+  dropped that module's one match from the totals — same case-spelling
+  gotcha already documented for `resolve_ci`).
+- Offsets are already in the same module-relative `.text` file-offset
+  space this collector uses everywhere else (symbols.tsv / `cro info`),
+  confirmed in `AGENTS.md`'s own offset gotcha — no rebase needed.
+- Wired through the live dashboard (`page.py`'s JS: STAGES ladder, legend,
+  module bars/meta, SVG/PNG export), `summary.md`'s table, and the
+  committed README assets — the `xy-viz` Rust crate (`charming`/ECharts)
+  gained a 5th treemap/progress-bar tier (`#9b59b6`, priority between
+  "hint" and "verified" in `TIERS`), refactored its progress-bar loop to
+  index into `tier_counts()` positionally instead of re-deriving by bit
+  (less error-prone when adding a tier). `assets.py`'s unused-but-
+  documented-as-kept-in-sync `COLORS`/`LABELS`/`cls_of`/`counts_of` were
+  updated too even though that renderer isn't currently invoked (`xy-viz`
+  is what `readme` actually shells out to).
+- Verified end-to-end: `heatmap.py readme` now reports "215 armcc
+  masked-matched" matching the filesystem ground truth exactly
+  (`find xy-decomp/armcc-matching/matched -name '*.c' -o -name '*.cpp' |
+  wc -l`), and the new tier's color/label appear in both committed SVGs.
+
 ## 2026-10-14 — compiler-parity blocker identified and partially cracked
 
 `docs/general/findings.md` has long flagged "compiler parity (matching

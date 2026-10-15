@@ -4,6 +4,8 @@ Status bits per function (see page.py for the visual ladder):
   1 identified (real symbol)   2 decompiled (Ghidra C)
   4 natively verified          8 interpreter hints overlay
   16 recomp-covered (3dsrecomp port start; stats only)
+  32 armcc masked-matched (xy-decomp/armcc-matching/matched/ — hand-written
+     C proven byte-identical against retail ARM Compiler 5 output)
 
 The function inventory is the UNION of every tool's function starts —
 3dsrecomp merges some functions Ghidra splits and vice versa, so no
@@ -22,6 +24,8 @@ import hashlib
 import os
 import re
 import time
+
+from . import ROOT
 
 MOD_RE = re.compile(r'\{"([^"]+)", &m(\d+)_base, (0x[0-9A-Fa-f]+)u, (\d+),')
 FN_RE = re.compile(r'void (?:m\d+_)?f_([0-9A-Fa-f]+)\(Context')
@@ -52,6 +56,10 @@ class Sources:
             paths += glob.glob(os.path.join(d, "*", "symbols.tsv"))
             paths += glob.glob(os.path.join(d, "*.csv"))
             paths += glob.glob(os.path.join(d, "*", "imports.tsv"))
+        paths += glob.glob(os.path.join(
+            ROOT, "xy-decomp", "armcc-matching", "matched", "*", "*.c"))
+        paths += glob.glob(os.path.join(
+            ROOT, "xy-decomp", "armcc-matching", "matched", "*", "*.cpp"))
         fp = []
         for p in paths:
             try:
@@ -183,6 +191,29 @@ def parse_verified(path):
     return out
 
 
+def parse_armcc_matched(root):
+    """{module: {offsets}} of xy-decomp/armcc-matching/matched/ — hand-
+    written C proven byte-identical against retail ARM Compiler 5 output
+    via fingerprint_fn.py. Offsets are the same module-relative .text
+    file-offset space as symbols.tsv (this collector's own addr space),
+    so no rebase is needed."""
+    out = {}
+    base = os.path.join(root, "xy-decomp", "armcc-matching", "matched")
+    for mod_dir in sorted(glob.glob(os.path.join(base, "*"))):
+        if not os.path.isdir(mod_dir):
+            continue
+        offs = set()
+        for fn in (glob.glob(os.path.join(mod_dir, "*.c")) +
+                   glob.glob(os.path.join(mod_dir, "*.cpp"))):
+            try:
+                offs.add(int(os.path.basename(fn).split(".")[0], 16) & ~1)
+            except ValueError:
+                pass
+        if offs:
+            out[os.path.basename(mod_dir)] = offs
+    return out
+
+
 def demangle_namespace(name):
     """Extract a '::' namespace from an Itanium-mangled name (light parse).
 
@@ -250,6 +281,9 @@ def collect(args, rom=None):
     mods = parse_module_map(os.path.join(src.recomp, "entries.c"))
     hints = parse_hints(args.hints)
     verified = parse_verified(args.verified)
+    # Case-insensitive lookup: entries.c spells some modules differently
+    # from their matched/ dir (e.g. DllEShop vs DllEshop — see resolve_ci).
+    armcc_ci = {k.lower(): v for k, v in parse_armcc_matched(ROOT).items()}
 
     # Main executable: absolute addresses; static.crs = its export table.
     plan = [("Main (code.bin)", "code.bin", 0,
@@ -272,7 +306,7 @@ def collect(args, rom=None):
     ns_counts = {}
     modules = []
     totals = {"functions": 0, "named": 0, "decompiled": 0, "verified": 0,
-              "hints": 0, "recomp": 0}
+              "hints": 0, "recomp": 0, "armcc": 0}
     importer_index = {}     # module -> [importers]
 
     for name, modfile, mid, hpath, csv_path, tsv_path, cdir, rebase in plan:
@@ -281,8 +315,9 @@ def collect(args, rom=None):
         names.update(parse_symbols_tsv(tsv_path))   # real exports win
         decomp_set = parse_decomp_dir(cdir, rebase)
         ver = verified.get(name, verified.get(modfile, set()))
+        am = armcc_ci.get(name.lower(), armcc_ci.get(modfile.lower(), set()))
 
-        funcs = sorted(port | gh_starts | decomp_set | set(names) | ver)
+        funcs = sorted(port | gh_starts | decomp_set | set(names) | ver | am)
 
         imports = parse_imports(resolve_ci(
             os.path.join(src.cro, "static" if mid == 0 else name),
@@ -306,6 +341,8 @@ def collect(args, rom=None):
                 s |= 8
             if a in port:
                 s |= 16                    # recomp-covered (stats only)
+            if a in am:
+                s |= 32                    # armcc masked-matched
             st.append(s)
             if a in names:
                 i = idx_of[a]
@@ -322,6 +359,7 @@ def collect(args, rom=None):
         totals["verified"] += sum(1 for s in st if s & 4)
         totals["hints"] += sum(1 for s in st if s & 8)
         totals["recomp"] += sum(1 for s in st if s & 16)
+        totals["armcc"] += sum(1 for s in st if s & 32)
 
         link_ok = module_link_verified(
             src.pipeline,
