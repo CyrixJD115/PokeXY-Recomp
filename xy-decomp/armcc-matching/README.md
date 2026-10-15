@@ -23,14 +23,14 @@ still have their full remaining function count (typically hundreds)
 completely unaddressed regardless of how many functions are proven in
 them. A module having **more than one** matched function is unambiguous
 evidence of that (recompute with `for d in matched/*/; do find "$d" -name
-'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **23 of 102**
+'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **25 of 104**
 as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllFatalErrorProc`, `DllIntro`, `DllSparringMenu`, `DllStatus`,
 `DllSubScreenTutorial`, `DllStartMenu`, `DllStaffRoll`, `DllWazaOboe`,
 `DllTrialDownload`, `DllTradelist`, `DllZukan`, `DllTitle`,
 `DllTownmap`, `DllTradeDemo`, `DllTrainerCase`, `DllUSGymEsper`,
 `DllTrialHouseResult`, `DllUSGymFighting`, `DllUSKinomi`,
-`DllUSPassage`). Many of the
+`DllUSPassage`, `DllVSDemo`, `DllUSGymIce`). Many of the
 remaining single-match modules are also genuinely meaningful (a
 destructor/constructor/dispatcher/conditional-accessor, not a 1-2 word
 stub) — see each module's own entry above for which; that split isn't
@@ -1424,6 +1424,37 @@ module-disassembly cost across several matches instead of one.
   literal-pool pointers, `strd`+`stm` writes) risks the same
   store-ordering residue class documented for `DllFieldDebug@0x180` —
   flagged but not attempted, no formal write-up (no real effort spent).
+
+- `matched/DllVSDemo/` — 5 functions, a **hundred-and-third** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x3e0` | `0x8` | 2/2 | Trivial `return 1` virtual-override stub, first real function after the import-veneer table. |
+  | `0x1a60` | `0x8` | 2/2 | Trivial `return 1` stub, after a destructor-stage vtbl-install helper. |
+  | `0x1b00` | `0x8` | 2/2 | Trivial `return 1` stub, sandwiched between two conditional-free destructor helpers. |
+  | `0x2b28` | `0x8` | 2/2 | Trivial `return 0` stub, after another destructor-stage helper. |
+  | `0x408` | `0x4` | 1/1 | Bare `bx lr` no-op void stub, weak evidence. |
+
+  See `attempted.md` for `0x2984`: the same prologue-less tail-virtual-
+  call idiom as `DllDialogCommon@0x6e8`, stuck at 5/8 on a register
+  choice (retail picks `r1`, armcc always picks `r3`) — flagged as a
+  shallower single-hop variant of that same residue class.
+
+- `matched/DllUSGymIce/` — 3 functions, a **hundred-and-fourth**
+  module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x25c` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`, ignores `this`. Twin at `0x264` left unclaimed. |
+  | `0x278` | `0x10` | 4/4 | Two-level-indirection sign-extended byte getter (`this->inner->field` narrowed to `signed char`). **Gotcha**: a plain (non-`volatile`) `int` field at that offset makes armcc 5.04u5 `-O2` optimize the load straight down to `ldrb` once it sees only the low byte survives the cast — doesn't match. Marking the field `volatile` blocks that optimization and reproduces the target's `ldr`+`sxtb` pair exactly. |
+  | `0x11f4` | `0x4` | 1/1 | Trivial no-op void stub (lone `bx lr`), weak evidence. |
+
+  A second lone `bx lr` at `0x146c` initially looked like another
+  standalone stub and technically word-matched, but is actually the
+  tail instruction of the function starting at `0x1430` (a coherent
+  VFP wraparound leaf with no push/pop) — correctly discarded before
+  committing. See `attempted.md` for `0x1974` (a globals-init pair,
+  9/11 — closer than usual on the same `strd`-vs-`stm` residue class).
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
