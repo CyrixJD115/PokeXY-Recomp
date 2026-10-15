@@ -16,7 +16,7 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
 not depth. The swarm's executor skill deliberately mines the *easiest*
 win per module first (trivial 1-2 instruction virtual-override stubs and
 field setters have a near-100% hit rate — see "What reliably works"
-below), so as of this update **43 of 65 matched modules have exactly one
+below), so as of this update **43 of 66 matched modules have exactly one
 trivial `return 0`/`return 1`/field-setter/forwarder stub proven and
 nothing else** — the module itself still has its full remaining function
 count (typically hundreds) completely unaddressed. The other 22 modules
@@ -894,6 +894,17 @@ completion.
   Unclaimed nearby candidates: trivial `return 1` stubs at
   `0x738`/`0x740`/`0x748`, bare `bx lr` stubs at `0x750`-`0x760`, and
   the known-bad member-load-first sibling dtor at `0x79c`.
+
+- `matched/DllKawaigari/` — 1 function, a **sixty-sixth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x3fc6c` | `0x30` | 12/12 | Prologue-less zero-argument leaf: follows a nested global pointer chain (`g_outer.mid->inner`), sets that struct's `+0x24` int field to 1 if non-null, unconditionally sets a second global byte flag to 1, always returns 1. |
+
+  `DllKawaigari`'s `.text` is large (`0x43bbc` bytes) with an unusually
+  long import-veneer table (ends ~`0xd84`); plenty of unmined real
+  functions remain, e.g. the thin-forwarder cluster right after the
+  veneer table at `0xd88`-`0xdd8`.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
