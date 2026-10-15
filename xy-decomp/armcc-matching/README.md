@@ -16,7 +16,7 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
 not depth. The swarm's executor skill deliberately mines the *easiest*
 win per module first (trivial 1-2 instruction virtual-override stubs and
 field setters have a near-100% hit rate — see "What reliably works"
-below), so as of this update **46 of 70 matched modules have exactly one
+below), so as of this update **49 of 73 matched modules have exactly one
 trivial `return 0`/`return 1`/field-setter/forwarder stub proven and
 nothing else** — the module itself still has its full remaining function
 count (typically hundreds) completely unaddressed. The other 22 modules
@@ -953,6 +953,38 @@ completion.
   assigned before any field write; inline immediates or a single named
   local gave the right shape/word-count but swapped `r1`/`r2` (2/10,
   not 10/10).
+
+- `matched/DllPssAssistPower/` — 1 function, a **seventy-first**
+  module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x618` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+
+  Sits right after the import-veneer table (`0x180`-`0x617`) in a
+  cluster of near-identical leaf stubs.
+
+- `matched/DllPssCharaMenu/` — 1 function, a **seventy-second** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x5e0` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+
+  Sits right after the import-veneer table (`0x180`-`0x5df`), with an
+  unclaimed identical twin at `0x5e8` and two bare `bx lr`
+  weak-evidence stubs at `0x5f0`/`0x5f4` before the module's first
+  real function at `0x5f8`.
+
+- `matched/DllPromotion/` — 1 function, a **seventy-third** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xc78` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+
+  Found at the tail of the import-veneer table right after a small
+  constructor and a float-field-init leaf, followed by an unclaimed
+  run of six bare `bx lr` stubs and then the module's first real
+  function at `0xc94`.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
