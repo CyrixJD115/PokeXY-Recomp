@@ -29,6 +29,7 @@ Works from any working directory (defaults anchor to the repo root), and
 | `cro_extracted/<Mod>/symbols.tsv` (+ `static/`) | the **real** export symbols (mangled C++) |
 | `decomp/code_c` + `decomp/cro_c/<Mod>` | decompiled-to-C corpus coverage |
 | `pipeline/orig` vs `pipeline/out` | per-module byte-identical relink check |
+| `xy-decomp/armcc-matching/matched/<Mod>/<offset>.c` | hand-written C proven byte-identical against retail ARM Compiler 5 output (armcc masked-matched bit) |
 
 The function grid is the **union** of every tool's function starts — the
 port merges some functions Ghidra splits and vice versa, so no single
@@ -42,6 +43,7 @@ source is authoritative.
 | Decompiled to C (teal) | Ghidra C exists, still unnamed | decomp corpus |
 | Identified / Named (green) | carries a real symbol | export tables + CSVs |
 | Natively Verified (gold) | recomp verified against original | `--verified` JSON (future objdiff/3dsrecomp-verify export) |
+| ARM Compiler 5 Masked-Matched (purple) | hand-written C proven byte-identical against retail armcc output | `xy-decomp/armcc-matching/matched/` (auto-discovered, no flag needed) |
 | Interpreted overlay (red) | Zakuro interpreter hit | `--hints` file |
 
 Recomp-covered (3dsrecomp port start) is tracked per function and shown
