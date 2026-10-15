@@ -189,17 +189,25 @@ case-to-block mapping was ever asserted for it since it never matched.
 - **30-minute cap per agent.** If you haven't reached a masked match
   within about 30 minutes of starting, stop regardless of where you are
   — don't keep grinding on one hard function. Write up what you tried
-  and where it got stuck, append it to `attempted.md` (format described
-  there), commit and push just that log update, and end your report
-  saying you hit the time cap without a match. This frees the slot for
-  a fresh agent to work on something new next tick instead of
-  duplicating your effort or continuing to burn time on the same wall.
+  and where it got stuck as a `pending/attempted-<Module>-<offset>.md`
+  note (see below — NOT a direct edit to `attempted.md`), commit and
+  push just that note, and end your report saying you hit the time cap
+  without a match. This frees the slot for a fresh agent to work on
+  something new next tick instead of duplicating your effort.
 - **Check `attempted.md` before picking a candidate.** If a function is
   already logged there, skip it unless you have a genuinely new idea
   beyond what's already listed.
-- A function that DOES match in under 30 minutes: just follow the
-  normal flow below and in the main instructions you were given — no
-  need to touch `attempted.md` for a success.
+- **Do not edit `README.md`, `docs/README.md`, `docs/decomp/README.md`,
+  or `attempted.md` directly — several agents run concurrently on this
+  branch, and those files all have a single running-total line or
+  append point every agent would try to touch at once, which is a
+  guaranteed git conflict, not a maybe.** Instead, on a match, write a
+  tiny uniquely-named note to `pending/matched-<Module>-<offset>.md`
+  (format in `pending/README.md`) alongside your `matched/<Module>/
+  <offset>.c` file, and commit+push both together. The orchestrating
+  session folds pending notes into the real docs on its own schedule —
+  that's not your job. A function that DOES match in under 30 minutes:
+  just save the `.c` file + the pending note, commit, push, done.
 
 ## Reproducing a match in this repo
 
