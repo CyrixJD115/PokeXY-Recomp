@@ -1,0 +1,6 @@
+Module: DllBattle
+Offset: 0x1f8c
+Size: 0x20
+Match: 8/8
+One-line: Zero-init helper -- zeroes two leading u32 fields then four trailing u16 fields of a 16-byte struct, returns the pointer unchanged (this-return idiom).
+Note: First function mined from DllBattle (a 42nd-ish module, large: ~0xcd1fc .text bytes). Its import-veneer table uses the "ldr pc, [pc, #-4]" absolute-literal idiom (895 entries, 0x180-0x1d8c) rather than the usual "b <target>" forwarder seen in most other Dll modules -- a new veneer-idiom variant worth noting if future agents mine this module. Non-obvious: armcc's emission order here is controlled by C statement order, and the retail binary emits the two u32 stores BEFORE the four u16 stores even though they sit at lower memory offsets than... actually the u32s are at the lower offsets (0,4) and u16s at higher (8,10,12,14), so natural byte-offset order happens to match source order here; the trap is that the opposite source-statement order (shorts assigned first) also compiles fine but produces the wrong instruction sequence -- source order, not declared memory layout, drives scheduling. Immediately follows a large VFP vector/matrix-math function ending at 0x1f74 (not attempted, looks like a rotation or quaternion normalize routine).
