@@ -46,6 +46,7 @@ justified by the original code, a redundant local, an extra unused argument,
 a one-use static helper, a `void*` return used only to avoid a spare move) and
 ALSO put the same line in the `.c` file's header comment. Kinds so far:
 `volatile-strd`, `volatile-load`, `redundant-local`, `extra-arg`,
-`static-helper`, `void-ptr-passthrough` — or invent a short new kind.
+`static-helper`, `void-ptr-passthrough`, `split-expression`, `pointer-walk`,
+`ordering-local` — or invent a short new kind.
 Relaxed-only matches (`--relax-nops`) don't count as matches: report them,
 don't put them under `matched/`.

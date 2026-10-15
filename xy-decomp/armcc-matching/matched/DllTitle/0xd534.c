@@ -1,4 +1,5 @@
 /* DllTitle function @ CRO file offset 0xd534, size 0x18 -- MASKED MATCH 6/6.
+ * Style: trick(split-expression) -- expression split across statements only to stop armcc fusing the load (ldrsh)
  * Fourth matched function from this module. Field-copy helper, no calls:
  * copies a byte from src+0 (zero-extended) into this+4, and a signed
  * 16-bit halfword from src+2 into this+0 (sign-extended to a full int

@@ -1,4 +1,5 @@
 /* DllNumberInput function @ CRO file offset 0x18fc, size 0x78 — MATCHED (masked, 30/30). Constructor: fetches an object, installs a vtable, builds a buffer via an import veneer, placement-allocates a second node using a moving pointer cursor.
+ * Style: trick(pointer-walk) -- sequential pointer-cursor moves only to reproduce retail's immediate splits / pre-indexed stores
  *
  * Reverse-engineering note: the node-initialization tail is written as a
  * SEQUENCE OF CURSOR MOVES (`str r6,[r0,#92]!` / `add r0,r0,#4` / `str

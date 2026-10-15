@@ -1,4 +1,5 @@
 // DllTrialHouseResult@0x2648 (size 0x38) -- masked match 14/14.
+// Style: trick(ordering-local) -- local(s) (e.g. `vt = VT`, hoisted member loads) only to fix load/pool-load order
 // Destructor: installs vtable pointer, frees member @+0x14 via a masked
 // import-veneer call if non-null, zeroes it, then tail-calls another
 // import veneer with `this` (armcc folds the trailing `return Fn(this);`

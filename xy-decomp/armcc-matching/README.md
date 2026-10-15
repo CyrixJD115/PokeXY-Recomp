@@ -1688,22 +1688,37 @@ matched file may carry a `Style:` line in its header comment:
   placeholder; rewrite (or re-derive the real source construct) before this
   becomes readable decomp or feeds the native port.
 
-Kinds so far (find them all with
+Kinds (find them all with
 `grep -rl 'Style: trick' xy-decomp/armcc-matching/matched`):
 
 | kind | what it is | files tagged |
 |---|---|---|
 | `volatile-strd` | `volatile` on a 64-bit global only to get `strd` | 9 (globals-init family) |
 | `volatile-load` | `volatile` field only to keep armcc from narrowing/dropping a load | DllUSGymIce@0x278, DllSequence@0x10a80 |
-| `redundant-local` | `int v = 1;` temporary only to force a register/store order | DllKisekae@0xb6f0, DllBattle@0x39c0 |
+| `redundant-local` | named literal/temp local only to steer armcc's constant-register choice | DllKisekae@0xb6f0, DllBattle@0x39c0, DllGts@0x8850, DllUSGymEsper@0x480, DllPoke3Select@0x63c, DllWazaOmoidashi@0x924 |
+| `split-expression` | one expression split across statements only to stop armcc fusing a load (`ldrsh`) | DllTitle@0xd534 |
 | `extra-arg` | unused pass-through int arg(s) to shift register allocation (1 arg -> vtable in r2, 2 -> r3) | DllTownmap@0xb10, 0x3554, 0x35f4 |
-| `static-helper` | one-use static helper to reproduce retail's r0 reuse | DllEshop@0x1b10 |
+| `static-helper` | one-use static helper to pin an argument register / reproduce r0 reuse | DllEshop@0x1b10, DllHologramMail@0xe970 |
 | `void-ptr-passthrough` | callee declared `void*`, result offset `(char*)fn(p) - N`, to avoid a spare `mov r4,r0` | DllPuzzle@0x1e90, 0x4ba0 |
+| `pointer-walk` | sequential pointer-cursor moves only to reproduce retail's immediate splits / pre-indexed stores | DllSequence@0x1140, DllNumberInput@0x18fc |
+| `ordering-local` | locals (`vt = VT`, hoisted member loads) only to fix load / pool-load order | the `vt`-local destructor family (15: DllBattleHouseConnect@0x2fc, DllCommendation@0xc94, DllEshop@0x554, DllFatalErrorProc@0x284, DllFriendEntry@0x4c4, DllGameClearSave@0xd6c, DllGameSync@0x5e0, DllLiveCup@0x764, DllRandomTrade@0x8b4, DllStaffRoll@0x2c44, DllSubScreenTutorial@0x12cc, DllTrainerCase@0x37e4, DllTrialDownload@0x728, DllTrialHouseResult@0x2648, DllTradelist@0xc04) + DllGts@0x5be0, 0x53e4, 0x5ba8, 0x5bc4 |
 
-Only the cases found so far are tagged; earlier matches weren't audited, so
-**no tag does not yet prove natural**. New matches must set the tag (see
-`pending/README.md`). Tiny stubs (`bx lr`, return-const, one-field setters) are
-natural but weak evidence — any function of that shape compiles identically.
+**Audit (2026-10-15):** all 377 matched files were screened — a script flagged
+`volatile` / static functions / armcc extensions / literal-assigned locals /
+`(void)` casts / 3+ args, a comment scan flagged "non-obvious / phrasing /
+named local / helper / swap / fold ..." language, and every flagged body was
+read. Result: **46 files tagged**; the remaining 331 are natural C (plain
+setters/getters/stubs, `(void)this;` unused-parameter silencing, plain
+dtors with a member-load local, `if (r) return 0; return 1;` predicates,
+literal call arguments). The audit is heuristic: a trick that leaves no
+textual trace (e.g. a field type or struct layout chosen only to steer
+codegen) would not be caught, so `natural` is "no trick found", not a proof.
+Judgement call: the `vt`-local destructor family is tagged `ordering-local`
+because the extra local exists only to order the pool load; the plain
+`void *p = o->buf; o->vptr = VT; if (p) ...` form is natural and untagged.
+Tiny stubs (`bx lr`, return-const, one-field setters) are natural but weak
+evidence — any function of that shape compiles identically. New matches must
+set the tag (see `pending/README.md`).
 
 **Relaxed matches are not matches.** A function that only passes with
 `--relax-nops` (nop words dropped from both sides, pool offsets masked) is

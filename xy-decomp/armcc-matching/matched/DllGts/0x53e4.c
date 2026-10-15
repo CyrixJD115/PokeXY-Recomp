@@ -1,4 +1,5 @@
 /*
+ * Style: trick(ordering-local) -- local(s) (e.g. `vt = VT`, hoisted member loads) only to fix load/pool-load order
  * DllGts @ 0x53e4, size 0x1c (NOT 0x24 — see note), masked match 7/7.
  *
  * Third sibling of `0x5ba8`/`0x5bc4`: identical double-pointer-deref

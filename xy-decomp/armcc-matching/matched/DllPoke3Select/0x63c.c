@@ -1,4 +1,5 @@
 /* DllPoke3Select function @ CRO file offset 0x63c, size 0x28 — MATCHED
+ * Style: trick(redundant-local) -- named literal/temp local only to steer armcc's constant-register choice
  * (masked, 10/10). First matched function in this (sixty-sixth) module.
  *
  * Constructor: zeroes fields +0x28/+0x34/+0x38, sets a byte flag at +0x30

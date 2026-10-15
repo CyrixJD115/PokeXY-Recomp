@@ -1,4 +1,5 @@
 /* DllGameClearSave function @ CRO file offset 0xd6c, size 0x38 — MATCHED
+ * Style: trick(ordering-local) -- local(s) (e.g. `vt = VT`, hoisted member loads) only to fix load/pool-load order
  * (masked, 14/14). First matched function in this (eighth) module.
  *
  * Destructor: vtable-install + free-one-owned-member idiom, same shape as

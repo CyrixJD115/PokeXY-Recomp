@@ -1,4 +1,5 @@
 /*
+ * Style: trick(ordering-local) -- local(s) (e.g. `vt = VT`, hoisted member loads) only to fix load/pool-load order
  * DllGts @ 0x5bc4, size 0x1c, masked match 7/7.
  *
  * Identical body to the sibling function at `0x5ba8` (same import-veneer

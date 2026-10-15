@@ -1,4 +1,5 @@
 /* DllSequence function @ CRO file offset 0x1140, size 0x18 — MATCHED (masked, 6/6).
+ * Style: trick(pointer-walk) -- sequential pointer-cursor moves only to reproduce retail's immediate splits / pre-indexed stores
  * Sets a single byte flag deep inside a buffer owned via `this+20`:
  * `this->buf[0x181d] = 1;` — but the retail binary computes the address
  * as TWO separate immediate adds (`+0x1800` then `+29`) and stores with

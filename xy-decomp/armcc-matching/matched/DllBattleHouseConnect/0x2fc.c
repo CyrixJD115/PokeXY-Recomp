@@ -1,4 +1,5 @@
 /* DllBattleHouseConnect function @ CRO file offset 0x2fc, size 0x38 — MATCHED
+ * Style: trick(ordering-local) -- local(s) (e.g. `vt = VT`, hoisted member loads) only to fix load/pool-load order
  * (masked, 14/14). First match from an eighth module. Destructor: vptr
  * install, frees member @+0x14, tail-calls a second import instead of
  * returning `this` directly — the same idiom already proven at

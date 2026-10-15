@@ -1,4 +1,5 @@
 /* DllUSGymEsper@0x480 (size 0x18) -- boolean setter through one pointer
+ * Style: trick(redundant-local) -- named literal/temp local only to steer armcc's constant-register choice
  * indirection: normalizes an int argument to 0/1 and stores it through
  * the `this+20` pointer member's first byte.
  *
