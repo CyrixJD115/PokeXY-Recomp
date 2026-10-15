@@ -251,6 +251,18 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
   sibling dtor at `0xda4` has the known-bad member-load-before-vtable-
   load scheduling order — flagged as unlikely to match, not attempted.
 
+- `matched/DllTheEnd/` — 1 function, a **thirteenth** module (the
+  end-credits/ending-sequence Dll, unrelated to the `Dll*Input` family):
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x750` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`. |
+
+  Same tail-of-vtable stub cluster shape already documented for every
+  other mined module: a one-word literal pool at `0x74c` (the previous
+  function's epilogue) immediately precedes it, and the next function
+  starts right after at `0x758`.
+
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
 Some larger dispatcher functions (`DllDialogCommon@0x300`/`0xdd8`,
