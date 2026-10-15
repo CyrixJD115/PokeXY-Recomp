@@ -16,7 +16,7 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
 executor skill deliberately mines the *easiest* win per module first
 (trivial 1-2 instruction virtual-override stubs and field setters have a
 near-100% hit rate — see "What reliably works" below), so as of this note
-**21 of 31 matched modules have exactly one trivial `return 0`/`return 1`/
+**22 of 32 matched modules have exactly one trivial `return 0`/`return 1`/
 field-setter stub proven and nothing else** — the module itself still has
 its full remaining function count (typically hundreds) completely
 unaddressed. The other 10 modules (`DllDialogCommon`, `DllNumberInput`,
@@ -489,6 +489,18 @@ just the first one found), not as module completion.
   through (`mov r1, r2` before the tail `bx r3`) and the looked-up
   object itself as the new `this` — the first array/vtable-indexing
   specimen matched by this swarm, not another trivial stub.
+
+- `matched/DllUSC02/` — 1 function, a **thirty-second** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x708` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+
+  Same recurring shape, but this time sitting **mid-module** rather
+  than right after the import-veneer table or at the tail: right after
+  a constructor-shaped function ending at `0x6fc` plus its own 2-word
+  literal pool, and right before a bare `bx lr` stub at `0x710` and a
+  one-line accessor/tail-call at `0x714`.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
