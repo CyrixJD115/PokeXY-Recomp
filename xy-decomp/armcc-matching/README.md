@@ -11,32 +11,54 @@ This was discovered and proven independently in a sibling project
 decompilation attempt) and is migrated here on 2026-10-14 so the finding
 and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.md`.
 
-**Reading the module count honestly (2026-10-15 swarm note, updated
-2026-10-15):** the "N functions across M modules" headline is breadth,
-not depth. The swarm's executor skill deliberately mines the *easiest*
-win per module first (trivial 1-2 instruction virtual-override stubs and
-field setters have a near-100% hit rate — see "What reliably works"
-below), so as of this update **53 of 79 matched modules have exactly one
-trivial `return 0`/`return 1`/field-setter/forwarder stub proven and
-nothing else** — the module itself still has its full remaining function
-count (typically hundreds) completely unaddressed. The other 22 modules
-(`DllDialogCommon`, `DllNumberInput`, `DllStrInput`, `DllFatalErrorProc`,
-`DllLangSelect`, `DllHeading`, `DllCommendation`, `DllBattleHouseConnect`,
-`DllGameClearSave`, `DllUSBigFourSteel`, `DllFriendEntry`,
-`DllBackGround`, `DllDendouDemo`, `DllBoxSearch`, `DllBattlePartySelect`,
-`DllDendouPC`, `DllEggDemo`, `DllEshop`, `DllGameSync`, `DllIntro`,
-`DllPCMenu`, `DllLiveCup`) have either multiple matched functions
-(`DllIntro`: two independent stub idioms) or at least one structurally
-meaningful match (a destructor/constructor/dispatcher, or a genuine
-multi-instruction compile like `DllBackGround`'s three-way predicate, the
-`DllDendouDemo`/`DllBoxSearch`/`DllDendouPC`/`DllEggDemo`/`DllPCMenu`
-conditional-accessor family, the `DllEshop`/`DllGameSync`/`DllLiveCup`
-tail-calling destructor trio, or `DllBattlePartySelect`'s
-instruction-order-sensitive leaf predicate, not just a 1-2 word stub).
-Treat "M modules touched" as a
-toolchain-portability proof (the technique works on unrelated modules,
-not just the first one found), not as module
-completion.
+**Reading the module count honestly (2026-10-15 swarm note, re-derived
+2026-10-15 after the per-module split below drifted out of sync with
+the filesystem across several hand-tracked updates — see the dated note
+further down for what happened and the fix):** the "N functions across M
+modules" headline is breadth, not depth. The swarm's executor skill
+deliberately mines the *easiest* win per module first (trivial 1-2
+instruction virtual-override stubs and field setters have a near-100%
+hit rate — see "What reliably works" below), so most matched modules
+still have their full remaining function count (typically hundreds)
+completely unaddressed regardless of how many functions are proven in
+them. A module having **more than one** matched function is unambiguous
+evidence of that (recompute with `for d in matched/*/; do find "$d" -name
+'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **27 of 106**
+as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
+`DllFatalErrorProc`, `DllIntro`, `DllSparringMenu`, `DllStatus`,
+`DllSubScreenTutorial`, `DllStartMenu`, `DllStaffRoll`, `DllWazaOboe`,
+`DllTrialDownload`, `DllTradelist`, `DllZukan`, `DllTitle`,
+`DllTownmap`, `DllTradeDemo`, `DllTrainerCase`, `DllUSGymEsper`,
+`DllTrialHouseResult`, `DllUSGymFighting`, `DllUSKinomi`,
+`DllUSPassage`, `DllVSDemo`, `DllUSGymIce`, `DllWazaOmoidashi`,
+`DllBattle`). Many of the
+remaining single-match modules are also genuinely meaningful (a
+destructor/constructor/dispatcher/conditional-accessor, not a 1-2 word
+stub) — see each module's own entry above for which; that split isn't
+repeated as a second hand-maintained number here anymore; see the dated
+note below for why. Treat "M modules touched" as a toolchain-portability
+proof (the technique works on unrelated modules, not just the first one
+found), not as module completion.
+
+**2026-10-15 — dropped the hand-maintained trivial-vs-meaningful split
+after it silently drifted.** This paragraph used to carry two numbers
+("N of M modules have exactly one trivial stub", plus a named list of
+the rest) that every consolidation pass was supposed to increment by
+hand alongside the real, filesystem-derived function/module totals. They
+desynced anyway — by the time this was caught, the named list had 22
+entries but the true module count was 89, an undetected 10-module gap
+that must have accumulated over several updates where an increment was
+missed or miscounted. The real totals (`find matched -name '*.c' -o
+-name '*.cpp' | wc -l` and `ls matched | wc -l`) never drifted, because
+every consolidation re-derives them from the filesystem instead of
+incrementing a remembered number — exactly the rule this skill already
+enforces for the orchestrator (see `.claude/skills/armcc-decomp-
+orchestrator/SKILL.md`, "Never trust a running total without
+recomputing it"). This paragraph just hadn't been following its own
+rule. The >1-match count above is similarly cheap to recompute in full
+every time, so it won't drift the same way; the finer trivial/meaningful
+split per single-match module is left to each module's own entry instead
+of a second summary number.
 
 ## What's here
 
@@ -1054,6 +1076,425 @@ completion.
   = `return 1`, `0x8a0`-`0x8b0` = four bare `bx lr`), and a
   near-identical sibling dtor sits right after at `0x8ec`
   (member-load-vs-vtable-load order not yet checked).
+
+- `matched/DllSparring/` — 1 function, an **eightieth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x10178` | `0x8` | 2/2 | Trivial virtual-override stub, `return 8`, ignores `this`. |
+
+  One of three near-identical 2-word constant-getter stubs right after
+  the module's second real function (a dispatcher ending at `0x10174`):
+  `return 8` (claimed), `return 16` at `0x10180` and `return 4` at
+  `0x10188` (both unclaimed). Module layout: a 244-entry import-veneer
+  table (`0x180`-`0x91f`), then a large unattempted constructor at
+  `0x920` (~`0x8c0` bytes).
+
+- `matched/DllShinkaDemo/` — 1 function, an **eighty-first** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xfdc` | `0x8` | 2/2 | Trivial signed-byte field getter: `return *(signed char*)(obj+0x82);`. |
+
+  Right after a dispatcher function (ends `0xfd4`) and its literal pool
+  (`0xfd8`). An identical twin getter for the adjacent byte (`+0x83`)
+  sits at `0xfe4`, unclaimed.
+
+- `matched/DllReport/` — 1 function, an **eighty-second** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x728` | `0x1c` | 7/7 | Conditional accessor, same idiom as `DllLangSelect@0x5b0`/`DllDendouDemo@0x798`/`DllBoxSearch@0x5b8`/`DllDendouPC@0x650`/`DllEggDemo@0x568`/`DllPCMenu@0x6b8`: veneer call gates between a member load (here `+84`) and a re-materialized constant `2`. |
+
+  Module's first real function, right after its import-veneer table
+  (`0x180`-`0x727`).
+
+- `matched/DllSequence/` — 1 function, an **eighty-third** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x1135c` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+
+  Inside the recurring tail-of-import-veneer-table leaf-stub cluster
+  (bare `bx lr` stubs on both sides). Module has an unusually large
+  import-veneer table; three more untried `return 1`-shaped leads at
+  `0xee90`, `0xef98`, `0x10a88`.
+
+- `matched/DllField/` — 1 function, an **eighty-fourth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x58c8` | `0xc` | 3/3 | Trivial hardcoded-true byte-field setter: unconditionally sets `this+0x1c` to 1, ignores any 2nd argument, void return. |
+
+  Right after DllField's large import-veneer table (`0x180`-`0x5767`)
+  and a run of small veneer-calling wrappers/float helpers
+  (`0x5740`-`0x58c4`); plenty of unmined ground remains in this module
+  (~9,227 functions — one of the largest CRO modules).
+
+**2026-10-15: first batch under the multi-function-per-agent model** (up
+to 5 functions per spawn instead of exactly 1) — 5 agents landed 24
+functions across 5 new modules in one round, each reusing its own
+module-disassembly cost across several matches instead of one.
+
+- `matched/DllSparringMenu/` — 4 functions, an **eighty-fifth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x5b0c` | `0x8` | 2/2 | `xy_system::bg::System::SetIsCallDraw(bool)` — same shared setter as 7 other modules. |
+  | `0x5b14` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+  | `0x5ad8` | `0x34` | 13/13 | Destructor — same idiom as `DllDialogCommon@0xcdc` and 8+ other modules: vptr install, free member `+0x14` if non-null, returns `this`. |
+  | `0x5b58` | `0x34` | 13/13 | This-pointer-adjusted conditional field setter: receiver is `(char*)this - 0x84`; clamps `v==1/16/17` to `2/3/4` stored at `+0x8c`, else leaves it untouched. |
+
+  Sibling at `0x5b1c` (same `cmp`/`moveq`/`beq` cascade as `0x5b58`, plus
+  an extra unconditional zero-store to a second field at `+0x88`/`+0x8c`)
+  got stuck at 9/15: armcc folds that store's address to a direct
+  `this+8` offset instead of routing it through the same adjusted base
+  register used for the rest of the function — every straightforward C
+  translation produces the folded form instead. Possibly a this-adjusting
+  -thunk codegen artifact; not logged to `attempted.md` (wasn't a full
+  investigation), just flagged here for whoever picks up this module next.
+
+- `matched/DllStatus/` — 5 functions, an **eighty-sixth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xbc8` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+  | `0x6f6c` | `0x4` | 1/1 | Thin tail-call forwarder (`b <import veneer>`), same idiom as `DllBattleVideoSave@0x454`/`DllBattleMatch@0xd90`. |
+  | `0x871c` | `0x4` | 1/1 | A second, independent thin-forwarder specimen in the same module. |
+  | `0xa370` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`, ignores `this`. |
+  | `0xa4e0` | `0xc` | 3/3 | Byte-field setter with an unusual arg convention: the object pointer arrives in the **3rd** register slot (`r2`), not `r0`/`this` — reproduced in C with an `(int, int, Obj*)` signature. |
+
+  Tail-of-import-veneer-table cluster at `0xbc8`-`0xbff` has 4 more
+  identical `return 1` stubs and 4 bare `bx lr` weak-evidence stubs left
+  unclaimed.
+
+- `matched/DllSubScreenTutorial/` — 5 functions, an **eighty-seventh**
+  module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x538` | `0x10` | 4/4 | Prologue-less tail virtual call (`o = this->p38; return o->vtbl[9](o)`), same idiom as `DllDialogCommon@0x6e8` but a direct member offset, no null check. |
+  | `0x12a0` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+  | `0x12cc` | `0x38` | 14/14 | Destructor — same proven idiom as `DllFatalErrorProc@0x284` etc. |
+  | `0x1338` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`, ignores `this`. |
+  | `0x954` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`, ignores `this`. |
+
+  Plenty unmined: a few dispatcher/constructor-shaped functions flagged
+  but not attempted (`0x358` jump-table dispatcher, `0x4cc` 3-case
+  switch, `0x548` larger dispatcher, a `0x6e0`/`0x734` matched
+  destructor-pair idiom with an extra two-base-class dtor call). The
+  known-bad member-load-first destructor twin at `0x1304` was correctly
+  skipped on sight per the documented residue class.
+
+- `matched/DllStartMenu/` — 5 functions, an **eighty-eighth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x480` | `0x40` | 16/16 | Init helper: calls an import veneer on `this->f24` with arg 0, sets `this->f34=1` and `this->f4->f2=1`, then tail-calls a second veneer with constants `(0x60065, 0, -1, 0)`, returning its result directly. |
+  | `0x4c0` | `0x38` | 14/14 | Guard check: `if (fnC(this)==0) return 2; else if (this->f16==3) veneer(this->f24, 1); return this->f16;`. |
+  | `0x1b74` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+  | `0x1b7c` | `0x4` | 1/1 | Trivial no-op void stub (`bx lr`), weak evidence — one of a run of five identical 1-word stubs at `0x1b7c`-`0x1b8c`. |
+  | `0x1bfc` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`, ignores `this`. |
+
+  Easy follow-ups left unclaimed: the `0x1b7c` cluster's siblings at
+  `0x1b80`/`0x1b84`/`0x1b88`/`0x1b8c`. A large (~`0x214`-byte)
+  multi-branch function at `0x4f8` and a small constructor-shaped
+  function around `0x1ae0` were spotted but not attempted.
+
+- `matched/DllStaffRoll/` — 5 functions, an **eighty-ninth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x59c` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+  | `0x2c44` | `0x38` | 14/14 | Destructor — same proven idiom as `DllFatalErrorProc@0x284` etc. |
+  | `0x2304` | `0x10` | 4/4 | Chained thin forwarder: `return veneer(local(this));` (`bl` into a local function, tail-call `b` into another with the result). |
+  | `0xe90` | `0x10` | 4/4 | Calls a function on `this` (result discarded), unconditionally returns 1. |
+  | `0x2cb0` | `0x8` | 2/2 | `xy_system::bg::System::SetIsCallDraw(bool)` — same shared setter as 6 sibling modules. |
+
+  Unmined lead: a more complex double-vtable-install destructor around
+  `0x28c8`/`0x289c` (two local destructor calls before the member-free,
+  distinct from the simple single-vtable idiom), plus an untried
+  `return 0` stub at `0x2cb8` right next to the last match.
+
+- `matched/DllWazaOboe/` — 5 functions, a **ninetieth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x7ec` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+  | `0x804` | `0x4` | 1/1 | Bare `bx lr` no-op void stub, weak evidence. |
+  | `0x82c` | `0xc` | 3/3 | Field setter + return 1: sets a byte flag at `+12` of the object in `r2` (3rd arg), returns 1. |
+  | `0x1020` | `0x4` | 1/1 | Thin tail-call forwarder (`b <import veneer>`), same idiom as `DllBattleVideoSave`/`DllBattleMatch`. |
+  | `0x1024` | `0x4` | 1/1 | Bare `bx lr` no-op void stub right after the forwarder, weak evidence. |
+
+  All from the recurring tail-of-import-veneer-table leaf-stub cluster
+  (`0x7ec`-`0x837`) plus a second small stub run at `0x1020`-`0x1027`
+  further into the module. The module's real functions (constructor-
+  shaped, `push {r4-r8,lr}; vpush {d8}`, starting at `0x838` and
+  `0x1028`) were not attempted.
+
+- `matched/DllTrialDownload/` — 5 functions, a **ninety-first** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x728` | `0x38` | 14/14 | Destructor — same proven idiom as `DllFatalErrorProc@0x284` etc. |
+  | `0x700` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+  | `0x6fc8` | `0x8` | 2/2 | Thin tail-call forwarder with a constant arg (`r0=6`) into an import veneer. |
+  | `0x6fd0` | `0x8` | 2/2 | Twin of the above — same constant arg, different import. |
+  | `0x6fd8` | `0x14` | 5/5 | Prologue-less leaf: zeroes two int fields + one short field of the arg struct, void return. |
+
+  All at the tail of the module's `.text` (import-veneer table runs
+  `0x180`-`0x6ff`; real code is sparse there — mostly one large
+  state-machine dispatcher). Untried leads: bare `bx lr` weak-evidence
+  stubs at `0x708`/`0x70c`/`0x714`/`0x718`/`0x71c`/`0x720`/`0x724`, and
+  a sibling destructor at `0x760` with the known-bad member-load-first
+  ordering (skipped on sight).
+
+- `matched/DllTradelist/` — 5 functions, a **ninety-second** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xb40` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+  | `0xc04` | `0x38` | 14/14 | Destructor — same proven idiom as `DllFatalErrorProc@0x284` etc. |
+  | `0xb5f0` | `0x8` | 2/2 | Another trivial `return 1` stub. |
+  | `0x2dac` | `0xc` | 3/3 | Prologue-less tail-call forwarder with two literal args (`r1=22, r2=1`), passes original `r0` through, tail-branches to a local function — a fixed-args forwarder variant. |
+  | `0xc70` | `0x4` | 1/1 | Single `bx lr` no-op void stub, weak evidence. |
+
+  Attempted and logged to `attempted.md`: the neighboring `0xb6d0`/
+  `0xb6e4` struct-copy pair (same residue class as `DllConfig@0x31b8`).
+
+- `matched/DllZukan/` — 5 functions, a **ninety-third** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xf9c` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+  | `0xfac` | `0x8` | 2/2 | Twin `return 1` stub, same leaf-stub cluster. |
+  | `0x1be54` | `0x8` | 2/2 | Field getter, returns `long` at `this+0x28`. |
+  | `0x1be5c` | `0x8` | 2/2 | Field getter, returns `long` at `this+0xc`. |
+  | `0x1be64` | `0x8` | 2/2 | Field getter, returns `long` at `this+0x8` — 3rd of a sibling-getter run. |
+
+  Abandoned (not re-attempted, no formal write-up — it's the already-
+  documented vtable-pool-load-scheduling residue class): `0x1194`,
+  vtable-install + two import calls, stuck at 10/11 (armcc hoists the
+  VT literal load before the prologue and keeps `this` in `r0`; retail
+  moves `this` to `r4` first, loads VT after, re-materializes `r0=r4`
+  before each call). Unclaimed easy leads: two more `return 1` twins at
+  `0xfa4`/`0xfbc` plus bare `bx lr` stubs in the same `0xf98`-`0xfd7`
+  cluster; an array-indexed getter at `0x1be6c`
+  (`add r0,r0,r1,lsl#2; ldr r0,[r0,#56]; bx lr`); a stub cluster
+  starting at `0x1be78`.
+
+- `matched/DllTitle/` — 4 functions, a **ninety-fourth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xd770` | `0x8` | 2/2 | Trivial int field getter (`this+44`), no calls. |
+  | `0xd7a8` | `0x8` | 2/2 | Trivial int field getter (`this+12`), same shape. |
+  | `0xd778` | `0xc` | 3/3 | Int field setter (`this+44`), returns 1 unconditionally — pairs with `0xd770`. |
+  | `0xd534` | `0x18` | 6/6 | Field-copy helper: byte → `this+4`, signed halfword → `this+0`. A direct `(int)*(short*)(src+2)` cast fuses to `ldrsh`+`str` and does **not** match; the retail binary does separate `ldrh`+`sxth`+`str`, which only reproduces if the unsigned halfword load is its own statement (a temp variable) before the signed cast-and-store. |
+
+  See `attempted.md` for two stuck candidates in the same dense
+  getter/setter/predicate cluster (`0xd530`-`0xd8ac`): `0xd568` (a
+  4-int equality predicate, 6/10 — pure register-allocation swap) and
+  `0xd54c` (a 64-bit `ldrd` getter, stuck on an indirect-return-vs-
+  single-`ldrd` toolchain residue).
+
+- `matched/DllTownmap/` — 5 functions, a **ninety-fifth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x46c` | `0x1c` | 7/7 | Conditional accessor, same idiom as `DllLangSelect@0x5b0`/`DllDendouDemo@0x798`/`DllBoxSearch@0x5b8`/etc.: veneer call gates between a member load (`+0x10`) and a re-materialized constant `3`. |
+  | `0x438` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+  | `0x488` | `0x10` | 4/4 | Calls a local module function (`0x1f94`) with `this` unchanged, discards the result, returns 1; the `push {r4,lr}` is AAPCS alignment padding. |
+  | `0x24dc` | `0x8` | 2/2 | Trivial int field setter: stores the 2nd arg into the object at `+0xec`, void return. |
+  | `0x3240` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`, ignores `this` — mid-module, not near the import-veneer table. |
+
+  Unclaimed leads: `0x3248` (`ldr r0,[r0,#4]; ldr r0,[r0]; bx lr`,
+  double-indirection getter, size `0xc`), a bare `bx lr` weak-evidence
+  stub at `0x1494`, and a double-field-store helper around `0x3628`
+  (`mov r2,r1; stm r0,{r1,r2}; bx lr`). Several larger dispatcher/
+  destructor-shaped functions (`0x498`, `0x4fc`, `0x5ac`, etc.) were
+  seen but not attempted.
+
+- `matched/DllTradeDemo/` — 4 functions, a **ninety-sixth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x550` | `0x1c` | 7/7 | Conditional accessor, same idiom as `DllLangSelect`/`DllDendouDemo`/`DllBoxSearch`/`DllDendouPC`/`DllEggDemo`/`DllPCMenu`: veneer call gates between a member load (`+20`) and a re-materialized constant `3`. |
+  | `0x644` | `0x24` | 9/9 | Prologue-less leaf predicate: double-indirects through a `+24` pointer field to a leaf object's `+56` byte flag, conditionally stores 5 into `+16` and returns 2, else returns 4. |
+  | `0x1a68` | `0x8` | 2/2 | `xy_system::bg::System::SetIsCallDraw(bool)` — same shared setter as several other modules. |
+  | `0x1a70` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+
+  Stopped at 4/5 — the module's remaining functions are all harder
+  shapes: a dtor-style helper at `0x668` (conditional frees via
+  local+import calls, not the standard vptr-install idiom), a larger
+  dtor-like function at `0x740`/`0x97c`, 5-case jump-table dispatchers
+  at `0x1aa4` (the known unresolved `ldrcc pc,[pc,r1,lsl#2]` residue
+  class), and a two-64-bit-globals init leaf at `0x1a78` — the exact
+  same dead-end residue already logged for `DllFieldDebug@0x180`
+  (value-computed-first/`strd`-pair ordering), recognized on sight and
+  skipped rather than re-attempted.
+
+- `matched/DllTrainerCase/` — 10 functions, a **ninety-seventh** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x37e4` | `0x38` | 14/14 | Destructor — same proven idiom as `DllFatalErrorProc@0x284` etc. Sibling at `0x381c` has the known-bad member-load-first ordering and was skipped. |
+  | `0x37a4` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`. |
+  | `0x37ac` | `0x8` | 2/2 | Identical twin stub, `return 1`. |
+  | `0x3850` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+  | `0x3cc0` | `0x8` | 2/2 | Sub-object accessor, `add r0,r0,#16; bx lr` — returns `this+16` as a pointer, pure arithmetic, no load. |
+  | `0x37b4` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1` (twin of `0x37a4`/`0x37ac`). |
+  | `0x37bc` | `0x8` | 2/2 | Same `return 1` stub. |
+  | `0x37cc` | `0x8` | 2/2 | Same `return 1` stub — last of this twin-stub run. |
+  | `0x3cc8` | `0x8` | 2/2 | Sibling sub-object accessor, `add r0,r0,#4; bx lr` — returns `this+4`. |
+  | `0x3cd0` | `0x8` | 2/2 | Sibling sub-object accessor, `add r0,r0,#28; bx lr` — returns `this+28`. |
+
+  Leftover easy leads: a third accessor sibling at `0x3cd8` (`+8`), an
+  untried thin tail-call forwarder at `0x3cb8`, and a bare `bx lr`
+  stub at `0x3cbc`.
+
+- `matched/DllUSGymEsper/` — 5 functions, a **ninety-eighth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xad4` | `0x18` | 6/6 | Array-indexed virtual dispatch: looks up an owned object in an inline pointer array at `this+0x24`, tail-calls virtual slot 7 on it (new `this`, 3rd arg passed through). Identical idiom to `DllUSBigFourSteel@0x2f4`. |
+  | `0x328` | `0x14` | 5/5 | Boolean getter through one pointer indirection: `return this->p20->b == 1;`. Same idiom family as `DllStrInput@0x6674`, but compares to literal 1 (armcc reuses the already-loaded byte as the true-case result). |
+  | `0x2fc` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+  | `0x480` | `0x18` | 6/6 | Boolean setter through the same `this+20` indirection (sibling of `0x328`). Source-phrasing gotcha: `v ? 1 : 0` compiled to 5 words (a register-reuse shortcut); an explicit `int flag = 0; if (v) flag = 1;` local reproduced the target's unconditional-zero/conditional-one 6-word shape exactly. |
+  | `0x304` | `0x8` | 2/2 | Trivial `return 0` stub, byte-identical twin of `0x2fc`. |
+
+  Leftover easy leads: four lone `bx lr` weak-evidence stubs
+  (`0x2f8`/`0x30c`/`0x320`/`0x324`), a conditional tail-branch function
+  at `0x310`, and the module's first large dispatcher at `0x33c`.
+
+- `matched/DllTrialHouseResult/` — 5 functions, a **ninety-ninth**
+  module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x4c8` | `0x1c` | 7/7 | Guarded field accessor: calls an import veneer on `this`, returns `*(this+28)` if non-zero else the constant 2. |
+  | `0x2644` | `0x4` | 1/1 | Trivial no-op void stub (lone `bx lr`), weak evidence. |
+  | `0x26b4` | `0x8` | 2/2 | Trivial `return 0` stub. |
+  | `0x2648` | `0x38` | 14/14 | Destructor: installs vtable ptr, frees `+0x14` via masked veneer call if non-null, zeroes it, tail-calls another veneer with `this` (armcc folds `return Fn(this);` into `pop{r4,lr}; b <veneer>`). Needed the vtable literal and member value pulled into two separate named locals up front to get the exact literal-load/member-load/store/compare order — two plain sequential statements made armcc reuse a register and serialize them wrong (capped at 11/14 until fixed). |
+  | `0x2680` | `0x34` | 13/13 | Sibling destructor, returns `this` directly instead of tail-calling — same shape as the already-matched `DllDialogCommon@0xcdc`. |
+
+  Only the first ~`0x700` bytes and the tail ~`0x200` bytes of a
+  `0x2618`-byte `.text` section were scanned; plenty of unmined
+  territory remains for a follow-up agent.
+
+- `matched/DllUSGymFighting/` — 4 functions, a **hundredth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x278` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+  | `0x3f4` | `0x18` | 6/6 | Conditional accessor: if `this->f16==3`, tail-calls a veneer on `this->f4` and returns its result, else returns `this` unchanged. Real size is `0x18` not the naive `0x14` — the trailing `bx lr` is part of the body. |
+  | `0x11c0` | `0x1c` | 7/7 | Struct zero-initializer (fields at `+0`/`+8`/`+4`, then byte flags `+12`/`+13`). Same trailing-`bx lr` size gotcha (`0x1c` not `0x18`). |
+  | `0xdb4` | `0x28` | 10/10 | Array-indexed virtual-call predicate: looks up `this->arr[idx]` (array at `+0x18`), calls vtbl slot 55 (offset `0xdc`) with arg 0, returns bool of the nonzero result. |
+
+  See `attempted.md` for two stuck candidates in the same module:
+  `0x11dc` (a globals-init leaf, same `strd`-vs-`stm` register-role
+  residue as `DllFieldDebug@0x180`, 3/11) and `0xd64` (a short-circuit
+  AND of two virtual-call predicates sibling to `0xdb4`, stuck at
+  9/20 on an extra register-preservation `mov` the retail binary does
+  before its prologue).
+
+- `matched/DllUSKinomi/` — 5 functions, a **hundred-and-first** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xf40` | `0x4` | 1/1 | Thin tail-call forwarder (single `b <import veneer>`), same idiom as `DllBattleVideoSave@0x454`/`DllBattleMatch@0xd90`/`DllBattleVideoPlayer@0xb14`/`DllIntro@0x868`. |
+  | `0xf44` | `0x4` | 1/1 | Lone `bx lr` no-op stub, weak evidence. |
+  | `0xf4c` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+  | `0xf54` | `0x8` | 2/2 | Same `return 0` stub, identical bytes. |
+  | `0xf5c` | `0x8` | 2/2 | Same `return 0` stub, identical bytes. |
+
+  All five sit in one small stub cluster right after the module's
+  first (large) real function, between file offsets `0xf40`-`0xf67`
+  (`0xf64`, one more bare `bx lr`, is untried).
+
+- `matched/DllUSPassage/` — 5 functions, a **hundred-and-second**
+  module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x334` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+  | `0x750` | `0x8` | 2/2 | Trivial field getter, `return *(int*)(this+0xb4)`. |
+  | `0x1620` | `0x8` | 2/2 | Trivial field getter, `return *(signed char*)(this+0x5c)`. |
+  | `0x1078` | `0x4` | 1/1 | Thin tail-call forwarder (single `b <veneer>`), same idiom as `DllBattleVideoSave@0x454` etc. |
+  | `0x1610` | `0x4` | 1/1 | Same tail-call-forwarder idiom — this module has 4 total copies of this shape (`0x1078`/`0x1610` claimed, `0x1c80`/`0x20c4` untried). |
+
+  Module's first real function (`0x350`) and its sibling cleanup loop
+  (`0x64c`) are large/complex, not easy wins. An untried candidate at
+  `0x20cc` (a 9-word global-reset function, two globals via
+  literal-pool pointers, `strd`+`stm` writes) risks the same
+  store-ordering residue class documented for `DllFieldDebug@0x180` —
+  flagged but not attempted, no formal write-up (no real effort spent).
+
+- `matched/DllVSDemo/` — 5 functions, a **hundred-and-third** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x3e0` | `0x8` | 2/2 | Trivial `return 1` virtual-override stub, first real function after the import-veneer table. |
+  | `0x1a60` | `0x8` | 2/2 | Trivial `return 1` stub, after a destructor-stage vtbl-install helper. |
+  | `0x1b00` | `0x8` | 2/2 | Trivial `return 1` stub, sandwiched between two conditional-free destructor helpers. |
+  | `0x2b28` | `0x8` | 2/2 | Trivial `return 0` stub, after another destructor-stage helper. |
+  | `0x408` | `0x4` | 1/1 | Bare `bx lr` no-op void stub, weak evidence. |
+
+  See `attempted.md` for `0x2984`: the same prologue-less tail-virtual-
+  call idiom as `DllDialogCommon@0x6e8`, stuck at 5/8 on a register
+  choice (retail picks `r1`, armcc always picks `r3`) — flagged as a
+  shallower single-hop variant of that same residue class.
+
+- `matched/DllUSGymIce/` — 3 functions, a **hundred-and-fourth**
+  module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x25c` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`, ignores `this`. Twin at `0x264` left unclaimed. |
+  | `0x278` | `0x10` | 4/4 | Two-level-indirection sign-extended byte getter (`this->inner->field` narrowed to `signed char`). **Gotcha**: a plain (non-`volatile`) `int` field at that offset makes armcc 5.04u5 `-O2` optimize the load straight down to `ldrb` once it sees only the low byte survives the cast — doesn't match. Marking the field `volatile` blocks that optimization and reproduces the target's `ldr`+`sxtb` pair exactly. |
+  | `0x11f4` | `0x4` | 1/1 | Trivial no-op void stub (lone `bx lr`), weak evidence. |
+
+  A second lone `bx lr` at `0x146c` initially looked like another
+  standalone stub and technically word-matched, but is actually the
+  tail instruction of the function starting at `0x1430` (a coherent
+  VFP wraparound leaf with no push/pop) — correctly discarded before
+  committing. See `attempted.md` for `0x1974` (a globals-init pair,
+  9/11 — closer than usual on the same `strd`-vs-`stm` residue class).
+
+- `matched/DllWazaOmoidashi/` — 5 functions, a **hundred-and-fifth**
+  module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x924` | `0x14` | 5/5 | Field setter: stores arg2 (halfword) into a sub-object at `this+0x3c` offset `+14`, then sets a byte flag at `this+0x49` to 1. Needed the constant `1` bound to its own local variable (declared right after the sub-pointer load, before either store) to get armcc's "load both values before either store" scheduling — otherwise it interleaves a load with its own store. |
+  | `0x5f0` | `0x4` | 1/1 | Trivial no-op void stub (single `bx lr`), weak evidence, right after the import-veneer table. |
+  | `0x18b4` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+  | `0x23d4` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. Unclaimed neighbors: a bare `bx lr` at `0x23dc` and a twin `return 1` stub at `0x23e0`. |
+  | `0x3514` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. Four unclaimed bare `bx lr` stubs follow at `0x351c`/`0x3520`/`0x3524`/`0x3528`. |
+
+  Module still has plenty unmined: a notification-dispatcher pair at
+  `0x938`/`0x9e0` (same shape as the already-matched
+  `DllNumberInput@0x1890`), and several larger dispatchers with
+  jump-table-shaped switches (`0xb30` area).
+
+- `matched/DllBattle/` — 5 functions, a **hundred-and-sixth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x1fac` | `0x10` | 4/4 | Boolean predicate `return x == 0;` on the 2nd arg, ignoring `this`. Straightforward `cmp`/`moveq`/`movne` compile, no scheduling trap. |
+  | `0x1fbc` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+  | `0x1fc4` | `0x8` | 2/2 | Pointer-offset accessor: `return (char*)this + 2912;`. |
+  | `0x1fd8` | `0xc` | 3/3 | Field-getter-plus-offset: loads a pointer member at `this+2960`, returns it `+48`. |
+  | `0x1f8c` | `0x20` | 8/8 | Zero-init helper: zeroes two `u32` fields then four `u16` fields of a 16-byte struct, returns `this` unchanged. Non-obvious: source **statement order** (not declared struct layout) drives armcc's instruction scheduling here — the two int stores had to be assigned before the four short-field stores to match, even though both groups sit at consistent byte offsets either way. |
+
+  All five sit clustered together (`0x1f8c`-`0x1fe3`) right after
+  `DllBattle`'s large import-veneer table (895 entries,
+  `0x180`-`0x1d8c`) — this module uses an unusual `ldr pc, [pc, #-4]`
+  absolute-literal veneer idiom rather than the `b <target>` forwarder
+  seen in most other modules, worth noting for future agents mining
+  it. Untried leads: a twin `return 0` stub at `0x1fd0`, a 1-word
+  tail-call forwarder at `0x1fcc`, and a large VFP vector/matrix
+  function at `0x1d8c`-`0x1f74`.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 

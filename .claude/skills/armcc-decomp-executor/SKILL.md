@@ -1,15 +1,26 @@
 ---
 name: armcc-decomp-executor
-description: Decompile and verify exactly ONE function from a PokeXYZ-RDComp .cro module against the retail ARM Compiler 5 binary, using the masked-fingerprint verifier at xy-decomp/armcc-matching/tools/fingerprint_fn.py, then hand off cleanly via a pending/ note. Use when spawned as a subagent to find one function match — do not use this to decompile many functions in one run.
+description: Decompile and verify up to a few functions (ceiling of 5, or ~60-75 min total, whichever first — stopping earlier, e.g. around 3, is expected and fine once easy candidates run dry) from a PokeXYZ-RDComp .cro module against the retail ARM Compiler 5 binary, using the masked-fingerprint verifier at xy-decomp/armcc-matching/tools/fingerprint_fn.py, then hand off cleanly via pending/ notes. Use when spawned as a subagent to find a small batch of function matches — do not use this to decompile a whole module's worth of functions in one run.
 ---
 
 # armcc-decomp-executor
 
-Your job: pick ONE not-yet-attempted function from a plaintext `.cro`
-module in this repo, reconstruct it in C, prove it byte-matches the retail
-binary, commit+push your result, and hand back. **Do not attempt more than
-one function** — sibling agents are very likely running in parallel on
-different ones.
+Your job: pick not-yet-attempted functions from a plaintext `.cro` module
+in this repo, reconstruct each in C, prove it byte-matches the retail
+binary, commit+push your results, and hand back. **Ceiling: 5 functions,
+or ~60-75 minutes total, whichever comes first** — but that's a cap, not
+a target. Stopping earlier (3, 2, even 1) is completely normal and
+expected once the current module runs low on easy candidates; don't go
+hunting through a second or third module just to hit a round number.
+Sibling agents are very likely running in parallel on other modules, and
+this isn't a full-module sweep either way. Prefer finding your next
+function in the **same module** as your last one before moving to a new
+one: you've already paid the cost of disassembling it and learning its
+layout, and hand-off notes routinely flag an easy sibling stub right next
+to a just-matched function — that's free reuse of work you already did.
+Move to a different module only once the current one is genuinely out of
+easy candidates within your remaining budget — not just because you
+haven't reached 5 yet.
 
 ## 0. Setup
 
@@ -79,6 +90,14 @@ offset from the CRO header's segment table, right after the `CRO0` magic)
 and disassemble: `arm-none-eabi-objdump -D -b binary -m arm
 --adjust-vma=<text_file_offset> <extracted.bin>`.
 
+**Offset gotcha:** `xy cro info`'s reported segment offsets (e.g. "seg 0:
+.text @0x180") are already **absolute file offsets** into the `.cro` — do
+not add the `CRO0` header's `0x80` on top when hand-disassembling.
+`fingerprint_fn.py`'s own `<hex offset>` argument is likewise a raw
+absolute file offset (cross-checked against `DllDialogCommon@0x8d0`'s
+known-good bytes). Getting this wrong disassembles the wrong bytes
+entirely, not just a shifted view of the right ones.
+
 **What reliably works** (near-100% hit rate across every module mined so
 far — try these before anything fancier):
 
@@ -121,14 +140,27 @@ like a recognized trap, abandon it and pick a different one** rather than
 burning your whole budget on one puzzle — there are always easy wins
 elsewhere. (ARM calling convention reminder: r0-r3 = args, r0 = return.)
 
-## 3. The 30-minute cap
+Once you land a match, before moving on, take a moment to scan the same
+module's disassembly near it for another easy candidate (the patterns in
+"What reliably works" above) — that's the cheapest function you'll find
+all session, since you already have the module's layout loaded.
 
-Budget yourself ~30 minutes **total** for this task. If you haven't reached
-a masked match by then, stop regardless of where you are — don't keep
-grinding. Write up exactly what you tried and where it got stuck (see the
-attempted-note format below) and hand back. This isn't a failure; it frees
-the slot for a fresh agent to work on something new instead of two agents
-burning time on the same wall.
+## 3. The time/count budget
+
+Ceiling: **~60-75 minutes total, and at most 5 functions**, whichever
+limit you hit first — this is a batch cap across your whole run, not per
+function, and not a target to chase. Within that budget, spend no more
+than ~20-25 minutes stuck on any single function before abandoning it for
+a different candidate (same module first, per above). **Stop as soon as
+the current module stops offering easy candidates** — that might be
+after 1 function, might be after 5; either is a normal, complete run, not
+a shortfall. Don't go digging through a second or third module just to
+pad the count up. If you do reach the time or count ceiling, stop where
+you are — with however many matches you have, plus optionally one
+`attempted-*.md` note for whatever you were stuck on when you stopped —
+and hand back. Don't keep grinding past the budget either way; this isn't
+a failure, it frees the slot for a fresh agent instead of one agent
+sitting on the wall indefinitely.
 
 ## 4. Handing off — never edit the shared docs directly
 
@@ -138,7 +170,8 @@ those files each have a running-total line or single append point that
 every agent would try to touch at once — a guaranteed conflict, not a
 maybe. Instead:
 
-**On a match:**
+**On each match** (do this per function, as you land it — don't batch all
+of them up to the end in case you run out of budget mid-way):
 - Save `xy-decomp/armcc-matching/matched/<Module>/<offset>.c` as normal,
   with a header comment: one-line summary + match ratio, any non-obvious
   note (what you had to figure out), a `Verify:` line with the exact
@@ -154,24 +187,38 @@ maybe. Instead:
   ```
 - Commit both files together (include `Co-Authored-By: Claude Sonnet 5
   <noreply@anthropic.com>`) **on your own worktree branch** — never on
-  `<branch>` itself. Rebase onto the latest shared state first (`git fetch
-  origin && git rebase origin/<branch>`), then push **your own branch**
-  under its own name: `git push -u origin HEAD`. Do **not** push to
-  `<branch>` and do not use a refspec that writes to it — the orchestrator
-  is the only thing that ever merges into the shared integration branch.
+  `<branch>` itself. One commit per matched function is fine even across
+  your 2nd/3rd function in the same run — small, clearly-attributed
+  commits are easier for the orchestrator to merge and verify than one
+  commit bundling several unrelated matches.
+- **Push after every single match, not just at the end of your run**:
+  `git fetch origin && git rebase origin/<branch>` (picks up sibling
+  agents' latest work), then push your own branch. Your first push each
+  run is a plain `git push -u origin HEAD`; every push **after** you've
+  rebased again (because `<branch>` moved since your last push) needs
+  `git push --force-with-lease origin HEAD` instead — a plain push would
+  be rejected as non-fast-forward, since the rebase rewrote commits your
+  remote branch already has. This is safe and expected here: it's **your
+  own exclusive branch**, nobody else pushes to it, so there's nothing to
+  lose — this is a different thing from force-pushing the *shared*
+  integration branch, which stays forbidden (only the orchestrator ever
+  writes to `<branch>`, and never with `--force`). Do **not** push to
+  `<branch>` yourself and do not use a refspec that writes to it.
 
-**On hitting the 30-minute cap without a match:**
+**On hitting the time/count budget without a match for your current
+candidate:**
 - Write `xy-decomp/armcc-matching/pending/attempted-<Module>-<offset>.md`
   following the format already used in `attempted.md` (what it is, what you
   tried, exactly what match ratio/words you got stuck on, any lead for next
-  time). Commit and push just that note the same way (your own branch,
-  `git push -u origin HEAD`).
+  time). Commit it the same way as a match (its own commit is fine), and
+  make sure it's included in your final push.
 
 ## 5. Your final report
 
-Keep it under 200 words: which function (module + offset + match ratio, or
-"hit the time cap, logged to pending/"), one sentence on what it does, **the
-exact name of your own branch** (`git branch --show-current`) and that you
-pushed it. The orchestrator re-verifies your match independently, merges
-your branch into the shared integration branch itself, and folds your
-pending note into the real docs — that's not your job.
+Keep it under 350 words: one line per function you handled (module +
+offset + match ratio, or "hit the budget, logged to pending/" for an
+attempted one), one short phrase each on what it does, **the exact name
+of your own branch** (`git branch --show-current`) and that you pushed
+it. The orchestrator re-verifies every match independently, merges your
+branch into the shared integration branch itself, and folds your pending
+notes into the real docs — that's not your job.

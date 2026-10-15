@@ -142,8 +142,10 @@ If running count < cap, spawn `(cap - running)` new agents. Each spawn:
   branch: `<branch>` — stay on your own worktree branch, never check that
   one out; rebase onto `origin/<branch>` for freshness and push only your
   own branch (`git push -u origin HEAD`). Invoke the `armcc-decomp-executor`
-  skill now (via the Skill tool) and follow it to decompile and verify
-  exactly one function, then hand back. If you can't find that skill
+  skill now (via the Skill tool) and follow it to decompile and verify a
+  small batch of functions (its own ceiling: 5 functions or ~60-75 min,
+  whichever first — stopping earlier is expected once easy candidates
+  run dry), then hand back. If you can't find that skill
   listed, read `.claude/skills/armcc-decomp-executor/SKILL.md` directly
   instead — it's committed in this repo. Suggested starting module to
   reduce collision with sibling agents: `<pick one not yet in
@@ -165,60 +167,62 @@ is actively running; widen it once things quiet down. Mention in your
 visible update: how many agents are running, how many matched/attempted
 since the last pass, and the current true totals.
 
-### 5. Releasing to `main`
+### 5. Releasing to `main` — a real stacked-PR chain
 
-`main` is never written to directly — not by agents, not by you. Release
-roughly **every 25 commits accumulated on `dev` since the last release**
-(check with `git log --oneline <last-release-sha>..dev | wc -l`) — treat
-that as a trigger to check in with the user, not a hard mechanical rule;
-a count that lands mid-round (an agent not yet consolidated) can wait for
-the round to finish. Also release whenever the user asks, or whenever the
-swarm is being paused — don't let two releases' worth of work stack up
-in one open PR (see the dated note at the end of this section for why
-that defeats the whole point of `dev`).
+`main` is never written to directly — not by agents, not by you, and a
+direct push/merge (e.g. `git push origin dev:main`) is blocked by this
+environment's own guardrails ("Merge Without Review") regardless — don't
+try to work around that.
 
-When it's time to release:
+**2026-10-15: switched from "one `dev`→`main` PR that keeps absorbing
+commits" to a real stacked chain**, per the user's explicit ask ("i want
+a real stack pr like a chain") after a PR (#1, then #2) grew large by
+sitting open while `dev` kept moving. `dev` itself is unaffected by this
+— it's still the single branch every agent always fetches/rebases onto
+and the single branch you always merge agent work into. The chain is a
+separate, orchestrator-only bookkeeping layer on top: periodic frozen
+snapshots of `dev`, each its own small PR against the previous snapshot
+instead of against `main` directly.
 
-**First, regenerate the heatmap** (cheap — ~0.7s once `xy-viz` is already
-built; only rebuilds `xy-viz` itself the very first time, which takes
-~55s):
+**Cutting a new segment** (roughly every 25 commits accumulated on `dev`
+since the last segment was cut — check with `git log --oneline
+stack/<last-NNN>..dev | wc -l` — treat that as a trigger to check in with
+the user, not a hard mechanical rule; also cut one whenever the user
+asks, or whenever the swarm is being paused, so work never sits
+unsegmented for long):
+
 ```sh
+# regenerate the heatmap first (cheap, ~0.7s once xy-viz is already built;
+# derives from the Ghidra/recomp corpus, not armcc-matching, so this is
+# usually just a timestamp bump -- commit it anyway, on dev)
 python3 xy-heatmap/heatmap.py readme
-git status --short docs/assets/
-```
-This derives from the Ghidra/recomp corpus (`decomp/`, `recomp/`), not
-from `xy-decomp/armcc-matching/`, so a PR that's pure armcc-matching work
-will usually only bump the embedded `generated` timestamp (not the
-counts) — commit it anyway, on `dev`, before opening the PR. Only treat a
-counts change as notable; a timestamp-only diff is expected and fine to
-commit quietly.
+git add docs/assets/ && git commit -m "..." # if it changed
 
-Then open the PR:
+N=002  # next unused stack/NNN, zero-padded 3 digits
+git branch stack/$N origin/dev
+git push -u origin stack/$N
+
+PREV=stack/001  # the previous segment -- or `main` if this is the first ever
+gh pr create --base "$PREV" --head stack/$N --title "..." --body "..."
+```
+
+Each segment's PR diff is only what's new since the previous segment was
+cut — small and reviewable on its own — while `dev` keeps moving forward
+underneath for the swarm's ongoing work, which will become `stack/<N+1>`
+at the next checkpoint.
+
+**When a lower segment merges**, retarget the next segment's PR base so
+its diff stays against the new tip of the chain instead of a branch that
+no longer exists as a distinct ref:
 ```sh
-gh pr create --base main --head dev --title "..." --body "..."
+gh pr edit <next-segment-PR-number> --base main   # if stack/001 merged straight into main
+# or --base stack/<the segment below it>, if the chain is more than 2 deep
 ```
 
-A direct push/merge to `main` (e.g. `git push origin dev:main`) is blocked
-by this environment's own guardrails ("Merge Without Review") — don't try
-to work around that; a PR is the correct path anyway, not a fallback. If a
-PR from `dev` is already open, new consolidation commits on `dev` land in
-it automatically (no need to open a second one) — just tell the user it
-updated. Once the user merges the PR, keep working on `dev` as normal;
-`dev` stays ahead of `main` by whatever hasn't been released yet.
-
-**2026-10-15 note — don't let an open PR go stale while `dev` keeps
-growing.** The first PR (#1, from the pre-`dev` branch
-`armcc-matching-dllnumberinput`) sat open while `dev` was created from
-its tip and the swarm kept adding commits on top. Since `dev` already
-contained everything in that PR, every commit added to `dev` afterward
-was *also* owed to that same unmerged PR — so the next `dev`→`main` PR
-would have re-included all of it plus the new work, right back to one
-giant diff, defeating the reason `dev` exists. If you ever notice an
-older PR targeting `main` is still open when you're about to open a new
-one, or when a release checkpoint comes up, flag it to the user instead
-of opening a second PR on top of it — ask them to merge or close the
-stale one first (you can't merge PRs yourself; it hits the same
-guardrail as a direct push).
+You can't merge PRs yourself (same guardrail as the direct push) — that's
+the user's call. If you notice an older segment's PR has sat open a long
+time while newer segments stacked on top of it, mention it; don't let a
+whole stale chain build up unmerged.
 
 ## Things that will bite you if you skip them
 
