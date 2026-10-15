@@ -11,6 +11,23 @@ This was discovered and proven independently in a sibling project
 decompilation attempt) and is migrated here on 2026-10-14 so the finding
 and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.md`.
 
+**Reading the module count honestly (2026-10-15 swarm note):** the
+"N functions across M modules" headline is breadth, not depth. The swarm's
+executor skill deliberately mines the *easiest* win per module first
+(trivial 1-2 instruction virtual-override stubs and field setters have a
+near-100% hit rate — see "What reliably works" below), so as of this note
+**18 of 27 matched modules have exactly one trivial `return 0`/`return 1`/
+field-setter stub proven and nothing else** — the module itself still has
+its full remaining function count (typically hundreds) completely
+unaddressed. Only 9 modules (`DllDialogCommon`, `DllNumberInput`,
+`DllStrInput`, `DllFatalErrorProc`, `DllLangSelect`, `DllHeading`,
+`DllCommendation`, `DllBattleHouseConnect`, `DllGameClearSave`) have either
+multiple matched functions or at least one structurally meaningful match
+(a destructor/constructor/dispatcher, not just a 1-2 word stub). Treat
+"M modules touched" as a toolchain-portability proof (the technique works
+on unrelated modules, not just the first one found), not as module
+completion.
+
 ## What's here
 
 - `tools/fingerprint_fn.py` — the verifier. Compiles a candidate `.c` file

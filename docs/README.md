@@ -87,8 +87,12 @@ notes belong; the pointers are starting points, not exhaustive briefs.
    3dsrecomp verify / objdiff per-unit harness is the credibility gap.
    Separately, matching-decomp's compiler-parity blocker is now identified
    (armcc 5, not GCC) and 48 functions across twenty-seven modules are masked-matched
-   proof-of-concept — see [decomp/armcc-toolchain.md](decomp/armcc-toolchain.md);
-   scaling that to the remaining ~38,357 functions is the follow-on work.
+   proof-of-concept — see [decomp/armcc-toolchain.md](decomp/armcc-toolchain.md).
+   Read "modules" as breadth, not depth: 18 of those 27 have only a single
+   trivial stub proven (see the caveat at the top of
+   `xy-decomp/armcc-matching/README.md`), so most of each module's function
+   count is still untouched. Scaling to the remaining ~38,357 functions is
+   the follow-on work.
 6. **Independent GARC v4 parity** → `formats/` — current validation is
    self-describing cross-checks + the 255-GARC corpus sweep; Kuriimu2
    refuses XY's v4. Any independent implementation found is worth a
