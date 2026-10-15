@@ -184,6 +184,35 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
   simple-setter cluster near a dialog-proc base class's vtable tail
   recurs in a seventh independent module.
 
+- `matched/DllCommWait/` — 1 function, an **eighth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xcd8` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+
+  Same recurring trivial-stub shape as DllConfig/DllNumberInput/
+  DllDialogCommon, right after a destructor-stage vptr-install pair
+  (`0xc74`/`0xca8`, recognized on sight as the already-documented
+  vptr-scheduling residue class and skipped) and right before a 5-case
+  property get/set switch at `0xce0` (same jump-table shape as
+  `DllDialogCommon@0xdd8`/`DllNumberInput@0x1af8` — not attempted, same
+  `push {r4,lr}`/nop-relaxation issue likely applies). Three more lone
+  `bx lr` single-word stubs at `0x2a0`/`0x2a4`/`0x2a8` (weak-evidence
+  class) not yet claimed.
+
+- `matched/DllSalon/` — 1 function, a **ninth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xdc8` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+
+  Same trivial-stub-cluster pattern seen tail-of-vtable in every other
+  Dll module mined so far, right after a destructor-stage vptr-install/
+  conditional-free helper (same idiom as DllDialogCommon/DllNumberInput/
+  DllFatalErrorProc) ending at `0xdc0` plus its own literal-pool word at
+  `0xdc4`; the stub occupies exactly `0xdc8`-`0xdcf`, and the next
+  function (`0xdd0`) starts immediately after.
+
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
 Some larger dispatcher functions (`DllDialogCommon@0x300`/`0xdd8`,
