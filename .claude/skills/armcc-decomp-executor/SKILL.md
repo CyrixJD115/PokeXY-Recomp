@@ -192,11 +192,18 @@ of them up to the end in case you run out of budget mid-way):
   commits are easier for the orchestrator to merge and verify than one
   commit bundling several unrelated matches.
 - **Push after every single match, not just at the end of your run**:
-  `git fetch origin && git rebase origin/<branch> && git push -u origin
-  HEAD`. A push is seconds; losing an unpushed match to a crash or
-  interruption costs the minutes it took to find it. Do **not** push to
-  `<branch>` and do not use a refspec that writes to it — the orchestrator
-  is the only thing that ever merges into the shared integration branch.
+  `git fetch origin && git rebase origin/<branch>` (picks up sibling
+  agents' latest work), then push your own branch. Your first push each
+  run is a plain `git push -u origin HEAD`; every push **after** you've
+  rebased again (because `<branch>` moved since your last push) needs
+  `git push --force-with-lease origin HEAD` instead — a plain push would
+  be rejected as non-fast-forward, since the rebase rewrote commits your
+  remote branch already has. This is safe and expected here: it's **your
+  own exclusive branch**, nobody else pushes to it, so there's nothing to
+  lose — this is a different thing from force-pushing the *shared*
+  integration branch, which stays forbidden (only the orchestrator ever
+  writes to `<branch>`, and never with `--force`). Do **not** push to
+  `<branch>` yourself and do not use a refspec that writes to it.
 
 **On hitting the time/count budget without a match for your current
 candidate:**

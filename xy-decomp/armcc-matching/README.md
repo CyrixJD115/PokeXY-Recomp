@@ -23,12 +23,13 @@ still have their full remaining function count (typically hundreds)
 completely unaddressed regardless of how many functions are proven in
 them. A module having **more than one** matched function is unambiguous
 evidence of that (recompute with `for d in matched/*/; do find "$d" -name
-'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **17 of 96**
+'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **19 of 98**
 as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllFatalErrorProc`, `DllIntro`, `DllSparringMenu`, `DllStatus`,
 `DllSubScreenTutorial`, `DllStartMenu`, `DllStaffRoll`, `DllWazaOboe`,
 `DllTrialDownload`, `DllTradelist`, `DllZukan`, `DllTitle`,
-`DllTownmap`, `DllTradeDemo`). Many of the
+`DllTownmap`, `DllTradeDemo`, `DllTrainerCase`, `DllUSGymEsper`). Many
+of the
 remaining single-match modules are also genuinely meaningful (a
 destructor/constructor/dispatcher/conditional-accessor, not a 1-2 word
 stub) — see each module's own entry above for which; that split isn't
@@ -1330,6 +1331,35 @@ module-disassembly cost across several matches instead of one.
   same dead-end residue already logged for `DllFieldDebug@0x180`
   (value-computed-first/`strd`-pair ordering), recognized on sight and
   skipped rather than re-attempted.
+
+- `matched/DllTrainerCase/` — 5 functions, a **ninety-seventh** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x37e4` | `0x38` | 14/14 | Destructor — same proven idiom as `DllFatalErrorProc@0x284` etc. Sibling at `0x381c` has the known-bad member-load-first ordering and was skipped. |
+  | `0x37a4` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`. |
+  | `0x37ac` | `0x8` | 2/2 | Identical twin stub, `return 1`. |
+  | `0x3850` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+  | `0x3cc0` | `0x8` | 2/2 | New stub-idiom variant: trivial sub-object accessor, `add r0,r0,#16; bx lr` — returns `this+16` as a pointer, pure arithmetic, no load. |
+
+  Leftover easy leads: twin stubs at `0x37b4`/`0x37bc`/`0x37cc` (same
+  `return 1` shape), three more `add r0,r0,#N; bx lr` siblings at
+  `0x3cc8`(`+4`), `0x3cd0`(`+28`), `0x3cd8`(`+8`), plus an untried thin
+  tail-call forwarder at `0x3cb8` and a bare `bx lr` stub at `0x3cbc`.
+
+- `matched/DllUSGymEsper/` — 5 functions, a **ninety-eighth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xad4` | `0x18` | 6/6 | Array-indexed virtual dispatch: looks up an owned object in an inline pointer array at `this+0x24`, tail-calls virtual slot 7 on it (new `this`, 3rd arg passed through). Identical idiom to `DllUSBigFourSteel@0x2f4`. |
+  | `0x328` | `0x14` | 5/5 | Boolean getter through one pointer indirection: `return this->p20->b == 1;`. Same idiom family as `DllStrInput@0x6674`, but compares to literal 1 (armcc reuses the already-loaded byte as the true-case result). |
+  | `0x2fc` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+  | `0x480` | `0x18` | 6/6 | Boolean setter through the same `this+20` indirection (sibling of `0x328`). Source-phrasing gotcha: `v ? 1 : 0` compiled to 5 words (a register-reuse shortcut); an explicit `int flag = 0; if (v) flag = 1;` local reproduced the target's unconditional-zero/conditional-one 6-word shape exactly. |
+  | `0x304` | `0x8` | 2/2 | Trivial `return 0` stub, byte-identical twin of `0x2fc`. |
+
+  Leftover easy leads: four lone `bx lr` weak-evidence stubs
+  (`0x2f8`/`0x30c`/`0x320`/`0x324`), a conditional tail-branch function
+  at `0x310`, and the module's first large dispatcher at `0x33c`.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
