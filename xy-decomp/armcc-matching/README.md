@@ -1747,6 +1747,10 @@ Mostly tiny leaf stubs/accessors, so individually weak evidence (any function of
 
 Open leads: DllGts `0x4174`, `0x43e8`, `0x453c`, `0x5320`, `0x7bd8`, `0x9874`, `0x119a8`, `0x125cc`; DllZukan `0x1bad0`, `0x1be18/20/28`, `0x1bdb8`; DllStatus `0x4590` (strb setter), void stubs `0xbec/f0/f4`; DllBag `0x13664`. DllGts `0x2a08` (zeroes +8/+0xc) failed: armcc zeroes from `r1`, retail from `r2`.
 
+## 2026-10-15 swarm batch 6
+
+- `DllGts@0x4174` (0xc, 3/3, `strb 1` setter +0x44), `0x43e8` (0xc, 3/3, `strb 1` setter +0xe0), `0x453c` (0x10, 4/4, clear +0x5c return 0x28), `0x5320` (0x10, 4/4, store 0x1d at +0x1c return 6) — all re-verified; weak-evidence stubs. Still open: `0x7bd8`, `0x9874`, `0x119a8`, `0x125cc`.
+
 ## What this does *not* do yet
 
 This is per-function fingerprinting (prove a candidate's instruction
