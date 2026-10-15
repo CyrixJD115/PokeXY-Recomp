@@ -16,21 +16,22 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
 not depth. The swarm's executor skill deliberately mines the *easiest*
 win per module first (trivial 1-2 instruction virtual-override stubs and
 field setters have a near-100% hit rate — see "What reliably works"
-below), so as of this update **42 of 62 matched modules have exactly one
+below), so as of this update **43 of 65 matched modules have exactly one
 trivial `return 0`/`return 1`/field-setter/forwarder stub proven and
 nothing else** — the module itself still has its full remaining function
-count (typically hundreds) completely unaddressed. The other 20 modules
+count (typically hundreds) completely unaddressed. The other 22 modules
 (`DllDialogCommon`, `DllNumberInput`, `DllStrInput`, `DllFatalErrorProc`,
 `DllLangSelect`, `DllHeading`, `DllCommendation`, `DllBattleHouseConnect`,
 `DllGameClearSave`, `DllUSBigFourSteel`, `DllFriendEntry`,
 `DllBackGround`, `DllDendouDemo`, `DllBoxSearch`, `DllBattlePartySelect`,
-`DllDendouPC`, `DllEggDemo`, `DllEshop`, `DllGameSync`, `DllIntro`) have
-either multiple matched functions (`DllIntro`: two independent stub
-idioms) or at least one structurally meaningful match (a destructor/
-constructor/dispatcher, or a genuine multi-instruction compile like
-`DllBackGround`'s three-way predicate, the `DllDendouDemo`/`DllBoxSearch`/
-`DllDendouPC`/`DllEggDemo` conditional-accessor family, the `DllEshop`/
-`DllGameSync` tail-calling destructor pair, or `DllBattlePartySelect`'s
+`DllDendouPC`, `DllEggDemo`, `DllEshop`, `DllGameSync`, `DllIntro`,
+`DllPCMenu`, `DllLiveCup`) have either multiple matched functions
+(`DllIntro`: two independent stub idioms) or at least one structurally
+meaningful match (a destructor/constructor/dispatcher, or a genuine
+multi-instruction compile like `DllBackGround`'s three-way predicate, the
+`DllDendouDemo`/`DllBoxSearch`/`DllDendouPC`/`DllEggDemo`/`DllPCMenu`
+conditional-accessor family, the `DllEshop`/`DllGameSync`/`DllLiveCup`
+tail-calling destructor trio, or `DllBattlePartySelect`'s
 instruction-order-sensitive leaf predicate, not just a 1-2 word stub).
 Treat "M modules touched" as a
 toolchain-portability proof (the technique works on unrelated modules,
@@ -863,6 +864,36 @@ completion.
   Candidate compiled as `.cpp` (not `.c`) — the C++ `namespace`
   wrapper needed for the demangled symbol name requires armcc's C++
   mode, which it selects from the file extension.
+
+- `matched/DllKisekae/` — 1 function, a **sixty-third** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xb6e0` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+
+  Sits right after a destructor-stage vptr-install helper; an
+  identical unclaimed twin stub follows at `0xb6e8` and an untried
+  hardcoded-true byte setter at `0xb6f0`.
+
+- `matched/DllPCMenu/` — 1 function, a **sixty-fourth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x6b8` | `0x1c` | 7/7 | Conditional accessor, same idiom as `DllLangSelect@0x5b0`/`DllDendouDemo@0x798`/`DllBoxSearch@0x5b8`/`DllDendouPC@0x650`/`DllEggDemo@0x568`. |
+
+  Sits right after the module's first real function (`0x550`-`0x6b0`,
+  a larger unattempted dispatcher/state-machine) and that function's
+  own one-word literal pool at `0x6b4`.
+
+- `matched/DllLiveCup/` — 1 function, a **sixty-fifth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x764` | `0x38` | 14/14 | Destructor — same idiom already proven in `DllFatalErrorProc@0x284`/`DllCommendation@0xc94`/`DllBattleHouseConnect@0x2fc`/`DllGameClearSave@0xd6c`/`DllFriendEntry@0x4c4`/`DllEshop@0x554`/`DllGameSync@0x5e0`: installs a new vtable, frees an owned member at `+0x14` if non-null, tail-calls a second import instead of returning `this` directly. |
+
+  Unclaimed nearby candidates: trivial `return 1` stubs at
+  `0x738`/`0x740`/`0x748`, bare `bx lr` stubs at `0x750`-`0x760`, and
+  the known-bad member-load-first sibling dtor at `0x79c`.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
