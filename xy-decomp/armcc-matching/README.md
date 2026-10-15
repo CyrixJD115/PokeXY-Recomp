@@ -23,13 +23,14 @@ still have their full remaining function count (typically hundreds)
 completely unaddressed regardless of how many functions are proven in
 them. A module having **more than one** matched function is unambiguous
 evidence of that (recompute with `for d in matched/*/; do find "$d" -name
-'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **20 of 99**
+'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **23 of 102**
 as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllFatalErrorProc`, `DllIntro`, `DllSparringMenu`, `DllStatus`,
 `DllSubScreenTutorial`, `DllStartMenu`, `DllStaffRoll`, `DllWazaOboe`,
 `DllTrialDownload`, `DllTradelist`, `DllZukan`, `DllTitle`,
 `DllTownmap`, `DllTradeDemo`, `DllTrainerCase`, `DllUSGymEsper`,
-`DllTrialHouseResult`). Many of the
+`DllTrialHouseResult`, `DllUSGymFighting`, `DllUSKinomi`,
+`DllUSPassage`). Many of the
 remaining single-match modules are also genuinely meaningful (a
 destructor/constructor/dispatcher/conditional-accessor, not a 1-2 word
 stub) — see each module's own entry above for which; that split isn't
@@ -1375,6 +1376,54 @@ module-disassembly cost across several matches instead of one.
   Only the first ~`0x700` bytes and the tail ~`0x200` bytes of a
   `0x2618`-byte `.text` section were scanned; plenty of unmined
   territory remains for a follow-up agent.
+
+- `matched/DllUSGymFighting/` — 4 functions, a **hundredth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x278` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+  | `0x3f4` | `0x18` | 6/6 | Conditional accessor: if `this->f16==3`, tail-calls a veneer on `this->f4` and returns its result, else returns `this` unchanged. Real size is `0x18` not the naive `0x14` — the trailing `bx lr` is part of the body. |
+  | `0x11c0` | `0x1c` | 7/7 | Struct zero-initializer (fields at `+0`/`+8`/`+4`, then byte flags `+12`/`+13`). Same trailing-`bx lr` size gotcha (`0x1c` not `0x18`). |
+  | `0xdb4` | `0x28` | 10/10 | Array-indexed virtual-call predicate: looks up `this->arr[idx]` (array at `+0x18`), calls vtbl slot 55 (offset `0xdc`) with arg 0, returns bool of the nonzero result. |
+
+  See `attempted.md` for two stuck candidates in the same module:
+  `0x11dc` (a globals-init leaf, same `strd`-vs-`stm` register-role
+  residue as `DllFieldDebug@0x180`, 3/11) and `0xd64` (a short-circuit
+  AND of two virtual-call predicates sibling to `0xdb4`, stuck at
+  9/20 on an extra register-preservation `mov` the retail binary does
+  before its prologue).
+
+- `matched/DllUSKinomi/` — 5 functions, a **hundred-and-first** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xf40` | `0x4` | 1/1 | Thin tail-call forwarder (single `b <import veneer>`), same idiom as `DllBattleVideoSave@0x454`/`DllBattleMatch@0xd90`/`DllBattleVideoPlayer@0xb14`/`DllIntro@0x868`. |
+  | `0xf44` | `0x4` | 1/1 | Lone `bx lr` no-op stub, weak evidence. |
+  | `0xf4c` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+  | `0xf54` | `0x8` | 2/2 | Same `return 0` stub, identical bytes. |
+  | `0xf5c` | `0x8` | 2/2 | Same `return 0` stub, identical bytes. |
+
+  All five sit in one small stub cluster right after the module's
+  first (large) real function, between file offsets `0xf40`-`0xf67`
+  (`0xf64`, one more bare `bx lr`, is untried).
+
+- `matched/DllUSPassage/` — 5 functions, a **hundred-and-second**
+  module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x334` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+  | `0x750` | `0x8` | 2/2 | Trivial field getter, `return *(int*)(this+0xb4)`. |
+  | `0x1620` | `0x8` | 2/2 | Trivial field getter, `return *(signed char*)(this+0x5c)`. |
+  | `0x1078` | `0x4` | 1/1 | Thin tail-call forwarder (single `b <veneer>`), same idiom as `DllBattleVideoSave@0x454` etc. |
+  | `0x1610` | `0x4` | 1/1 | Same tail-call-forwarder idiom — this module has 4 total copies of this shape (`0x1078`/`0x1610` claimed, `0x1c80`/`0x20c4` untried). |
+
+  Module's first real function (`0x350`) and its sibling cleanup loop
+  (`0x64c`) are large/complex, not easy wins. An untried candidate at
+  `0x20cc` (a 9-word global-reset function, two globals via
+  literal-pool pointers, `strd`+`stm` writes) risks the same
+  store-ordering residue class documented for `DllFieldDebug@0x180` —
+  flagged but not attempted, no formal write-up (no real effort spent).
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 

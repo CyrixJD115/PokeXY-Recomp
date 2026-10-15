@@ -287,3 +287,66 @@ compiled branchless via xor/or rather than cmp/cmp/and.
   so far. A sibling getter at `0xd560` (`ldrd r0,[r0,#24]; bx lr`, same
   size/shape) will have the identical problem and shouldn't be
   re-attempted until this one is solved.
+
+## DllUSGymFighting@0x11dc (size 0x2c)
+
+- What it is: no-arg globals-init function, right after the matched
+  `0x11c0` struct zero-initializer. Sets a 64-bit module-static global
+  to -1 (`ldr r2,[pc]@lit; mvn r0,#0; mov r1,r0; strd r0,[r2]`) then a
+  second 8-byte global (two ints) to 0 (`ldr r0,[pc]@lit; mov r1,#0;
+  mov r2,r1; stm r0,{r1,r2}`), then `bx lr`.
+- Tried: an `extern long long g_sentinel; extern struct{int a,b;}
+  g_zero;` pair with plain field assignment, and the same with the `-1`
+  value materialized through a named local before the assignment,
+  hoping to force value-first register allocation.
+- Stuck on: 3/11 masked words (both variants identical). This is the
+  exact same residue class already logged for `DllFieldDebug@0x180`:
+  armcc 5.04u5 always allocates the destination **address** into the
+  lowest free register (`r0`) and the 64-bit value into the next pair
+  (`r1:r2`, not eligible for `strd` since the start register is odd),
+  forcing a generic `stm` — while the retail binary computes the value
+  first into the even-aligned `r0:r1` pair and the address second into
+  `r2`, enabling the specialized `strd`. Source statement order didn't
+  change which assignment got the address-first treatment; the
+  compiler always routes whichever assignment it emits first through
+  that path.
+- Lead for next time: `DllFieldDebug@0x180`'s own note flags an
+  untried idea — an un-inlined helper (true extern-linkage, not
+  `static`) called as `set_u64(value, &dest)`, so the AAPCS calling
+  convention forces the value into `r0:r1` and the pointer into `r2`
+  regardless of what the caller does around it. Confirmed now present
+  in at least two independent modules.
+
+## DllUSGymFighting@0xd64 (size 0x50)
+
+- What it is: short-circuit AND of two virtual-call predicates, sibling
+  of the matched `0xdb4` array-indexed predicate, same vtbl-slot-55
+  (offset `0xdc`) idiom but non-indexed: `return this->f30->vtbl[55]
+  (this->f30, 0) && this->f2c->vtbl[55](this->f2c, 0);`.
+- Tried: four variants (locals in `a,b` order; `b,a` order; an explicit
+  `self = this;` alias; direct inline field access with no
+  intermediate locals). All four reproduce the retail instruction
+  content for the calls and loads word-for-word, but every variant
+  either uses the wrong register to hold the first operand across the
+  call, or skips an extra `mov r1, r0` the retail binary performs right
+  at function entry, before the `push`.
+- Stuck on: best result 9/20 masked words — the middle (first virtual
+  call) and tail (second virtual call, bool normalization, `pop`)
+  match exactly; only the first ~4 words differ. Retail's shape:
+  `mov r1, r0` (save `this` into `r1`) **before** `push {r4, lr}`, then
+  after the push, `ldr r0,[r0,#48]` (load the first field still via the
+  original `r0`) and `ldr r4,[r1,#44]` (load the second field via the
+  *preserved* `r1` copy of `this`) — i.e. retail computes the two
+  fields through two different base registers (one live `this`, one
+  saved copy), rather than reading both off the same live pointer
+  before it's clobbered (which every candidate did instead — one
+  instruction shorter and arguably more optimal).
+- Lead for next time: smells like a statement-count/optimizer-barrier
+  effect rather than a load-order effect — maybe the real source has
+  an intervening statement between the two field reads that this
+  reconstruction is missing entirely, making `this` appear "live
+  across a barrier" to armcc. Not tried: `register` hints, `volatile`
+  on `this`, or wrapping the two field reads in a helper that takes
+  `this` by value (forcing an AAPCS-style parameter copy). A fresh
+  angle is needed, not more order permutations of the same three
+  statements.
