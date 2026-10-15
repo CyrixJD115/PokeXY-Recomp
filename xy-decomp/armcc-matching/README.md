@@ -23,7 +23,7 @@ still have their full remaining function count (typically hundreds)
 completely unaddressed regardless of how many functions are proven in
 them. A module having **more than one** matched function is unambiguous
 evidence of that (recompute with `for d in matched/*/; do find "$d" -name
-'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **33 of 106**
+'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **41 of 113**
 as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllFatalErrorProc`, `DllIntro`, `DllSparringMenu`, `DllStatus`,
 `DllSubScreenTutorial`, `DllStartMenu`, `DllStaffRoll`, `DllWazaOboe`,
@@ -1675,6 +1675,112 @@ All 5 specimens above were re-verified against this repo's own freshly
 extracted `DllDialogCommon.cro` on migration day and reproduce their
 masked match exactly — the toolchain and verifier are proven portable,
 not a one-off result tied to the sibling repo's layout.
+
+## 2026-10-15 swarm batch (9 functions, independently re-verified)
+
+All re-run with `fingerprint_fn.py` -> `*** MASKED MATCH ***`.
+
+| Module | Offset | Size | Match | Note |
+|---|---|---|---|---|
+| `DllKisekae` | `0xb6e8` | `0x8` | 2/2 | virtual-override stub, `return 1` |
+| `DllKisekae` | `0xb6f0` | `0xc` | 3/3 | byte-field setter |
+| `DllPssCharaMenu` | `0x5e8` | `0x8` | stub | trivial stub |
+| `DllPssMainMenu` | `0x430` | `0x8` | stub | trivial stub |
+| `DllSalon` | `0x380` | `0x20` | 8/8 | predicate: returns 1 if in-module helper `0xaa0` (on `this->f48+4`) yields 0 |
+| `DllSparring` | `0x10180` | `0x8` | stub | trivial stub |
+| `DllSparring` | `0x10188` | `0x8` | stub | trivial stub |
+| `DllTestPGL` | `0x180` | `0x8` | 2/2 | `SetIsCallDraw` byte-field setter (new module) |
+| `DllUSPokecen` | `0x254` | `0x8` | stub | trivial stub |
+
+## 2026-10-15 swarm batch 2
+
+- `matched/DllTestSuzuki/` — 1 function, a new module (re-verified `*** MASKED MATCH ***`):
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x180` | `0x2c` | 11/11 | Globals-init: stores -1 into a 64-bit global and 0 into another. **New idiom:** the first global must be `volatile long long` to get retail `strd r0,[r2]`; plain / `__align(8)` / `unsigned long long` compile to `mvn/mov/stm`. Second global is plain `long long` (`stm {r1,r2}`). |
+
+  The same init shape (`strd` of -1, `stm` of zeros) is the residue logged
+  for DllUSGymFighting@0x11dc, DllUSGymIce@0x1974 and DllTest{Ichiraku,Kawada,
+  Nagihashi}@0x180 (Kosaka differs by one word) — try the `volatile` trick there.
+  The rest of DllTestSuzuki (0x1ac, `cmp r1,#5` jump table) is untried.
+
+## 2026-10-15 swarm batch 3
+
+All re-run: `*** MASKED MATCH ***`.
+
+- **Globals-init family (`volatile long long` idiom, 0x2c bytes, 11/11):**
+  `DllTestIchiraku@0x180`, `DllTestKawada@0x180`, `DllTestNagihashi@0x180`,
+  `DllTestKosaka@0x180` (written `extern volatile long long g_a[2]; g_a[1] = -1;`,
+  `strd` to `[r2,#8]`), `DllFieldDebug@0x180`, `DllUSGymFighting@0x11dc`,
+  `DllUSGymIce@0x1974`. Same shape as DllTestSuzuki above; other CRO modules
+  with a `strd r0,[r2]` globals-init may be worth a scan.
+- **`DllZukan`, 5 trivial functions:** `0x1a1a4` (2/2, long getter this+0x20),
+  `0x1a3f0` (2/2, byte setter this+0x71), `0x1bad8` (5/5, bool getter
+  byte@+0xc == 3), `0x1be6c` (3/3, indexed long getter arr[i] at +0x38),
+  `0x1d698` (4/4, clears u32@0 + u16@4). Easy siblings left: `0x155b4`/`0x156c4`/
+  `0x1576c` (`strb` setters via `[r0,#4]`), `0x1baec`, `0x1bad0`,
+  `0x1dcc0`-`0x1dce8` (`add r0,r0,#N` getters), `0x1be18`/`0x1be20`/`0x1be28`/`0x1bdb8`.
+
+## 2026-10-15 swarm batch 4
+
+- `DllPokeList@0x8e4`, `0x8ec`, `0x8f8` (each `0x8`, 2/2, re-verified): return-true virtual-override stubs (`mov r0,#1; bx lr`), byte-identical to the already-matched `0x8dc`. Remaining easy candidates there are only bare `bx lr` stubs (`0x8f4`, `0x900`-`0x90c`, weak evidence); first real function is a constructor-shaped one at `0x910`.
+
+## 2026-10-15 swarm batch 5 (24 functions, all re-verified)
+
+Mostly tiny leaf stubs/accessors, so individually weak evidence (any function of the same shape compiles to the same words) — bare `bx lr` ones are flagged.
+
+| Module | Offsets (size, match) | What |
+|---|---|---|
+| `DllZukan` | `0x155b4`/`0x156c4`/`0x1576c` (0xc, 3/3) | setters `this->p(+4)->byte[0xf2/0xe8/0xf3]=v` |
+| | `0x1baec` (0x8, 2/2) | word getter at +0x74 |
+| | `0x1dcc0` (0x8, 2/2) | returns `&this->member` at +0x10 (`add r0,r0,#16`); siblings `0x1dcc8/d0/d8/e0/e8` open |
+| `DllGts` | `0x4108` (0xc), `0x43dc` (0xc) | `strb 1` setters at +0x44 / +0xe0 (3/3) |
+| | `0x43f4`, `0x4e9c` (0x10, 4/4) | clear +0x5c return 0x34; store 8 at +0x1c return 6 |
+| | `0x3eb4` (0x8, 2/2) | word setter +0x50 |
+| `DllBag` | `0xc88`, `0xc90`, `0xc9c`, `0x138bc`, `0x138b4` (0x8, 2/2) | return-1 x3, return-0, byte setter `this[217]` |
+| `DllBox` | `0xa0c`, `0xa10` (0x4, 1/1) | bare `bx lr` no-ops (weak) |
+| | `0xc80` (0x1c, 7/7) | conditional accessor via veneer: `+68` if non-zero else 2 (same idiom as DllEggDemo@0x568) |
+| | `0x1dd58` (0x8, 2/2) | `return 1` |
+| `DllStatus` | `0xbd0`, `0xbd8`, `0xbe4`, `0xbf8` (0x8, 2/2) | return-1 virtual stubs |
+| | `0xbe0` (0x4, 1/1) | bare `bx lr` (weak) |
+
+Open leads: DllGts `0x4174`, `0x43e8`, `0x453c`, `0x5320`, `0x7bd8`, `0x9874`, `0x119a8`, `0x125cc`; DllZukan `0x1bad0`, `0x1be18/20/28`, `0x1bdb8`; DllStatus `0x4590` (strb setter), void stubs `0xbec/f0/f4`; DllBag `0x13664`. DllGts `0x2a08` (zeroes +8/+0xc) failed: armcc zeroes from `r1`, retail from `r2`.
+
+## 2026-10-15 swarm batch 6
+
+- `DllGts@0x4174` (0xc, 3/3, `strb 1` setter +0x44), `0x43e8` (0xc, 3/3, `strb 1` setter +0xe0), `0x453c` (0x10, 4/4, clear +0x5c return 0x28), `0x5320` (0x10, 4/4, store 0x1d at +0x1c return 6) — all re-verified; weak-evidence stubs. Still open: `0x7bd8`, `0x9874`, `0x119a8`, `0x125cc`.
+
+## 2026-10-15 swarm batch 7
+
+- `DllBattle@0x2228` (0x24, 9/9): virtual call on slot 3 of the object at `this+0x24`, returns `result==0` — must be written `if (r) return 0; return 1;` (`!x` emits `movne/moveq` in the wrong order). `0x227c` (0x10, 4/4): tail-calls virtual slot 5 of the object at `this+0x24`. `0x2420` (0xc, 3/3): zeroes word at `this+8` (weak evidence). All re-verified.
+
+## 2026-10-15 swarm batch 8
+
+- `DllZukan@0x1dcc8` (+4), `0x1dcd0` (+0x1c), `0x1dce8` (+0xc): `add r0,r0,#N` getters, 0x8, 2/2 each, re-verified (weak evidence). Open siblings `0x1dcd8` (+8), `0x1dce0` (+4); return-const stubs `0x1be18`/`0x1be20`/`0x1be28`/`0x1bdb8`.
+
+## 2026-10-15 swarm batch 9 (17 functions, all re-verified)
+
+| Module | Offset (size, match) | What |
+|---|---|---|
+| `DllBattle` | `0x2c3c` (0x24, 9/9) | virtual call slot 3 via `this+0x24`, returns `result==0` (same if/return idiom as `0x2228`) |
+| | `0x2c90` (0x10, 4/4) | tail-calls virtual slot 5 of `this+0x24` |
+| | `0x2c60` (0x30, 12/12) | if `this+0x24` set: vtbl slot 1 (delete), free `this+0x20` via import, return 1 |
+| | `0x2ef0` (0x44, 17/17) | if `this+0xc` set: vtbl slot 4, then slot 1 if still set, zero the field |
+| | `0x2d88` (0x18, 6/6) | `p = import(); *p = vtable ptr` (pool word is a relocation) |
+| `DllField` | `0x1a448` (0x14, 5/5) | stores -1 to three u16 fields +0/+2/+4 |
+| | `0x30734` (0x10, 4/4) | stores -1 to two ints +0/+4 |
+| | `0x1bd48` (0x14, 5/5) | `+0x18 = arg2`, `+0x20 = arg2->[+0x50]->[+0x30]` |
+| | `0x297d4` (0x10, 4/4) | zero byte@0 + word@4 |
+| | `0x3296c` (0x1c, 7/7) | zero-inits five fields; the `strb` at +0x14 must precede the `str` at +0x10 in source |
+| `DllGts` | `0x7bd8`, `0x9874` (0xc, 3/3) | `strb 1` setter +0x3c |
+| | `0x119a8` (0xc, 3/3) | `strb 1` setter +0x40 |
+| | `0x125cc` (0x8, 2/2) | returns 0x1b |
+| | `0x9898` (0x1c, 7/7) | if `this->obj@0x20`, tail-calls its vtable slot 9 |
+| `DllStatus` | `0x4590` (0xc, 3/3) | byte setter `((u8*)arg3)[12]=1` |
+| | `0x4654` (0x30, 12/12) | loads u32 at arg3+0x1dc; calls one import with `(this[0x58], v, 0)`, tail-calls another with `(this[0x58], v, 1)` |
+
+Open: DllGts `0x119b4` (0x44) and `0x125d4`+ untried; DllField `0xe380`/`0xe3fc` (zero-init using r2 where armcc picks r1, 1/4) unlogged.
 
 ## What this does *not* do yet
 
