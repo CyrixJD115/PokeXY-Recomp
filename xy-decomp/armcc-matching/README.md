@@ -309,6 +309,62 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
   (`0x218`/`0x21c`/`0x220`/`0x224`), with two more identical `return 0`
   stubs immediately following at `0x230`/`0x238` (untried).
 
+- `matched/DllUSPokecen/` — 1 function, an **eighteenth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x24c` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+
+  Same recurring stub cluster right after the import-veneer table
+  (`0x180`-`0x23f`): three bare `bx lr` stubs at
+  `0x240`/`0x244`/`0x248`, then three identical `return 0` stubs at
+  `0x24c`/`0x254`/`0x25c` (only `0x24c` claimed), another bare `bx lr`
+  at `0x264`, then the module's first real function (a constructor) at
+  `0x268`.
+
+- `matched/DllUSGymGrass/` — 1 function, a **nineteenth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x22c` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+
+  Same cluster shape right after the import-veneer table (`0x180`-
+  `0x227`): a lone `bx lr` at `0x228`, three `return 0` stubs at
+  `0x22c`/`0x234`/`0x23c` (only `0x22c` claimed), three more lone
+  `bx lr` at `0x244`/`0x248`/`0x24c`, then real code at `0x250`.
+
+- `matched/DllUSGymRock/` — 1 function, a **twentieth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x1d4` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+
+  Same cluster shape: a lone `bx lr` at `0x1d0`, three identical
+  `return 0` stubs at `0x1d4`/`0x1dc`/`0x1e4` (only `0x1d4` claimed),
+  two more lone `bx lr` at `0x1ec`/`0x1f0`, then a real constructor-
+  shaped function with VFP/float math at `0x1f4` (unattempted).
+
+- `matched/DllUSMirror/` — 1 function, a **twenty-first** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x1cc` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+
+  One of three identical `return 0` stubs (`0x1cc`/`0x1d4`/`0x1dc`) in
+  the tail-of-import-veneer-table leaf-stub cluster (`0x1c8`-`0x1fc`)
+  that recurs in every Dll module mined so far.
+
+- `matched/DllUSGymFairy/` — 1 function, a **twenty-second** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x224` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+
+  One of a run of three identical `return 0` stubs at
+  `0x224`/`0x22c`/`0x234`, sitting right after a lone `bx lr` stub
+  (`0x220`) and before two more `bx lr` stubs (`0x23c`) and the
+  module's first real function (`0x240`).
+
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
 Some larger dispatcher functions (`DllDialogCommon@0x300`/`0xdd8`,
