@@ -15,6 +15,13 @@ file is only for things still unsolved.
 Format per entry:
 
 ```
+## DllZukan@0x1bdc0 (size 0x58)
+
+- What it is: `if (this[0xe0]) { a = vA(x) != 0; b = vB(x) != 0 }` then `return (vC(this)|a|b) != 0`.
+- Tried: plain int, ternary, temp variable, C++ `bool` (.cpp, 7/22).
+- Stuck on: best 9/22. `mov r4,#0; mov r5,r4` init matches, but bool normalization differs: retail emits `cmp r0,#0; movne rN,#1; moveq rN,#0` (first call result in r4, second in r5); armcc emits `adds rN,r0,#0; movne` and swaps r4/r5.
+- Lead for next time: none yet.
+
 ## DllBattle@0x23e8 (size 0x34), 0x23b0 (same + tail call)
 
 - What it is: simple destructors — vtable store + free member at +0x14.

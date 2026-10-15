@@ -1755,6 +1755,10 @@ Open leads: DllGts `0x4174`, `0x43e8`, `0x453c`, `0x5320`, `0x7bd8`, `0x9874`, `
 
 - `DllBattle@0x2228` (0x24, 9/9): virtual call on slot 3 of the object at `this+0x24`, returns `result==0` — must be written `if (r) return 0; return 1;` (`!x` emits `movne/moveq` in the wrong order). `0x227c` (0x10, 4/4): tail-calls virtual slot 5 of the object at `this+0x24`. `0x2420` (0xc, 3/3): zeroes word at `this+8` (weak evidence). All re-verified.
 
+## 2026-10-15 swarm batch 8
+
+- `DllZukan@0x1dcc8` (+4), `0x1dcd0` (+0x1c), `0x1dce8` (+0xc): `add r0,r0,#N` getters, 0x8, 2/2 each, re-verified (weak evidence). Open siblings `0x1dcd8` (+8), `0x1dce0` (+4); return-const stubs `0x1be18`/`0x1be20`/`0x1be28`/`0x1bdb8`.
+
 ## What this does *not* do yet
 
 This is per-function fingerprinting (prove a candidate's instruction
