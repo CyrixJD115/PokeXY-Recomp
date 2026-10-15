@@ -13,10 +13,17 @@ different ones.
 
 ## 0. Setup
 
-- Confirm you're on the right branch (your spawning prompt names it; if
-  unclear, ask or check `git branch --show-current`). If stale: `git fetch
-  origin && git reset --hard origin/<branch>` — sibling agents may have
-  pushed since your worktree was created.
+- **Stay on your own worktree's local branch — never check out the shared
+  integration branch named in your spawning prompt.** That branch is
+  already checked out in the main repo checkout; a second worktree
+  checking it out too corrupts both checkouts' index/working-tree state
+  (git's one-worktree-per-branch rule exists exactly to prevent this — two
+  agents hit this during the 2026-10-15 swarm run before it was fixed).
+  Check `git branch --show-current` — whatever it reports (typically
+  `worktree-agent-<id>`) is your branch; just work there. To pick up
+  sibling agents' latest matches first: `git fetch origin && git rebase
+  origin/<branch>` (rebases your own branch onto the shared one's tip —
+  does not touch or check out `<branch>` itself).
 - Fix the worktree's missing `.Data`: it's mostly gitignored (machine-local
   ROM-derived data), but `.Data/README.md` IS git-tracked, so don't clobber
   it — symlink just the subtree you need:
@@ -146,20 +153,25 @@ maybe. Instead:
   Note: <anything non-obvious worth folding into the README row, optional>
   ```
 - Commit both files together (include `Co-Authored-By: Claude Sonnet 5
-  <noreply@anthropic.com>`), then `git pull --rebase origin <branch> && git
-  push`. If rebase conflicts (another agent pushed first), resolve and
-  retry — **never force-push**.
+  <noreply@anthropic.com>`) **on your own worktree branch** — never on
+  `<branch>` itself. Rebase onto the latest shared state first (`git fetch
+  origin && git rebase origin/<branch>`), then push **your own branch**
+  under its own name: `git push -u origin HEAD`. Do **not** push to
+  `<branch>` and do not use a refspec that writes to it — the orchestrator
+  is the only thing that ever merges into the shared integration branch.
 
 **On hitting the 30-minute cap without a match:**
 - Write `xy-decomp/armcc-matching/pending/attempted-<Module>-<offset>.md`
   following the format already used in `attempted.md` (what it is, what you
   tried, exactly what match ratio/words you got stuck on, any lead for next
-  time). Commit and push just that note the same way.
+  time). Commit and push just that note the same way (your own branch,
+  `git push -u origin HEAD`).
 
 ## 5. Your final report
 
 Keep it under 200 words: which function (module + offset + match ratio, or
-"hit the time cap, logged to pending/"), one sentence on what it does,
-confirmation you committed and pushed. The orchestrator re-verifies your
-match independently and folds your pending note into the real docs — that's
-not your job.
+"hit the time cap, logged to pending/"), one sentence on what it does, **the
+exact name of your own branch** (`git branch --show-current`) and that you
+pushed it. The orchestrator re-verifies your match independently, merges
+your branch into the shared integration branch itself, and folds your
+pending note into the real docs — that's not your job.
