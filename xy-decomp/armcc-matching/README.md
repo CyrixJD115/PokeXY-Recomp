@@ -16,17 +16,19 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
 not depth. The swarm's executor skill deliberately mines the *easiest*
 win per module first (trivial 1-2 instruction virtual-override stubs and
 field setters have a near-100% hit rate — see "What reliably works"
-below), so as of this update **30 of 42 matched modules have exactly one
+below), so as of this update **31 of 45 matched modules have exactly one
 trivial `return 0`/`return 1`/field-setter/forwarder stub proven and
 nothing else** — the module itself still has its full remaining function
-count (typically hundreds) completely unaddressed. The other 12 modules
+count (typically hundreds) completely unaddressed. The other 14 modules
 (`DllDialogCommon`, `DllNumberInput`, `DllStrInput`, `DllFatalErrorProc`,
 `DllLangSelect`, `DllHeading`, `DllCommendation`, `DllBattleHouseConnect`,
 `DllGameClearSave`, `DllUSBigFourSteel`, `DllFriendEntry`,
-`DllBackGround`) have either multiple matched functions or at least one
-structurally meaningful match (a destructor/constructor/dispatcher, or a
-genuine multi-instruction compile like `DllBackGround`'s three-way
-predicate, not just a 1-2 word stub). Treat "M modules touched" as a
+`DllBackGround`, `DllDendouDemo`, `DllBoxSearch`) have either multiple
+matched functions or at least one structurally meaningful match (a
+destructor/constructor/dispatcher, or a genuine multi-instruction compile
+like `DllBackGround`'s three-way predicate or the `DllDendouDemo`/
+`DllBoxSearch` conditional-accessor pair, not just a 1-2 word stub).
+Treat "M modules touched" as a
 toolchain-portability proof (the technique works on unrelated modules,
 not just the first one found), not as module
 completion.
@@ -627,6 +629,38 @@ completion.
   future agent: a call-through-then-tail-branch wrapper at
   `0x468`-`0x47f`, and a no-arg globals-init function at
   `0x47c`-`0x49c`.
+
+- `matched/DllBag/` — 1 function, a **forty-third** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xc80` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+
+  Tail of the import-veneer table (`0x180`-`0xc7f`): a run of six
+  near-identical 1-2 word leaf stubs follows (`0xc80`/`0xc88`/`0xc90` =
+  `return 1`, `0xc98`/`0xca0`/`0xca4`/`0xca8` = bare `bx lr`
+  weak-evidence stubs, only `0xc80` claimed), then the module's first
+  real function (a 9-register-push dispatcher) at `0xcac`.
+
+- `matched/DllDendouDemo/` — 1 function, a **forty-fourth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x798` | `0x1c` | 7/7 | Conditional accessor: calls an import veneer with `this` unchanged, returns the field at `+32` if the call result is nonzero, else the literal `2`. |
+
+  First real function right after the module's import-veneer table
+  (`0x180`-`0x797`); matched on the first attempt. The module's second
+  function (`0x7b4`, a larger multi-case dispatcher with VFP float math)
+  was not attempted.
+
+- `matched/DllBoxSearch/` — 1 function, a **forty-fifth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x5b8` | `0x1c` | 7/7 | Conditional accessor, same idiom as `DllLangSelect@0x5b0`/`DllDendouDemo@0x798`: veneer call gates between a member load at `+32` and a re-materialized constant `2`. |
+
+  Module's first real function, right after the import-veneer table
+  (`0x180`-`0x5b7`).
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
