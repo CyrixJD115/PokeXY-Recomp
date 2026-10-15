@@ -14,9 +14,12 @@ to re-explain its process, just spawn it correctly and verify its output.
 ## Parameters (from `args`, all optional)
 
 - `cap=N` — max concurrent agents (default **5**).
-- `branch=<name>` — git branch all agents work on (default: whatever branch
+- `branch=<name>` — the shared integration branch (default: whatever branch
   this repo is currently checked out to when you start — ask the user if
-  ambiguous and no default makes sense).
+  ambiguous and no default makes sense). As of 2026-10-15 this is **`dev`**,
+  a long-lived branch the orchestrator merges into; `main` is reached only
+  via a PR from `dev` (see "Releasing to main" below), never written to
+  directly.
 - `count=N` — how many agents to top up to THIS pass, overriding `cap` for a
   one-shot burst (rare; normally you just top up to `cap`).
 
@@ -161,6 +164,25 @@ that logic here). A reasonable fallback heartbeat is 600–900s when a swarm
 is actively running; widen it once things quiet down. Mention in your
 visible update: how many agents are running, how many matched/attempted
 since the last pass, and the current true totals.
+
+### 5. Releasing to `main`
+
+`main` is never written to directly — not by agents, not by you. When the
+user asks to get swarm progress onto `main` (or periodically, so review
+diffs stay a manageable size instead of one giant dump), open a PR from
+`dev`:
+
+```sh
+gh pr create --base main --head dev --title "..." --body "..."
+```
+
+A direct push/merge to `main` (e.g. `git push origin dev:main`) is blocked
+by this environment's own guardrails ("Merge Without Review") — don't try
+to work around that; a PR is the correct path anyway, not a fallback. If a
+PR from `dev` is already open, new consolidation commits on `dev` land in
+it automatically (no need to open a second one) — just tell the user it
+updated. Once the user merges the PR, keep working on `dev` as normal;
+`dev` stays ahead of `main` by whatever hasn't been released yet.
 
 ## Things that will bite you if you skip them
 
