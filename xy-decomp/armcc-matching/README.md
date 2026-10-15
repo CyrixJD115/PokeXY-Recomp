@@ -174,6 +174,25 @@ binary — the project's own marker for post-link branch-relaxation nops
 entirely, not just argument-setup loads. Left as an open item; no
 case-to-block mapping was ever asserted for it since it never matched.
 
+## Working on this (rules for agents picking up a function)
+
+- **30-minute cap per agent.** If you haven't reached a masked match
+  within about 30 minutes of starting, stop regardless of where you are
+  — don't keep grinding on one hard function. Write up what you tried
+  and where it got stuck, append it to `attempted.md` (format described
+  there), commit and push just that log update, and end your report
+  saying you hit the time cap without a match. This frees the slot for
+  a fresh agent to work on something new next tick instead of
+  duplicating your effort or continuing to burn time on the same wall.
+- **Check `attempted.md` before picking a candidate.** If a function is
+  already logged there, skip it unless you have a genuinely new idea
+  beyond what's already listed.
+- A function that DOES match in under 30 minutes: just follow the
+  normal flow below and in the main instructions you were given — no
+  need to touch `attempted.md` for a success.
+
+## Reproducing a match in this repo
+
 ```sh
 # One-time: get the plaintext CRO onto disk (the game needs no AES key —
 # CROs are plaintext, see docs/3ds/ + xy-archive/src/cro.rs).
