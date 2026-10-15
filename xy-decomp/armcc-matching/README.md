@@ -11,22 +11,24 @@ This was discovered and proven independently in a sibling project
 decompilation attempt) and is migrated here on 2026-10-14 so the finding
 and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.md`.
 
-**Reading the module count honestly (2026-10-15 swarm note):** the
-"N functions across M modules" headline is breadth, not depth. The swarm's
-executor skill deliberately mines the *easiest* win per module first
-(trivial 1-2 instruction virtual-override stubs and field setters have a
-near-100% hit rate — see "What reliably works" below), so as of this note
-**26 of 37 matched modules have exactly one trivial `return 0`/`return 1`/
-field-setter/forwarder stub proven and nothing else** — the module itself
-still has its full remaining function count (typically hundreds)
-completely unaddressed. The other 11 modules (`DllDialogCommon`, `DllNumberInput`,
-`DllStrInput`, `DllFatalErrorProc`, `DllLangSelect`, `DllHeading`,
-`DllCommendation`, `DllBattleHouseConnect`, `DllGameClearSave`,
-`DllUSBigFourSteel`, `DllFriendEntry`) have either multiple matched
-functions or at least one structurally meaningful match (a
-destructor/constructor/dispatcher, not just a 1-2 word stub). Treat
-"M modules touched" as a toolchain-portability proof (the technique works
-on unrelated modules, not just the first one found), not as module
+**Reading the module count honestly (2026-10-15 swarm note, updated
+2026-10-15):** the "N functions across M modules" headline is breadth,
+not depth. The swarm's executor skill deliberately mines the *easiest*
+win per module first (trivial 1-2 instruction virtual-override stubs and
+field setters have a near-100% hit rate — see "What reliably works"
+below), so as of this update **30 of 42 matched modules have exactly one
+trivial `return 0`/`return 1`/field-setter/forwarder stub proven and
+nothing else** — the module itself still has its full remaining function
+count (typically hundreds) completely unaddressed. The other 12 modules
+(`DllDialogCommon`, `DllNumberInput`, `DllStrInput`, `DllFatalErrorProc`,
+`DllLangSelect`, `DllHeading`, `DllCommendation`, `DllBattleHouseConnect`,
+`DllGameClearSave`, `DllUSBigFourSteel`, `DllFriendEntry`,
+`DllBackGround`) have either multiple matched functions or at least one
+structurally meaningful match (a destructor/constructor/dispatcher, or a
+genuine multi-instruction compile like `DllBackGround`'s three-way
+predicate, not just a 1-2 word stub). Treat "M modules touched" as a
+toolchain-portability proof (the technique works on unrelated modules,
+not just the first one found), not as module
 completion.
 
 ## What's here
@@ -569,6 +571,62 @@ completion.
   `bx lr` single-word stubs at `0x440`/`0x444`/`0x448`, then the
   module's first real function (a constructor-shaped dispatcher) at
   `0x44c`.
+
+- `matched/DllCaptureRegister/` — 1 function, a **thirty-eighth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x27b0` | `0x8` | 2/2 | `xy_system::bg::System::SetIsCallDraw(bool)` byte-field setter (`strb r1,[r0,#217]; bx lr`) — identical bytes to `DllTrainingAppManager@0xd68`/`DllPssConfig@0x1c20`/`DllColosseum@0x46fc`, the same shared base/mixin-class method recurring across unrelated modules. |
+
+  Sits in a stub cluster at the module's import-veneer-table tail
+  (`0x2728`-`0x2844`): two small dtor-shaped helpers at `0x2744`/`0x277c`
+  (skipped), this setter, then two `return 1` stubs (`0x27b8`/`0x27c0`)
+  and a run of ~15 identical `return 0` stubs (`0x27c8`-`0x2844`),
+  none of those claimed yet.
+
+- `matched/DllBackGround/` — 1 function, a **thirty-ninth** module,
+  a genuine non-stub win:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x4e4` | `0x24` | 9/9 | Boolean predicate on a byte field at `this+0x164` — returns 1 if it equals 22, 11, or 63, else 0. |
+
+  Prologue-less leaf (no calls) right after the module's import-veneer
+  table (`0x180`-`0x4d7`) and a tiny VFP one-liner at `0x4d8`. A genuine
+  three-way-equality compile: `cmp`/`cmpne`/`beq` handles the first two
+  equalities, falling through to `cmp`/`movne`/`bne` for the third, both
+  paths converging on a shared `mov r0,#1 / bx lr` tail.
+
+- `matched/DllColosseum/` — 1 function, a **fortieth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x46fc` | `0x8` | 2/2 | `xy_system::bg::System::SetIsCallDraw(bool)` — same shared setter as `DllCaptureRegister@0x27b0`/`DllTrainingAppManager@0xd68`/`DllPssConfig@0x1c20`, confirmed directly from the module's own named-export table (`_ZN9xy_system2bg6System13SetIsCallDrawEb`, load addr `0x1046fc`). |
+
+- `matched/DllBox/` — 1 function, a **forty-first** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x9e8` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+
+  Sits right after the import-veneer table (`0x180`-`0x9e7`): three
+  identical `return 1` stubs at `0x9e8`/`0x9f0`/`0x9f8` (only `0x9e8`
+  claimed), a `return 1` stub at `0xa04`, and bare `bx lr`
+  weak-evidence stubs at `0xa00`/`0xa08`/`0xa0c`/`0xa10`, before the
+  module's first real function (a 10-register-push dispatcher) at
+  `0xa14`.
+
+- `matched/DllFieldEventSlopeSlip/` — 1 function, a **forty-second** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x268` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+
+  Sits right after the module's import-veneer table and a real init
+  function. Two more promising leads flagged in this same module for a
+  future agent: a call-through-then-tail-branch wrapper at
+  `0x468`-`0x47f`, and a no-arg globals-init function at
+  `0x47c`-`0x49c`.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
