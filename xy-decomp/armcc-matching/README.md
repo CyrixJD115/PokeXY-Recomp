@@ -16,7 +16,7 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
 not depth. The swarm's executor skill deliberately mines the *easiest*
 win per module first (trivial 1-2 instruction virtual-override stubs and
 field setters have a near-100% hit rate — see "What reliably works"
-below), so as of this update **46 of 69 matched modules have exactly one
+below), so as of this update **46 of 70 matched modules have exactly one
 trivial `return 0`/`return 1`/field-setter/forwarder stub proven and
 nothing else** — the module itself still has its full remaining function
 count (typically hundreds) completely unaddressed. The other 22 modules
@@ -940,6 +940,19 @@ completion.
   `0x8f4`/`0x900`/`0x904`/`0x908`/`0x90c`, all unclaimed), followed by
   the module's first real function (a constructor-shaped dispatcher)
   at `0x910`.
+
+- `matched/DllPoke3Select/` — 1 function, a **seventieth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x63c` | `0x28` | 10/10 | Trivial constructor: installs a vtable pointer, zeroes fields `+0x28`/`+0x34`/`+0x38`, sets a byte flag at `+0x30` to 1 — no calls or branches. |
+
+  Register-role trap: armcc only lands the retail binary's exact
+  `r1`(=0, reused 3×)/`r2`(=1, then reused for the vtable literal)
+  split when the two constants are declared as separate named locals
+  assigned before any field write; inline immediates or a single named
+  local gave the right shape/word-count but swapped `r1`/`r2` (2/10,
+  not 10/10).
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
