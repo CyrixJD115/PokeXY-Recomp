@@ -1786,6 +1786,12 @@ Open: DllGts `0x119b4` (0x44) and `0x125d4`+ untried; DllField `0xe380`/`0xe3fc`
 
 - `DllPokeList@0x8f4`, `0x900`, `0x904`, `0x908`, `0x90c` (each 0x4, 1/1, re-verified): bare `bx lr` void no-ops — very weak evidence. `0x910` (~0x134, constructor with inlined sub-object ctors) judged too big, untried.
 
+## 2026-10-15 swarm batch 11
+
+- `DllTownmap@0xb10` (0x1c, 7/7): if `this->[0x88]` non-null, tail-calls that object's vtable slot 4 with arg1 passed through. `0x3554` (0x1c, 7/7): same shape, member at +0x10. **Idiom:** a one-arg `void(this)` signature loads the vtable into r1 and mismatches (retail uses r2); the C needs a pass-through `int a` argument, which keeps r1 occupied.
+- `0x3248` (0xc, 3/3): double-indirection getter `return *this[1]`. `0x1530` (0x8, 2/2): returns 1. `0x1538` (0x1c, 7/7): void; if `this->[0x24]` and its `[0x14]` are non-null, tail-calls a function with `[0x14]`.
+- Open: `0x1324` (bounds check then `base + idx*8`), `0x3610` (`strd` init function).
+
 ## What this does *not* do yet
 
 This is per-function fingerprinting (prove a candidate's instruction

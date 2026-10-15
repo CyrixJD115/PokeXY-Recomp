@@ -24,7 +24,7 @@ running logs.
 - [ghidra-scripts.md](ghidra-scripts.md) — running the 3DS Ghidra script
   suites under Ghidra 12 via PyGhidra (Jython-removal workaround + patches)
 - [armcc-toolchain.md](armcc-toolchain.md) — the retail toolchain is ARM
-  Compiler 5 (armcc), not GCC; setup, fingerprinted flags, 335 functions
+  Compiler 5 (armcc), not GCC; setup, fingerprinted flags, 340 functions
   masked-matched across `DllDialogCommon`, `DllNumberInput`,
   `DllStrInput`, `DllFatalErrorProc`, `DllLangSelect`, `DllConfig`,
   `DllHeading`, `DllCommWait`, `DllSalon`, `DllCommendation`,
