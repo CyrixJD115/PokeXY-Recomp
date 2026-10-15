@@ -237,6 +237,20 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
   (at file offset `0x330`, right before the next function's
   `push {r4,lr}` at `0x334`) — real size is `0x38`.
 
+- `matched/DllGameClearSave/` — 1 function, a **twelfth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xd6c` | `0x38` | 14/14 | Same dtor idiom: vptr install, free member @+0x14, tail-call a second import. |
+
+  Same shape and same size gotcha as `DllFatalErrorProc@0x284`/
+  `DllBattleHouseConnect@0x2fc`/`DllCommendation@0xc94` (the function's
+  own one-word literal pool sits at the 13/14-word boundary right
+  before the next function at `0xda4`). Three bare `bx lr` stubs at
+  `0xd60`/`0xd64`/`0xd68` precede it (untried), and a near-identical
+  sibling dtor at `0xda4` has the known-bad member-load-before-vtable-
+  load scheduling order — flagged as unlikely to match, not attempted.
+
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
 Some larger dispatcher functions (`DllDialogCommon@0x300`/`0xdd8`,
