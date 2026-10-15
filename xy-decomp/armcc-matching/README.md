@@ -16,22 +16,23 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
 not depth. The swarm's executor skill deliberately mines the *easiest*
 win per module first (trivial 1-2 instruction virtual-override stubs and
 field setters have a near-100% hit rate — see "What reliably works"
-below), so as of this update **39 of 58 matched modules have exactly one
+below), so as of this update **42 of 62 matched modules have exactly one
 trivial `return 0`/`return 1`/field-setter/forwarder stub proven and
 nothing else** — the module itself still has its full remaining function
-count (typically hundreds) completely unaddressed. The other 19 modules
+count (typically hundreds) completely unaddressed. The other 20 modules
 (`DllDialogCommon`, `DllNumberInput`, `DllStrInput`, `DllFatalErrorProc`,
 `DllLangSelect`, `DllHeading`, `DllCommendation`, `DllBattleHouseConnect`,
 `DllGameClearSave`, `DllUSBigFourSteel`, `DllFriendEntry`,
 `DllBackGround`, `DllDendouDemo`, `DllBoxSearch`, `DllBattlePartySelect`,
-`DllDendouPC`, `DllEggDemo`, `DllEshop`, `DllGameSync`) have either
-multiple matched functions or at least one structurally meaningful match
-(a destructor/constructor/dispatcher, or a genuine multi-instruction
-compile like `DllBackGround`'s three-way predicate, the `DllDendouDemo`/
-`DllBoxSearch`/`DllDendouPC`/`DllEggDemo` conditional-accessor family,
-the `DllEshop`/`DllGameSync` tail-calling destructor pair, or
-`DllBattlePartySelect`'s instruction-order-sensitive leaf predicate, not
-just a 1-2 word stub). Treat "M modules touched" as a
+`DllDendouPC`, `DllEggDemo`, `DllEshop`, `DllGameSync`, `DllIntro`) have
+either multiple matched functions (`DllIntro`: two independent stub
+idioms) or at least one structurally meaningful match (a destructor/
+constructor/dispatcher, or a genuine multi-instruction compile like
+`DllBackGround`'s three-way predicate, the `DllDendouDemo`/`DllBoxSearch`/
+`DllDendouPC`/`DllEggDemo` conditional-accessor family, the `DllEshop`/
+`DllGameSync` tail-calling destructor pair, or `DllBattlePartySelect`'s
+instruction-order-sensitive leaf predicate, not just a 1-2 word stub).
+Treat "M modules touched" as a
 toolchain-portability proof (the technique works on unrelated modules,
 not just the first one found), not as module
 completion.
@@ -817,6 +818,51 @@ completion.
   | `0x11d4` | `0x8` | 2/2 | Trivial int field setter: `str r1,[r0,#24]; bx lr` — stores the 2nd argument into the object at `+0x18`, void return. |
 
   A twin `return 1` stub sits right next door at `0x11dc`, untried.
+
+- `matched/DllIntro/` — 2 functions, a **fifty-ninth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x9eb0` | `0x8` | 2/2 | `xy_system::bg::System::SetIsCallDraw(bool)` — same shared setter as `DllTrainingAppManager@0xd68`/`DllPssConfig@0x1c20`/`DllColosseum@0x46fc`/`DllCaptureRegister@0x27b0`/`DllFieldDemo@0x1edc`. |
+  | `0x868` | `0x4` | 1/1 | Thin tail-call forwarder (`b <import veneer>`), same idiom as `DllBattleVideoSave@0x454`/`DllBattleMatch@0xd90`/`DllBattleVideoPlayer@0xb14`. |
+
+  Two untried leads in the `0x868` cluster: a call-through wrapper at
+  `0x858` (`push {r4,lr}; bl <local 0x66cc>; pop {r4,lr}; b <import
+  veneer>`) and a bare `bx lr` stub at `0x86c`.
+
+- `matched/DllGift/` — 1 function, a **sixtieth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xae0` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+
+  Sits right after DllGift's unusually large (~696-entry) import-veneer
+  table (`0x180`-`0xadf`); six bare `bx lr` single-word stubs follow at
+  `0xae8`-`0xaf8` (weak-evidence class, unclaimed), then the module's
+  first real function at `0xafc` (a destructor-stage helper, already-
+  documented vtable-install/free-member idiom), and a second similar
+  dtor at `0xb34`.
+
+- `matched/DllHologramMail/` — 1 function, a **sixty-first** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xf0c` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+
+  Right after the import-veneer table (`0x180`-`0xf07`) and a bare `bx
+  lr` no-op stub at `0xf08`. The module's first real function at
+  `0xf14` is a destructor-shaped helper with two conditional vtable
+  calls, untried.
+
+- `matched/DllGts/` — 1 function, a **sixty-second** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x1b7e4` | `0x8` | 2/2 | `xy_system::bg::System::SetIsCallDraw(bool)`, confirmed via the module's own named export (`_ZN9xy_system2bg6System13SetIsCallDrawEb`). |
+
+  Candidate compiled as `.cpp` (not `.c`) — the C++ `namespace`
+  wrapper needed for the demangled symbol name requires armcc's C++
+  mode, which it selects from the file extension.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 

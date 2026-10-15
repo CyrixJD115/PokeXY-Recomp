@@ -82,7 +82,11 @@ independently re-verified above):
   by the agent itself before it got your process instructions, etc.).
   Ground truth:
   ```sh
-  find xy-decomp/armcc-matching/matched -name '*.c' | wc -l   # total functions
+  find xy-decomp/armcc-matching/matched \( -name '*.c' -o -name '*.cpp' \) | wc -l   # total functions
+  # (an agent sometimes needs .cpp when the candidate requires a C++
+  # `namespace` block for a demangled symbol -- armcc picks C vs C++ mode
+  # from the extension, so don't "fix" this by renaming to .c; it'll just
+  # fail to compile. Glob both extensions or this undercounts.)
   ls xy-decomp/armcc-matching/matched | wc -l                  # total modules
   ```
 
