@@ -23,13 +23,13 @@ still have their full remaining function count (typically hundreds)
 completely unaddressed regardless of how many functions are proven in
 them. A module having **more than one** matched function is unambiguous
 evidence of that (recompute with `for d in matched/*/; do find "$d" -name
-'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **19 of 98**
+'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **20 of 99**
 as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllFatalErrorProc`, `DllIntro`, `DllSparringMenu`, `DllStatus`,
 `DllSubScreenTutorial`, `DllStartMenu`, `DllStaffRoll`, `DllWazaOboe`,
 `DllTrialDownload`, `DllTradelist`, `DllZukan`, `DllTitle`,
-`DllTownmap`, `DllTradeDemo`, `DllTrainerCase`, `DllUSGymEsper`). Many
-of the
+`DllTownmap`, `DllTradeDemo`, `DllTrainerCase`, `DllUSGymEsper`,
+`DllTrialHouseResult`). Many of the
 remaining single-match modules are also genuinely meaningful (a
 destructor/constructor/dispatcher/conditional-accessor, not a 1-2 word
 stub) — see each module's own entry above for which; that split isn't
@@ -1360,6 +1360,21 @@ module-disassembly cost across several matches instead of one.
   Leftover easy leads: four lone `bx lr` weak-evidence stubs
   (`0x2f8`/`0x30c`/`0x320`/`0x324`), a conditional tail-branch function
   at `0x310`, and the module's first large dispatcher at `0x33c`.
+
+- `matched/DllTrialHouseResult/` — 5 functions, a **ninety-ninth**
+  module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x4c8` | `0x1c` | 7/7 | Guarded field accessor: calls an import veneer on `this`, returns `*(this+28)` if non-zero else the constant 2. |
+  | `0x2644` | `0x4` | 1/1 | Trivial no-op void stub (lone `bx lr`), weak evidence. |
+  | `0x26b4` | `0x8` | 2/2 | Trivial `return 0` stub. |
+  | `0x2648` | `0x38` | 14/14 | Destructor: installs vtable ptr, frees `+0x14` via masked veneer call if non-null, zeroes it, tail-calls another veneer with `this` (armcc folds `return Fn(this);` into `pop{r4,lr}; b <veneer>`). Needed the vtable literal and member value pulled into two separate named locals up front to get the exact literal-load/member-load/store/compare order — two plain sequential statements made armcc reuse a register and serialize them wrong (capped at 11/14 until fixed). |
+  | `0x2680` | `0x34` | 13/13 | Sibling destructor, returns `this` directly instead of tail-calling — same shape as the already-matched `DllDialogCommon@0xcdc`. |
+
+  Only the first ~`0x700` bytes and the tail ~`0x200` bytes of a
+  `0x2618`-byte `.text` section were scanned; plenty of unmined
+  territory remains for a follow-up agent.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
