@@ -15,6 +15,13 @@ file is only for things still unsolved.
 Format per entry:
 
 ```
+## DllPhotoViewer@0x19cc (size 0x3c)
+
+- What it is: this-0x24 thunk — checks state byte at +0x59 for values 7, 8, 11, then sets byte +0xb8 to 2 under a condition.
+- Tried: `char*` arithmetic, reassigned parameter, unsigned-int parameter, volatile state byte.
+- Stuck on: 13/15; logic right, only the first two words swapped. Retail does `sub r0,r0,#36` before `ldrb r2,[r0,#89]`; armcc hoists the load to `ldrb r2,[r0,#53]` ahead of the sub.
+- Lead for next time: none yet.
+
 ## DllTownmap@0x32f0 (size 0x60)
 
 - What it is: table lookup `find(this, key, int *out)` — scans 64-byte entries (key +4, value +8) from a count at `[0]`, returns 0 or 1.
