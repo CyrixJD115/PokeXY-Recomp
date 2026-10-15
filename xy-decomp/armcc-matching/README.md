@@ -23,7 +23,7 @@ still have their full remaining function count (typically hundreds)
 completely unaddressed regardless of how many functions are proven in
 them. A module having **more than one** matched function is unambiguous
 evidence of that (recompute with `for d in matched/*/; do find "$d" -name
-'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **39 of 108**
+'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **39 of 113**
 as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllFatalErrorProc`, `DllIntro`, `DllSparringMenu`, `DllStatus`,
 `DllSubScreenTutorial`, `DllStartMenu`, `DllStaffRoll`, `DllWazaOboe`,
@@ -1704,6 +1704,23 @@ All re-run with `fingerprint_fn.py` -> `*** MASKED MATCH ***`.
   for DllUSGymFighting@0x11dc, DllUSGymIce@0x1974 and DllTest{Ichiraku,Kawada,
   Nagihashi}@0x180 (Kosaka differs by one word) — try the `volatile` trick there.
   The rest of DllTestSuzuki (0x1ac, `cmp r1,#5` jump table) is untried.
+
+## 2026-10-15 swarm batch 3
+
+All re-run: `*** MASKED MATCH ***`.
+
+- **Globals-init family (`volatile long long` idiom, 0x2c bytes, 11/11):**
+  `DllTestIchiraku@0x180`, `DllTestKawada@0x180`, `DllTestNagihashi@0x180`,
+  `DllTestKosaka@0x180` (written `extern volatile long long g_a[2]; g_a[1] = -1;`,
+  `strd` to `[r2,#8]`), `DllFieldDebug@0x180`, `DllUSGymFighting@0x11dc`,
+  `DllUSGymIce@0x1974`. Same shape as DllTestSuzuki above; other CRO modules
+  with a `strd r0,[r2]` globals-init may be worth a scan.
+- **`DllZukan`, 5 trivial functions:** `0x1a1a4` (2/2, long getter this+0x20),
+  `0x1a3f0` (2/2, byte setter this+0x71), `0x1bad8` (5/5, bool getter
+  byte@+0xc == 3), `0x1be6c` (3/3, indexed long getter arr[i] at +0x38),
+  `0x1d698` (4/4, clears u32@0 + u16@4). Easy siblings left: `0x155b4`/`0x156c4`/
+  `0x1576c` (`strb` setters via `[r0,#4]`), `0x1baec`, `0x1bad0`,
+  `0x1dcc0`-`0x1dce8` (`add r0,r0,#N` getters), `0x1be18`/`0x1be20`/`0x1be28`/`0x1bdb8`.
 
 ## What this does *not* do yet
 
