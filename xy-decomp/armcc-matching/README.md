@@ -23,7 +23,7 @@ still have their full remaining function count (typically hundreds)
 completely unaddressed regardless of how many functions are proven in
 them. A module having **more than one** matched function is unambiguous
 evidence of that (recompute with `for d in matched/*/; do find "$d" -name
-'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **39 of 113**
+'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **41 of 113**
 as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllFatalErrorProc`, `DllIntro`, `DllSparringMenu`, `DllStatus`,
 `DllSubScreenTutorial`, `DllStartMenu`, `DllStaffRoll`, `DllWazaOboe`,
@@ -1725,6 +1725,27 @@ All re-run: `*** MASKED MATCH ***`.
 ## 2026-10-15 swarm batch 4
 
 - `DllPokeList@0x8e4`, `0x8ec`, `0x8f8` (each `0x8`, 2/2, re-verified): return-true virtual-override stubs (`mov r0,#1; bx lr`), byte-identical to the already-matched `0x8dc`. Remaining easy candidates there are only bare `bx lr` stubs (`0x8f4`, `0x900`-`0x90c`, weak evidence); first real function is a constructor-shaped one at `0x910`.
+
+## 2026-10-15 swarm batch 5 (24 functions, all re-verified)
+
+Mostly tiny leaf stubs/accessors, so individually weak evidence (any function of the same shape compiles to the same words) — bare `bx lr` ones are flagged.
+
+| Module | Offsets (size, match) | What |
+|---|---|---|
+| `DllZukan` | `0x155b4`/`0x156c4`/`0x1576c` (0xc, 3/3) | setters `this->p(+4)->byte[0xf2/0xe8/0xf3]=v` |
+| | `0x1baec` (0x8, 2/2) | word getter at +0x74 |
+| | `0x1dcc0` (0x8, 2/2) | returns `&this->member` at +0x10 (`add r0,r0,#16`); siblings `0x1dcc8/d0/d8/e0/e8` open |
+| `DllGts` | `0x4108` (0xc), `0x43dc` (0xc) | `strb 1` setters at +0x44 / +0xe0 (3/3) |
+| | `0x43f4`, `0x4e9c` (0x10, 4/4) | clear +0x5c return 0x34; store 8 at +0x1c return 6 |
+| | `0x3eb4` (0x8, 2/2) | word setter +0x50 |
+| `DllBag` | `0xc88`, `0xc90`, `0xc9c`, `0x138bc`, `0x138b4` (0x8, 2/2) | return-1 x3, return-0, byte setter `this[217]` |
+| `DllBox` | `0xa0c`, `0xa10` (0x4, 1/1) | bare `bx lr` no-ops (weak) |
+| | `0xc80` (0x1c, 7/7) | conditional accessor via veneer: `+68` if non-zero else 2 (same idiom as DllEggDemo@0x568) |
+| | `0x1dd58` (0x8, 2/2) | `return 1` |
+| `DllStatus` | `0xbd0`, `0xbd8`, `0xbe4`, `0xbf8` (0x8, 2/2) | return-1 virtual stubs |
+| | `0xbe0` (0x4, 1/1) | bare `bx lr` (weak) |
+
+Open leads: DllGts `0x4174`, `0x43e8`, `0x453c`, `0x5320`, `0x7bd8`, `0x9874`, `0x119a8`, `0x125cc`; DllZukan `0x1bad0`, `0x1be18/20/28`, `0x1bdb8`; DllStatus `0x4590` (strb setter), void stubs `0xbec/f0/f4`; DllBag `0x13664`. DllGts `0x2a08` (zeroes +8/+0xc) failed: armcc zeroes from `r1`, retail from `r2`.
 
 ## What this does *not* do yet
 
