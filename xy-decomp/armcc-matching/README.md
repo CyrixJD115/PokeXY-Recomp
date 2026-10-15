@@ -16,17 +16,18 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
 executor skill deliberately mines the *easiest* win per module first
 (trivial 1-2 instruction virtual-override stubs and field setters have a
 near-100% hit rate — see "What reliably works" below), so as of this note
-**22 of 32 matched modules have exactly one trivial `return 0`/`return 1`/
-field-setter stub proven and nothing else** — the module itself still has
-its full remaining function count (typically hundreds) completely
-unaddressed. The other 10 modules (`DllDialogCommon`, `DllNumberInput`,
+**25 of 36 matched modules have exactly one trivial `return 0`/`return 1`/
+field-setter/forwarder stub proven and nothing else** — the module itself
+still has its full remaining function count (typically hundreds)
+completely unaddressed. The other 11 modules (`DllDialogCommon`, `DllNumberInput`,
 `DllStrInput`, `DllFatalErrorProc`, `DllLangSelect`, `DllHeading`,
 `DllCommendation`, `DllBattleHouseConnect`, `DllGameClearSave`,
-`DllUSBigFourSteel`) have either multiple matched functions or at least
-one structurally meaningful match (a destructor/constructor/dispatcher,
-not just a 1-2 word stub). Treat "M modules touched" as a
-toolchain-portability proof (the technique works on unrelated modules, not
-just the first one found), not as module completion.
+`DllUSBigFourSteel`, `DllFriendEntry`) have either multiple matched
+functions or at least one structurally meaningful match (a
+destructor/constructor/dispatcher, not just a 1-2 word stub). Treat
+"M modules touched" as a toolchain-portability proof (the technique works
+on unrelated modules, not just the first one found), not as module
+completion.
 
 ## What's here
 
@@ -501,6 +502,61 @@ just the first one found), not as module completion.
   a constructor-shaped function ending at `0x6fc` plus its own 2-word
   literal pool, and right before a bare `bx lr` stub at `0x710` and a
   one-line accessor/tail-call at `0x714`.
+
+- `matched/DllUSR15/` — 1 function, a **thirty-third** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x24c` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+
+  Same recurring stub cluster right after the import-veneer table
+  (`0x180`-`0x247`): a lone `bx lr` at `0x248`, three identical
+  `return 0` stubs at `0x24c`/`0x254`/`0x25c` (only `0x24c` claimed),
+  three more lone `bx lr` at `0x260`/`0x264`/`0x268`, then a real
+  (VFP-using) function at `0x26c`.
+
+- `matched/DllBattleVideoSave/` — 1 function, a **thirty-fourth**
+  module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x454` | `0x4` | 1/1 | Prologue-less single-instruction tail-call forwarder (`b <import veneer>`). |
+
+  The entire function body is one `b` to the import-veneer table
+  (target masked — a link-time fact), right after a dispatcher
+  function (`0x3f0`-`0x448`) and its 2-word literal pool. A void→void
+  tail call with no other statements needs no stack frame, so armcc
+  5.04u5 at `-O2 -Otime` folds the call straight into a bare `b`
+  instead of `bl`+`pop {..,pc}` — same "thin forwarder" idiom as
+  `DllDialogCommon@0x6e8` (`bx r1`), but through a fixed branch instead
+  of an indirect one.
+
+- `matched/DllUSGymInsect/` — 1 function, a **thirty-fifth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x344` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+
+  Same recurring stub cluster: a call-through wrapper at `0x318`
+  (`push {lr}; sub sp,#12; bl veneer@0x180; pop {pc}`), a lone `bx lr`
+  at `0x340`, this stub, two more identical `return 0` stubs at
+  `0x34c`/`0x354` (unclaimed), two more lone `bx lr` at
+  `0x35c`/`0x360`, then a real VFP-heavy dispatcher at `0x364`
+  (unattempted).
+
+- `matched/DllFriendEntry/` — 1 function, a **thirty-sixth** module,
+  a genuine non-stub win:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x4c4` | `0x38` | 14/14 | Destructor: vptr install, free member @+0x14 if non-null, tail-call a second import. |
+
+  Same idiom as `DllFatalErrorProc@0x284`/`DllCommendation@0xc94`/
+  `DllBattleHouseConnect@0x2fc`/`DllGameClearSave@0xd6c` (good vtable-
+  literal-before-member-load ordering; own literal pool at `0x4f8`
+  pushes real size to `0x38`, not `0x34`). The sibling function right
+  after this one (`0x4fc`, same shape but member-load-first — the
+  known-bad scheduling order) was skipped on sight.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
