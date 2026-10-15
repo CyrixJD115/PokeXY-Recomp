@@ -17,7 +17,7 @@ driver.
 | `xy-recomp/` | recomp track: `build.sh` port builder, C `overrides/` |
 | `xy-decomp/` | matching-decomp track: `ghidra/` (patched 3ds suite + PyGhidra driver + symbol exporter), `armcc-matching/` (the retail toolchain is ARM Compiler 5, not GCC — see `docs/decomp/armcc-toolchain.md`; matched-module/function totals re-derive from the filesystem per the `armcc-matching/README.md` rule), track README |
 | `xy-runtime/` | runtime track: zakuro-based native runtime (working clone gitignored, README tracked) |
-| `xy-heatmap/` | **standalone** Python progress-heatmap studio (rewritten 2026-10-14, UI redesigned same day): self-contained package run in place via `./xy-heatmap/xy-heatmap.py` (Pillow its only dependency) — fixed-dashboard web UI (sidebar + tabs + readout bar, **no pan/zoom canvas**), deterministic SVG/PNG export from the same scene, views = hybrid treemap (squarified majors + fixed all-cells cards for small modules) / overview bars / corpus grid / namespaces with module attribution / per-module pages with facts + imports; `readme` regenerates `docs/assets/heatmap-*.svg` itself; see `docs/runtime/runtime-architecture.md` §7 — README inside |
+| `xy-heatmap/` | **standalone** progress-heatmap studio (Rust + Svelte rewrite 2026-10-15, replaced the Python package byte-compatibly): `src/` = one detached axum crate (collectors → dataset → scene layout → deterministic SVG/PNG export + `/api` server), `ui/` = Svelte 5 + TS SPA that renders server-produced scene JSON — fixed-dashboard web UI (sidebar + tabs + readout bar, **no pan/zoom canvas**), views = hybrid treemap (squarified majors + fixed all-cells cards for small modules) / overview bars / corpus grid / namespaces with module attribution / per-module pages with facts + imports; `readme` regenerates `docs/assets/heatmap-*.svg` itself; see `docs/runtime/runtime-architecture.md` §7 — README inside |
 | `.thirdparty/` | machine-local upstream checkouts (3dsrecomp, zakuro, 3DS-Decomp-Pipeline, objdiff) — `fetch.sh` recreates them |
 | `.Data/` | **machine-local, never share**: `Rom/` (dumps + keys + v1.5 update partitions), `Raw_Extracted/` (read-only sources), `Source_Extracted/` (all derived output — index: `.Data/Source_Extracted/MAP.md`), `Curated/` (final outputs: `ports/`) |
 | `docs/` | **the research log — every finding lands here** (see Documentation duty below; `docs/README.md` is the map + "what to explore" frontier list): topic folders `3ds/ formats/ knowledge/ dll/ decomp/ recomp/ runtime/ general/` — incl. `general/findings.md` (measured run metrics), `decomp/ghidra-scripts.md` (PyGhidra setup + patches), `runtime/runtime-architecture.md` (two-track strategy), `general/PokemonX_Decomport_Report.md` (founding survey) |
@@ -142,14 +142,16 @@ cargo test             # unit + integration (integration skips if ROM assets abs
 cargo clippy --all-targets -- -D warnings
 cargo fmt              # rustfmt defaults
 
-# progress heatmap (standalone Python package `xy-heatmap/`; Pillow only dep;
-# run straight from the tree — no install step)
-./xy-heatmap/xy-heatmap.py serve --watch --port 8765   # live UI (writes nothing to disk)
-./xy-heatmap/xy-heatmap.py summary                     # text table to stdout
-./xy-heatmap/xy-heatmap.py export --view treemap --format png \
+# progress heatmap (standalone crate `xy-heatmap/`; Rust + axum backend,
+# Svelte 5 + TS frontend — build the SPA once, then everything is one binary)
+pnpm --dir xy-heatmap/ui build                         # build the SPA into ui/dist (embedded)
+cd xy-heatmap && cargo run -- serve --watch --port 8765   # live UI (writes nothing to disk)
+cargo run -- summary                                   # text table to stdout
+cargo run -- export --view treemap --format png \
     --out treemap.png --scale 3                        # also: overview | namespaces | module:<Name> | all
-./xy-heatmap/xy-heatmap.py readme                      # regen docs/assets/ heatmap-*.svg
-./xy-heatmap/xy-heatmap.py selftest                    # bundled test suite
+cargo run -- readme                                    # regen docs/assets/ heatmap-*.svg
+cargo test                                             # bundled test suite (synthetic fixtures)
+# dev loop without building the SPA: `pnpm --dir ui dev` (Vite proxies /api,/view)
 
 # examples (run from repo root; binary is `xy`)
 ./target/release/xy info  .Data/Rom/X/Base/0004000000055D00_v00.3ds
@@ -303,14 +305,14 @@ xy-decomp/armcc-matching/  # the retail ARM Compiler 5 (armcc) matching toolchai
                            # immediates excepted); totals re-derive from the
                            # filesystem via armcc-matching/README.md — see
                            # docs/decomp/armcc-toolchain.md for the parity proof
-xy-heatmap/                     # standalone Python package (rewrite 2026-10-14)
-  xyheatmap/scene.py            # shared drawing primitives — one scene feeds
-                                # the web UI AND both exporters
-  xyheatmap/layout.py           # squarified treemap / module grids / composition bars
-  xyheatmap/svg.py, png.py      # deterministic SVG writer; Pillow PNG rasterizer
-  xyheatmap/collect.py          # read-only collectors (recomp/CSV/TSV/decomp/relink)
-  xyheatmap/server.py, webui.py # in-memory stdlib HTTP UI (zero files written)
-  xyheatmap/cli.py              # serve | export | summary | readme | selftest
+xy-heatmap/                     # standalone progress-heatmap studio (Rust + Svelte,
+                                # 2026-10-15 rewrite of the Python package, byte-parity-tested)
+  src/dataset.rs                # data model + validation + generic JSON input
+  src/collect.rs                # read-only collectors (recomp/CSV/TSV/decomp/relink) + fingerprint
+  src/scene.rs, src/layout.rs   # scene primitives; squarified treemap / grids / bars / namespaces
+  src/svg.rs, src/png.rs        # deterministic SVG writer; resvg PNG rasterizer (pHYs DPI)
+  src/server.rs, src/cli.rs     # axum (/api + /view + embedded SPA); serve | export | summary | readme
+  ui/src/App.svelte, SceneView.svelte  # Svelte 5 dashboard shell; scene-JSON renderer + hover decode
   shell/rebuild_v2.sh           # full clean-slate re-dump of .Data/Source_Extracted
                                 # (repo glue that lives here; not part of the package)
 xy-extraction/xy-curate/src/
@@ -682,6 +684,24 @@ chunked (bannertool/GYTB banners). Key facts:
   `/opt/ghidra`** (headless `support/analyzeHeadless`; requires **absolute
   paths** — relative paths abort with "Path element starting with '.'"),
   `radare2`, `blender`, `python3` + PIL.
+- **REA** (<https://github.com/morluto/rea>, MIT — "Reverse Engineer
+  Anything") is an agent-facing RE toolkit usable in this repo: an MCP
+  server + CLI (`npx rea-agents@latest …`, `npx rea-agents setup` registers
+  it) that drives static/behavioral analysis — strings, symbols, calls/refs,
+  offline ELF/PE/Mach-O layout, WASM/.NET/APK/firmware — and returns
+  evidence-backed findings with stated limitations. Use it for
+  cross-checking binary layout sanity, symbol/callgraph sweeps, and
+  non-3DS targets (tooling, firmware blobs, WASM/.NET dependencies).
+  **Measured limits here (2026-10-11 trial, see `PLAN.md`):** no CCI/3DS
+  provider — it cannot ingest `.3ds`/CXI directly; feed it artifacts this
+  repo already extracted instead (`cro_extracted/*.bin` segments,
+  `code.bin`, ELF objects from the pipeline). Deep native providers
+  (Ghidra) are unconfigured in the MCP server env until
+  `GHIDRA_INSTALL_DIR=/opt/ghidra` (and optionally `REA_PWNTOOLS_PYTHON`)
+  is set for the server — with that, Ghidra-backed pseudocode/xref analysis
+  becomes available alongside `xy-decomp/ghidra/`. Our own parsers
+  (`xy` CLI) stay authoritative for game formats; use REA as a second
+  opinion, not a replacement.
 - This repo has git history — restructures land as tracked renames; ask
   before bulk-moving anything outside this repo and
   `.Data/Source_Extracted/`.
