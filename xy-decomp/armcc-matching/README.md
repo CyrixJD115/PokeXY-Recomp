@@ -365,6 +365,66 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
   (`0x220`) and before two more `bx lr` stubs (`0x23c`) and the
   module's first real function (`0x240`).
 
+- `matched/DllPssConfig/` — 1 function, a **twenty-third** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x1c20` | `0x8` | 2/2 | `xy_system::bg::System::SetIsCallDraw(bool)` — byte-field setter, void return. |
+
+  The module's own named export
+  (`_ZN9xy_system2bg6System13SetIsCallDrawEb`), identical shared base/
+  mixin-class method already matched at `DllTrainingAppManager@0xd68`
+  (same `+0xd9` field).
+
+- `matched/DllPssPlaySelect/` — 1 function, a **twenty-fourth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x2c8` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`. |
+
+  Sits in the recurring tail-of-import-veneer-table leaf-stub cluster:
+  24 import veneers (`0x180`-`0x2c4`), then two identical `return 1`
+  stubs at `0x2c8`/`0x2d0` (only `0x2c8` claimed), three bare `bx lr`
+  stubs at `0x2d8`/`0x2dc`/`0x2e0`, then the module's first real
+  function (a notification dispatcher, same shape as
+  `DllNumberInput@0x1890`) at `0x2e4`.
+
+- `matched/DllUSR13/` — 1 function, a **twenty-fifth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x24c` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+
+  Same recurring stub cluster shape: a lone `bx lr` precedes it at
+  `0x248`, two more identical `return 0` stubs follow at
+  `0x254`/`0x25c` (unclaimed), then two bare `bx lr` at
+  `0x264`/`0x268`, then a real constructor-shaped function at `0x26c`.
+
+- `matched/DllPssMessageWindow/` — 1 function, a **twenty-sixth**
+  module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x3c0` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`. |
+
+  One of a run of five tiny leaf stubs at the end of the module's
+  import-veneer table (`0x180`-`0x3bf`): a twin `return 1` stub at
+  `0x3c8` (unclaimed), three bare `bx lr` stubs at
+  `0x3d0`/`0x3d4`/`0x3d8`, then the module's first real function (a
+  VFP-using constructor) at `0x3dc`.
+
+- `matched/DllPhotoViewer/` — 1 function, a **twenty-seventh** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x1918` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`. |
+
+  One of a run of seven near-identical 1-2 word leaf stubs
+  (`0x1918`-`0x193b`: two `return 1` pairs at `0x1918`/`0x1920`, five
+  bare `bx lr` at `0x1928`-`0x1938`), right after a literal-pool word
+  at `0x1914` and before a real `push {r4,lr}`-prologue function at
+  `0x193c`.
+
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
 Some larger dispatcher functions (`DllDialogCommon@0x300`/`0xdd8`,
