@@ -263,6 +263,52 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
   function's epilogue) immediately precedes it, and the next function
   starts right after at `0x758`.
 
+- `matched/DllUS3DDun/` — 1 function, a **fourteenth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x24c` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+
+  Part of a run of 9 tiny 1-2-word stub functions (`0x248`-`0x273`)
+  right after the import-veneer table (`0x180`-`0x247`) and before the
+  module's first real function at `0x274` — the recurring trivial-stub
+  idiom, this time at the head of real code instead of the tail.
+
+- `matched/DllTrainingAppManager/` — 1 function, a **fifteenth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xd68` | `0x8` | 2/2 | `xy_system::bg::System::SetIsCallDraw(bool)` — byte-field setter, void return. |
+
+  Identified directly from the module's own named export table
+  (`_ZN9xy_system2bg6System13SetIsCallDrawEb`), which also confirms a
+  prior guess (`DllStrInput@0x666c`, same `+0xd9` field shape) was in
+  fact a `bool` setter.
+
+- `matched/DllUSDynamo/` — 1 function, a **sixteenth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x1b4` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+
+  Tiny module (`.text` only `0x2b0` bytes): import-veneer table runs
+  `0x180`-`0x1af`, then the stub cluster starts immediately — a lone
+  `bx lr` at `0x1b0`, three identical `return 0` stubs at
+  `0x1b4`/`0x1bc`/`0x1c4` (only `0x1b4` claimed), two more lone `bx lr`
+  at `0x1cc`/`0x1d0`, then a real constructor-shaped function with
+  float/VFP math at `0x1d4` (unattempted).
+
+- `matched/DllUSBadgeCheckGate/` — 1 function, a **seventeenth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x228` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+
+  Same shape, sitting right after the import-veneer table (`0x180`-
+  `0x218`) and four bare `bx lr` single-word stubs
+  (`0x218`/`0x21c`/`0x220`/`0x224`), with two more identical `return 0`
+  stubs immediately following at `0x230`/`0x238` (untried).
+
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
 Some larger dispatcher functions (`DllDialogCommon@0x300`/`0xdd8`,
