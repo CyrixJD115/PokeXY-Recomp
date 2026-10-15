@@ -125,6 +125,23 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
   b <import>`) instead of `pop {r4,pc}` — not attempted here, flagged as
   a plausible next easy win for this module.
 
+- `matched/DllLangSelect/` — 1 function, a **fifth** module (language
+  select menu, unrelated to the `Dll*Input` family):
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x5b0` | `0x1c` | 7/7 | Conditional accessor: veneer call gates between a member load and a re-materialized constant. |
+
+  Real functions in this module start at `0x438` (the import-veneer
+  table runs `0x180`-`0x437`, 0x1b4c bytes total for the `.text`
+  segment at file offset `0x180`, per the CRO segment table). `0x5b0`
+  is notable for *not* reusing the veneer's own boolean result on the
+  false branch: `cmp r0,#0; ldrne r0,[r4,#20]; moveq r0,#2` throws the
+  call's return value away entirely once it's known nonzero/zero and
+  re-materializes the literal `2` — matching pattern #6 from this
+  toolchain's residue notes (don't assume the "obvious" value is what's
+  actually live in the register).
+
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
 Some larger dispatcher functions (`DllDialogCommon@0x300`/`0xdd8`,
