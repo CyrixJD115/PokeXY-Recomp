@@ -182,14 +182,13 @@ of them up to the end in case you run out of budget mid-way):
   `<branch>` itself. One commit per matched function is fine even across
   your 2nd/3rd function in the same run — small, clearly-attributed
   commits are easier for the orchestrator to merge and verify than one
-  commit bundling several unrelated matches. Rebase onto the latest shared
-  state first (`git fetch origin && git rebase origin/<branch>`), then
-  push **your own branch** under its own name: `git push -u origin HEAD`
-  — you can do this once at the end of your run instead of after every
-  single commit, since it's all still your own branch regardless. Do
-  **not** push to `<branch>` and do not use a refspec that writes to it —
-  the orchestrator is the only thing that ever merges into the shared
-  integration branch.
+  commit bundling several unrelated matches.
+- **Push after every single match, not just at the end of your run**:
+  `git fetch origin && git rebase origin/<branch> && git push -u origin
+  HEAD`. A push is seconds; losing an unpushed match to a crash or
+  interruption costs the minutes it took to find it. Do **not** push to
+  `<branch>` and do not use a refspec that writes to it — the orchestrator
+  is the only thing that ever merges into the shared integration branch.
 
 **On hitting the time/count budget without a match for your current
 candidate:**
