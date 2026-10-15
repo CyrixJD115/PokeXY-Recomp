@@ -23,7 +23,7 @@ still have their full remaining function count (typically hundreds)
 completely unaddressed regardless of how many functions are proven in
 them. A module having **more than one** matched function is unambiguous
 evidence of that (recompute with `for d in matched/*/; do find "$d" -name
-'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **39 of 107**
+'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **39 of 108**
 as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllFatalErrorProc`, `DllIntro`, `DllSparringMenu`, `DllStatus`,
 `DllSubScreenTutorial`, `DllStartMenu`, `DllStaffRoll`, `DllWazaOboe`,
@@ -1691,6 +1691,19 @@ All re-run with `fingerprint_fn.py` -> `*** MASKED MATCH ***`.
 | `DllSparring` | `0x10188` | `0x8` | stub | trivial stub |
 | `DllTestPGL` | `0x180` | `0x8` | 2/2 | `SetIsCallDraw` byte-field setter (new module) |
 | `DllUSPokecen` | `0x254` | `0x8` | stub | trivial stub |
+
+## 2026-10-15 swarm batch 2
+
+- `matched/DllTestSuzuki/` — 1 function, a new module (re-verified `*** MASKED MATCH ***`):
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x180` | `0x2c` | 11/11 | Globals-init: stores -1 into a 64-bit global and 0 into another. **New idiom:** the first global must be `volatile long long` to get retail `strd r0,[r2]`; plain / `__align(8)` / `unsigned long long` compile to `mvn/mov/stm`. Second global is plain `long long` (`stm {r1,r2}`). |
+
+  The same init shape (`strd` of -1, `stm` of zeros) is the residue logged
+  for DllUSGymFighting@0x11dc, DllUSGymIce@0x1974 and DllTest{Ichiraku,Kawada,
+  Nagihashi}@0x180 (Kosaka differs by one word) — try the `volatile` trick there.
+  The rest of DllTestSuzuki (0x1ac, `cmp r1,#5` jump table) is untried.
 
 ## What this does *not* do yet
 
