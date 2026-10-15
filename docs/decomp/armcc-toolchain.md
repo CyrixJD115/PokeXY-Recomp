@@ -109,6 +109,20 @@ version skew rather than wrong source:
 Not yet investigated in this repo; tracked as an open item here and in
 the sibling repo's `docs/progress.md`.
 
+**Confirmed to recur in a second module (2026-10-15):** `DllNumberInput`'s
+three destructor-stage functions (`0x1974`, `0x1a44`, `0x1a7c` — all the
+"install dtor vtable, free an owned member if present, optionally
+tail-call operator delete" shape) hit exactly this vptr-install
+scheduling mismatch: armcc 5.04u5 always schedules the vtable-pointer
+pool load before the member load and assigns it whichever register is
+issued first (so the pool load wins `r0`), while the retail binary
+schedules the member load first and puts the pool load in `r1` — the
+*opposite* preference. This held regardless of C statement order,
+intermediate-variable use, or expression fusion, strengthening the
+version-skew theory: this isn't a source-shape problem, it's armcc
+5.04u5 making a different latency-hiding choice than whatever built the
+retail binary.
+
 ### 9 more functions matched in this repo (2026-10-15)
 
 Working from this repo's own freshly extracted `DllDialogCommon.cro`
@@ -122,6 +136,37 @@ the `0xd20` dispatcher). All 9 masked-match; see the updated table in
 weak-evidence caveat on the four single-word `bx lr` stubs (any
 no-op void function compiles to that same word, so the match proves
 "at most this short," not "this body").
+
+### Toolchain generalizes to a second module (2026-10-15)
+
+`DllNumberInput.cro` was fingerprinted next, to check whether the
+trivial-stub pattern and the fingerprinting approach were specific to
+`DllDialogCommon` or general. They generalize: the same 1-2 word
+virtual-override stubs recur (`0x1888`, `0x1a40`, `0x1ab0`), plus three
+non-trivial functions — a field-copy-and-veneer-call helper (`0x18dc`,
+8/8), a 19-word notification dispatcher (`0x1890`, 19/19), and a
+30-word constructor (`0x18fc`, 30/30) whose node-initialization tail is
+written as a **sequence of moving-pointer-cursor stores** (`str rX,
+[rY,#N]!` pre-indexed writes that advance the pointer as a side effect)
+rather than fixed-offset struct-member access — translating it the same
+way in C (`p += N; *p = v; p += M; ...`) matched on the first try. See
+`xy-decomp/armcc-matching/README.md` for the per-offset table.
+
+`0x1890` surfaced a real decompilation lesson, not just a toolchain
+check: it has two early-return paths that share **one epilogue**
+(`pop {r4, pc}`) with no `mov r0, #N` before it. armcc returns whatever
+value is already live in `r0` at each branch site rather than
+re-materializing a return constant — the null-handle check falls through
+`cmp r0, #0` with r0 still 0 (so that path returns 0), and the
+already-notified check falls through `cmp r0, #1` with r0 still holding
+the compared flag byte 1 (so that path returns 1). The semantically
+"obvious" guess — both paths `return 1;` as boolean failure — compiled
+to one extra instruction and didn't match; matching required tracing
+the actual register value at each branch, not the value that reads as
+true/false to a human. Generalizable technique: when two branches share
+a physical epilogue with no constant load before it, check what's
+already in the return register at each branch site before guessing the
+return value.
 
 ### Open: `0xd20` block-layout puzzle (not yet solved)
 
@@ -143,6 +188,70 @@ heuristic doing something source-order doesn't control directly. Needs
 either a different C shape (nested-if variations not yet tried) or
 accepting this specimen needs richer tooling than hand-written candidate
 C. Tracked here rather than attempted further this session.
+
+### Open: `0x710` near-match, same family of puzzle (not yet solved)
+
+`DllDialogCommon@0x710` (size `0x94`) is a constructor: fetches an object
+via an import veneer, installs a vtable pointer, calls two more veneers
+to build a buffer (one of which takes the previous veneer's return as an
+implicit second argument — not obvious from the call site alone), then
+placement-allocates a second small object and zero-initializes several
+of its fields using a pointer recovered by subtracting a fixed offset
+(8) from an import veneer's return value. 30/37 masked words matched —
+every value and the final state is correct — but the real binary
+computes that `-8` adjustment **immediately** after the veneer call and
+reuses the adjusted pointer with small positive offsets for every
+subsequent field write, while armcc 5.04u5 at `-O2 -Otime` keeps the
+*unadjusted* pointer live and folds the `-8` into each field's immediate
+offset instead, only materializing the adjusted pointer at the very end
+where it's stored as a return value. This reordering survived every
+C-shape variant tried (typed struct member access vs. raw byte-offset
+casts, splitting the subtraction into its own statement, forcing an
+early use) and also survived `-O1`/`-O3`/`-Ospace` (all strictly worse
+matches, not better).
+
+**Update:** the sibling specimen `DllNumberInput@0x18fc` (same overall
+shape: fetch object, install vtable, build buffer, placement-allocate a
+node) was fingerprinted afterward and matched 30/30 on the first try —
+but its node-init tail genuinely *is* written as a sequential
+`pointer += delta; *p = v;` cursor chain in the retail binary (confirmed
+by its own pre-indexed `str rX,[rY,#N]!` instructions), unlike `0x710`'s
+tail, which really does use one `sub` followed by fixed offsets off a
+stable base. So the two specimens use genuinely different source idioms
+rather than one hidden rule explaining both; `0x710`'s specific
+early-materialization gap remains unexplained and still open.
+
+### Open: `0xdd8` jump-table specimen, plus a tool caveat (not yet solved)
+
+`fingerprint_fn.py` gained `--mask-ranges offset:length[,...]` (byte
+ranges relative to the function's own start) to exclude a jump table's
+raw address words from comparison — those words are link-time facts,
+zero in the unlinked CRO, so an isolated compile can never reproduce
+them. **This proves only that the right number of case bodies exist, in
+the right order, each byte-correct — it does not and cannot prove which
+case value selects which body**, since that mapping is exactly what the
+masked table encodes. Any case-number assignment in a candidate using
+this flag is an inference from physical body order (assuming armcc
+emits bodies in ascending case-value order), not a verified fact; the
+tool prints this caveat whenever the flag is used, and a matched file
+built this way must state the assignment as a hypothesis, never as
+"case N does X."
+
+First attempt with the flag, `DllDialogCommon@0xdd8` (a 5-case property
+get/set switch, no function calls anywhere in it), did not reach a full
+match, so no case-to-block mapping was ever asserted for it. Two
+unresolved gaps: (1) the retail binary has a `push {r4, lr}` / `pop {r4,
+pc}` frame that the candidate — which makes no calls — had no reason to
+need; (2) the default case (selector ≥ 5) loads three pool constants in
+a row with `e320f000` NOP-hint words interleaved between them in the
+retail binary, which is this project's own marker for post-link
+branch-relaxation nops (see `--relax-nops` above) — suggesting the real
+default case made calls that were relaxed away entirely, not just
+argument-setup loads with nothing to call. Both point at the same
+missing piece (a call somewhere I haven't identified), which would
+plausibly explain the frame too. Left open; `DllNumberInput@0x1af8` has
+the same overall shape and wasn't attempted, since it would likely hit
+the same gap.
 
 ### Dead end avoided (now corrected)
 

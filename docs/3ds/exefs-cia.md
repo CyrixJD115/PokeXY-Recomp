@@ -117,3 +117,36 @@ extracted here is the **compressed** blob, not `code.bin` itself.
 this — that branch is already flagged unvalidated for GARC payloads
 (see `docs/formats/`) and is a different algorithm from BLZ regardless.
 
+### 2026-10-15 — bug fixed: `Exefs::open()` didn't recognize a base-cart CCI (`NCSD`@0x100)
+
+While rebuilding `.Data/Source_Extracted` from scratch on a fresh machine,
+`xy archive exefs .Data/Rom/X/Base/baserom_x.cci out/` failed with `bad
+magic at 0x0: expected 'NCSD' (at 0x0 or 0x100) or 'NCCH' (at 0x0 or
+0x100), found A6 E4 4E CB` — even though `xy archive romfs` on the exact
+same file already worked.
+
+Cause: `Exefs::open()`'s leading-signature check only tested
+`image[0x100..0x104] == b"NCCH"` (the standalone-CXI case) before falling
+through to `image.get(0..4)` for `NCSD`/`NCCH`. It never tested for
+`NCSD` at `0x100` — the real-cart-CCI case, where the 0x100-byte RSA
+signature precedes the NCSD header the same way it precedes a standalone
+CXI's NCCH header. `romfs.rs`'s `open()` already has this exact check
+(`&image[0x100..0x104] == b"NCSD"` → `from_cci`); `exefs.rs`'s module doc
+even claims to mirror it ("same dispatch shape as romfs.rs") but the code
+didn't.
+
+Fix (`xy-archive/src/exefs.rs`): match `image[0x100..0x104]` against both
+`NCCH` and `NCSD` (dispatching to `from_ncch`/`from_cci` respectively)
+before falling through to the offset-0x0 headerless case — same shape as
+`romfs.rs`. `from_cci` itself needed no change: it already reads the
+partition descriptor at the image's absolute `0x120`, which is correct
+whether or not the image carries the leading signature (the signature
+case puts NCSD at 0x100, so 0x120 = NCSD+0x20, matching the "partition
+descriptors at 0x20" doc comment; the true-headerless case was already
+reading the same fixed offset before this fix and is unaffected).
+
+Verified: `xy archive exefs .Data/Rom/X/Base/baserom_x.cci out/` now
+extracts 3 entries (`.code`, `icon`, `banner`); `xy archive blz
+out/.code -o code.bin` decompresses to exactly 5,156,864 bytes, the
+X v1.0 base-cart `code.bin` size already on record.
+

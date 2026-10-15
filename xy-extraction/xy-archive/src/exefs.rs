@@ -46,9 +46,15 @@ impl<'a> Exefs<'a> {
     pub fn open(image: &'a [u8]) -> Result<Self> {
         // A standalone CXI carries its own 0x100-byte signature before the
         // magic, same as a cart NCCH partition — check that before the
-        // headerless case.
-        if image.len() > 0x1a8 && image.get(0x100..0x104) == Some(b"NCCH") {
-            return Self::from_ncch(image, 0);
+        // headerless case. Real .3ds CCI images carry the same leading
+        // signature before "NCSD" (see romfs.rs); "NCSD"/"NCCH" only sit at
+        // 0x0 in headerless tooling dumps.
+        if image.len() > 0x1a8 {
+            match image.get(0x100..0x104) {
+                Some(b"NCCH") => return Self::from_ncch(image, 0),
+                Some(b"NCSD") => return Self::from_cci(image),
+                _ => {}
+            }
         }
         match image.get(0..4) {
             Some(b"NCSD") => Self::from_cci(image),

@@ -33,6 +33,11 @@ firm1.bin
 # Runtime track: our files are tracked; the upstream zakuro clone is not
 /xy-runtime/zakuro/
 
+# Ghidra project store (code.bin + all CRO programs, game-derived like .Data/)
+# — lives at repo root, not under .Data/, because Ghidra's ProjectLocator
+# rejects any dot-prefixed path element (see docs/decomp/ghidra-scripts.md)
+/ghidra_project/
+
 # ZCode agent state (machine-local)
 /.zcode/
 
