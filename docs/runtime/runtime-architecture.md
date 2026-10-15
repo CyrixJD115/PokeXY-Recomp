@@ -5,8 +5,8 @@ repo: 3dsrecomp port generated and linked (`xy-recomp/build.sh`), 134/134
 modules byte-identical relinks in the matching pipeline, 38,385 decompiled C
 functions in the Ghidra corpus, and the `xy-extraction` toolkit with
 validated decoders for every major asset family. Progress numbers below come
-from the live heatmap (the standalone `xy-heatmap` package, rewritten
-2026-10-14 — see §7).
+from the live heatmap (the standalone `xy-heatmap` crate, Rust + Svelte
+rewrite of 2026-10-15 — see §7).
 
 ## 0. Where we stand (measured, not estimated)
 
@@ -248,10 +248,12 @@ Sequencing: A now (fallback + differential oracle), B grows underneath it
 
 ## 7. The live heatmap (progress instrumentation)
 
-Rewritten 2026-10-14 as the **standalone `xy-heatmap` Python package**
-(run in place via `./xy-heatmap/xy-heatmap.py`, Pillow its only dependency;
-the previous HTML-artifact dashboard and the separate charming/ECharts Rust
-renderer were retired). Architecture:
+Rewritten 2026-10-15 as the **standalone `xy-heatmap` crate (Rust/axum +
+Svelte 5/TS)** — a byte-compatible port of the 2026-10-14 Python package
+(`summary` output and the committed `docs/assets/heatmap-*.svg` are
+byte-identical to it; Python is fully gone). Build: `pnpm --dir
+xy-heatmap/ui build` then `cargo build` in `xy-heatmap/` (the SPA embeds
+into one binary). Architecture:
 
 ```
 .Data/Source_Extracted/
@@ -263,19 +265,21 @@ renderer were retired). Architecture:
                                             layout (pure geometry)   │
                                             → Scene of primitives  ←─┘
                                           ╱           ╲
-                          svg.py (deterministic)   png.py (Pillow, DPI)
-                          ╱            ╲                    ╲
-              web UI (stdlib HTTP    export CLI          export CLI
-              server, serves the     xy-heatmap export   xy-heatmap readme
-              same scenes, writes    --view/--format     → docs/assets/
-              NOTHING to disk)       --scale/--dpi       heatmap-*.svg
+                     svg.rs (deterministic)   png.rs (resvg, DPI)
+                     ╱            ╲                    ╲
+              web UI (axum serves   export CLI          export CLI
+              scene JSON + the      xy-heatmap export   xy-heatmap readme
+              same scenes; Svelte   --view/--format     → docs/assets/
+              renders; writes       --scale/--dpi       heatmap-*.svg
+              NOTHING to disk)
 ```
 
-- Run: `./xy-heatmap/xy-heatmap.py serve --watch --port 8765` (or
+- Run: `cargo run -- serve --watch --port 8765` inside `xy-heatmap/` (or
   `summary` / `export --view treemap|overview|grid|namespaces|module:<Name>|all`
-  / `readme` / `selftest`). No `heatmap.html` or `heatmap_data.json` exists
-  anywhere — the page, the API payload and the rendered views all live in
-  memory; `--watch` is a source-fingerprint poll.
+  / `readme`; tests via `cargo test`). No `heatmap.html` or
+  `heatmap_data.json` exists anywhere — the dataset payload, scene JSON and
+  the rendered views all live in memory; `--watch` is a source-fingerprint
+  poll (client hits `/api/fingerprint` every 3 s).
 - Views (UI redesigned 2026-10-14 as a fixed dashboard — no pan/zoom):
   **treemap** (one squarified box per module, area ∝ function count,
   filled with per-function cells + strong grid-line borders),

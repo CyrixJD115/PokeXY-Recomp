@@ -284,9 +284,8 @@ package at `xy-heatmap/`, run straight from the working tree via the
 executable launcher `./xy-heatmap/xy-heatmap.py …` (no install step; Pillow
 its only dependency). Design: every view is built once into a
 resolution-independent `Scene`; a hand-written deterministic SVG serializer
-and a Pillow PNG
-rasterizer both consume that scene, and the stdlib-HTTP web UI serves those
-exact bytes from memory — **no `heatmap.html`/`heatmap_data.json` anywhere,
+and a Pillow PNG rasterizer both consume that scene, and the stdlib-HTTP
+web UI serves those exact bytes from memory — **no `heatmap.html`/`heatmap_data.json` anywhere,
 `serve` writes nothing to disk**. Views: squarified treemap, 100%-stacked
 per-module composition bars ("overview"), namespaces, address-ordered
 module grids; exports via `xy-heatmap export --view … --format svg|png
@@ -303,6 +302,29 @@ lookups are case-insensitive). Retired: `xy-viz/` (charming renderer),
 inventory — every cell traces to a source row). Gates: 69/69 package tests
 (`xy-heatmap selftest`), fresh-venv install check, server smoke test with
 zero-files assertion, cargo metadata green after workspace-member removal.
+
+### 2026-10-15 — xy-heatmap rewritten again: Rust (axum) + Svelte 5/TS ✅ (session 8)
+
+Second full rewrite, this time off Python entirely (user decision: "a real
+web framework"). One detached crate at `xy-heatmap/` (NOT a root-workspace
+member): `src/` ports the Python package 1:1 (collectors → dataset → scene
+layout → deterministic SVG/PNG), the stdlib server becomes **axum**
+(`/api/dataset`, `/api/fingerprint`, `/api/module/<name>`, `/api/view/<spec>`
+scene JSON, `/view/<spec>.svg|.png` downloads, SPA embedded via rust-embed),
+and the string-templated UI becomes a **Svelte 5 + TypeScript** SPA
+(`ui/`, Vite; `pnpm --dir ui build` → embedded; `pnpm --dir ui dev` proxies
+for the dev loop). PNG moved from Pillow to **resvg** (+ hand-rolled pHYs
+DPI chunk). Parity evidence: `summary` output and both committed
+`docs/assets/heatmap-*.svg` files are **byte-identical** to the Python
+implementation's output (needed an `int(x,16)`-faithful `0x`-tolerant hex
+parse — the cro_extracted TSVs carry `0x` prefixes the CSVs don't — and
+Python's round-half-even 2-decimal formatting). UI verified live in a
+browser: treemap/overview/grid/namespaces, module pages (facts + imports
+cross-links), hover readout decode, tier filter, hash deep links. Python
+package deleted. Gotchas hit: axum 0.8 wildcard routes (`/assets/{*path}`)
+capture WITHOUT the route prefix; pnpm 11 moved build-script approval to
+`pnpm-workspace.yaml` (`allowBuilds:`); rust-embed needs the wildcard or it
+falls back to index.html for nested assets.
 
 ### 2026-10-11 — SMDH icon decode fixed via Azahar parity ✅ (session 6)
 
