@@ -23,10 +23,11 @@ still have their full remaining function count (typically hundreds)
 completely unaddressed regardless of how many functions are proven in
 them. A module having **more than one** matched function is unambiguous
 evidence of that (recompute with `for d in matched/*/; do find "$d" -name
-'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **10 of 89**
+'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **12 of 91**
 as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllFatalErrorProc`, `DllIntro`, `DllSparringMenu`, `DllStatus`,
-`DllSubScreenTutorial`, `DllStartMenu`, `DllStaffRoll`). Many of the
+`DllSubScreenTutorial`, `DllStartMenu`, `DllStaffRoll`, `DllWazaOboe`,
+`DllTrialDownload`). Many of the
 remaining single-match modules are also genuinely meaningful (a
 destructor/constructor/dispatcher/conditional-accessor, not a 1-2 word
 stub) — see each module's own entry above for which; that split isn't
@@ -1210,6 +1211,39 @@ module-disassembly cost across several matches instead of one.
   `0x28c8`/`0x289c` (two local destructor calls before the member-free,
   distinct from the simple single-vtable idiom), plus an untried
   `return 0` stub at `0x2cb8` right next to the last match.
+
+- `matched/DllWazaOboe/` — 5 functions, a **ninetieth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x7ec` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+  | `0x804` | `0x4` | 1/1 | Bare `bx lr` no-op void stub, weak evidence. |
+  | `0x82c` | `0xc` | 3/3 | Field setter + return 1: sets a byte flag at `+12` of the object in `r2` (3rd arg), returns 1. |
+  | `0x1020` | `0x4` | 1/1 | Thin tail-call forwarder (`b <import veneer>`), same idiom as `DllBattleVideoSave`/`DllBattleMatch`. |
+  | `0x1024` | `0x4` | 1/1 | Bare `bx lr` no-op void stub right after the forwarder, weak evidence. |
+
+  All from the recurring tail-of-import-veneer-table leaf-stub cluster
+  (`0x7ec`-`0x837`) plus a second small stub run at `0x1020`-`0x1027`
+  further into the module. The module's real functions (constructor-
+  shaped, `push {r4-r8,lr}; vpush {d8}`, starting at `0x838` and
+  `0x1028`) were not attempted.
+
+- `matched/DllTrialDownload/` — 5 functions, a **ninety-first** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x728` | `0x38` | 14/14 | Destructor — same proven idiom as `DllFatalErrorProc@0x284` etc. |
+  | `0x700` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+  | `0x6fc8` | `0x8` | 2/2 | Thin tail-call forwarder with a constant arg (`r0=6`) into an import veneer. |
+  | `0x6fd0` | `0x8` | 2/2 | Twin of the above — same constant arg, different import. |
+  | `0x6fd8` | `0x14` | 5/5 | Prologue-less leaf: zeroes two int fields + one short field of the arg struct, void return. |
+
+  All at the tail of the module's `.text` (import-veneer table runs
+  `0x180`-`0x6ff`; real code is sparse there — mostly one large
+  state-machine dispatcher). Untried leads: bare `bx lr` weak-evidence
+  stubs at `0x708`/`0x70c`/`0x714`/`0x718`/`0x71c`/`0x720`/`0x724`, and
+  a sibling destructor at `0x760` with the known-bad member-load-first
+  ordering (skipped on sight).
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
