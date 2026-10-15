@@ -123,6 +123,32 @@ weak-evidence caveat on the four single-word `bx lr` stubs (any
 no-op void function compiles to that same word, so the match proves
 "at most this short," not "this body").
 
+### Toolchain generalizes to a second module (2026-10-15)
+
+`DllNumberInput.cro` was fingerprinted next, to check whether the
+trivial-stub pattern and the fingerprinting approach were specific to
+`DllDialogCommon` or general. They generalize: the same 1-2 word
+virtual-override stubs recur (`0x1888`, `0x1a40`, `0x1ab0`), plus two
+non-trivial functions — a field-copy-and-veneer-call helper (`0x18dc`,
+8/8) and a 19-word notification dispatcher (`0x1890`, 19/19). See
+`xy-decomp/armcc-matching/README.md` for the per-offset table.
+
+`0x1890` surfaced a real decompilation lesson, not just a toolchain
+check: it has two early-return paths that share **one epilogue**
+(`pop {r4, pc}`) with no `mov r0, #N` before it. armcc returns whatever
+value is already live in `r0` at each branch site rather than
+re-materializing a return constant — the null-handle check falls through
+`cmp r0, #0` with r0 still 0 (so that path returns 0), and the
+already-notified check falls through `cmp r0, #1` with r0 still holding
+the compared flag byte 1 (so that path returns 1). The semantically
+"obvious" guess — both paths `return 1;` as boolean failure — compiled
+to one extra instruction and didn't match; matching required tracing
+the actual register value at each branch, not the value that reads as
+true/false to a human. Generalizable technique: when two branches share
+a physical epilogue with no constant load before it, check what's
+already in the return register at each branch site before guessing the
+return value.
+
 ### Open: `0xd20` block-layout puzzle (not yet solved)
 
 `DllDialogCommon@0xd20` (size `0x8c`) is a message dispatcher: loads a
@@ -143,6 +169,32 @@ heuristic doing something source-order doesn't control directly. Needs
 either a different C shape (nested-if variations not yet tried) or
 accepting this specimen needs richer tooling than hand-written candidate
 C. Tracked here rather than attempted further this session.
+
+### Open: `0x710` near-match, same family of puzzle (not yet solved)
+
+`DllDialogCommon@0x710` (size `0x94`) is a constructor: fetches an object
+via an import veneer, installs a vtable pointer, calls two more veneers
+to build a buffer (one of which takes the previous veneer's return as an
+implicit second argument — not obvious from the call site alone), then
+placement-allocates a second small object and zero-initializes several
+of its fields using a pointer recovered by subtracting a fixed offset
+(8) from an import veneer's return value. 30/37 masked words matched —
+every value and the final state is correct — but the real binary
+computes that `-8` adjustment **immediately** after the veneer call and
+reuses the adjusted pointer with small positive offsets for every
+subsequent field write, while armcc 5.04u5 at `-O2 -Otime` keeps the
+*unadjusted* pointer live and folds the `-8` into each field's immediate
+offset instead, only materializing the adjusted pointer at the very end
+where it's stored as a return value. This reordering survived every
+C-shape variant tried (typed struct member access vs. raw byte-offset
+casts, splitting the subtraction into its own statement, forcing an
+early use) and also survived `-O1`/`-O3`/`-Ospace` (all strictly worse
+matches, not better). A real specimen in `DllNumberInput` (`0x18fc`,
+not yet attempted) performs the analogous adjustment as a chain of
+sequential `pointer += delta` reassignments rather than fixed-offset
+struct-member access, which is suspected to be the actual shape that
+produces early materialization — worth trying that style here if this
+specimen is revisited.
 
 ### Dead end avoided (now corrected)
 

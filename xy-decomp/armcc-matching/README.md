@@ -48,6 +48,27 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
   effect compiles to that same one word, so the match alone doesn't prove
   the real body was empty — only that it's at most this short.
 
+- `matched/DllNumberInput/` — 5 functions, proving the technique
+  generalizes past `DllDialogCommon` to a second module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x1888` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`. |
+  | `0x1a40` | `0x4` | 1/1 | Trivial no-op void stub (single `bx lr`) — weak evidence. |
+  | `0x1ab0` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+  | `0x18dc` | `0x20` | 8/8 | Copies a field into a sub-object, calls a veneer with it, stores the result. |
+  | `0x1890` | `0x4c` | 19/19 | Notification dispatcher, two early-outs sharing one epilogue — see note below. |
+
+  `0x1890` is the most instructive specimen so far: its two early-return
+  paths share a single `pop {r4, pc}` epilogue with **no** `mov r0, #N`
+  before it, because armcc just returns whatever is already live in r0
+  at the branch site rather than re-materializing the "obvious" return
+  constant. Writing both early returns as literal `return 1;` cost an
+  extra instruction; matching required tracing which value was actually
+  sitting in the register at each branch (0 at the null-handle check, 1
+  at the already-notified check), not which value reads naturally as
+  true/false. See the file's header comment for the full trace.
+
 ## Reproducing a match in this repo
 
 ```sh
