@@ -1751,6 +1751,10 @@ Open leads: DllGts `0x4174`, `0x43e8`, `0x453c`, `0x5320`, `0x7bd8`, `0x9874`, `
 
 - `DllGts@0x4174` (0xc, 3/3, `strb 1` setter +0x44), `0x43e8` (0xc, 3/3, `strb 1` setter +0xe0), `0x453c` (0x10, 4/4, clear +0x5c return 0x28), `0x5320` (0x10, 4/4, store 0x1d at +0x1c return 6) — all re-verified; weak-evidence stubs. Still open: `0x7bd8`, `0x9874`, `0x119a8`, `0x125cc`.
 
+## 2026-10-15 swarm batch 7
+
+- `DllBattle@0x2228` (0x24, 9/9): virtual call on slot 3 of the object at `this+0x24`, returns `result==0` — must be written `if (r) return 0; return 1;` (`!x` emits `movne/moveq` in the wrong order). `0x227c` (0x10, 4/4): tail-calls virtual slot 5 of the object at `this+0x24`. `0x2420` (0xc, 3/3): zeroes word at `this+8` (weak evidence). All re-verified.
+
 ## What this does *not* do yet
 
 This is per-function fingerprinting (prove a candidate's instruction

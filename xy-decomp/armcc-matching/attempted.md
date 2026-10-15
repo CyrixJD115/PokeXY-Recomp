@@ -15,6 +15,20 @@ file is only for things still unsolved.
 Format per entry:
 
 ```
+## DllBattle@0x23e8 (size 0x34), 0x23b0 (same + tail call)
+
+- What it is: simple destructors — vtable store + free member at +0x14.
+- Tried: plain C dtor; 0x23b0 not separately compiled.
+- Stuck on: 8/13 words. Candidate hoists the member load ahead of the vtable store; retail interleaves (`ldr r1,pool; ldr r0,[r0,#20]; str r1,[r4]`). Known-bad dtor shape.
+- Lead for next time: none yet.
+
+## DllBattle@0x2390 (size 0x1c)
+
+- What it is: ctor wrapper — calls a base function, installs vtable, stores an argument at +0x28.
+- Tried: `char[]` and `int` forms of the extern vtable symbol.
+- Stuck on: 5/7. armcc picks r2 for the vtable temporary where retail uses r1.
+- Lead for next time: none yet.
+
 ## DllFieldDebug@0x1ac (size 0xac) -- same function in every tiny debug/test module
 Also present identically at @0x180 (size 0xac) in DllDebugPokeMake, DllDebugProcLoop,
 DllPokeViewer, DllTest{Ariizumi,Hosaka,Ikuta,Ito,Mori,Taya,NCL,...} (all have .text of
