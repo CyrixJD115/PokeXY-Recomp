@@ -23,16 +23,15 @@ still have their full remaining function count (typically hundreds)
 completely unaddressed regardless of how many functions are proven in
 them. A module having **more than one** matched function is unambiguous
 evidence of that (recompute with `for d in matched/*/; do find "$d" -name
-'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **25 of 104**
-as of this update (module count unchanged from the last update — these
-5 new functions landed in an already-counted module, `DllTrainerCase`):
-`DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
+'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **27 of 106**
+as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllFatalErrorProc`, `DllIntro`, `DllSparringMenu`, `DllStatus`,
 `DllSubScreenTutorial`, `DllStartMenu`, `DllStaffRoll`, `DllWazaOboe`,
 `DllTrialDownload`, `DllTradelist`, `DllZukan`, `DllTitle`,
 `DllTownmap`, `DllTradeDemo`, `DllTrainerCase`, `DllUSGymEsper`,
 `DllTrialHouseResult`, `DllUSGymFighting`, `DllUSKinomi`,
-`DllUSPassage`, `DllVSDemo`, `DllUSGymIce`). Many of the
+`DllUSPassage`, `DllVSDemo`, `DllUSGymIce`, `DllWazaOmoidashi`,
+`DllBattle`). Many of the
 remaining single-match modules are also genuinely meaningful (a
 destructor/constructor/dispatcher/conditional-accessor, not a 1-2 word
 stub) — see each module's own entry above for which; that split isn't
@@ -1461,6 +1460,41 @@ module-disassembly cost across several matches instead of one.
   VFP wraparound leaf with no push/pop) — correctly discarded before
   committing. See `attempted.md` for `0x1974` (a globals-init pair,
   9/11 — closer than usual on the same `strd`-vs-`stm` residue class).
+
+- `matched/DllWazaOmoidashi/` — 5 functions, a **hundred-and-fifth**
+  module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x924` | `0x14` | 5/5 | Field setter: stores arg2 (halfword) into a sub-object at `this+0x3c` offset `+14`, then sets a byte flag at `this+0x49` to 1. Needed the constant `1` bound to its own local variable (declared right after the sub-pointer load, before either store) to get armcc's "load both values before either store" scheduling — otherwise it interleaves a load with its own store. |
+  | `0x5f0` | `0x4` | 1/1 | Trivial no-op void stub (single `bx lr`), weak evidence, right after the import-veneer table. |
+  | `0x18b4` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+  | `0x23d4` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. Unclaimed neighbors: a bare `bx lr` at `0x23dc` and a twin `return 1` stub at `0x23e0`. |
+  | `0x3514` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. Four unclaimed bare `bx lr` stubs follow at `0x351c`/`0x3520`/`0x3524`/`0x3528`. |
+
+  Module still has plenty unmined: a notification-dispatcher pair at
+  `0x938`/`0x9e0` (same shape as the already-matched
+  `DllNumberInput@0x1890`), and several larger dispatchers with
+  jump-table-shaped switches (`0xb30` area).
+
+- `matched/DllBattle/` — 5 functions, a **hundred-and-sixth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x1fac` | `0x10` | 4/4 | Boolean predicate `return x == 0;` on the 2nd arg, ignoring `this`. Straightforward `cmp`/`moveq`/`movne` compile, no scheduling trap. |
+  | `0x1fbc` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+  | `0x1fc4` | `0x8` | 2/2 | Pointer-offset accessor: `return (char*)this + 2912;`. |
+  | `0x1fd8` | `0xc` | 3/3 | Field-getter-plus-offset: loads a pointer member at `this+2960`, returns it `+48`. |
+  | `0x1f8c` | `0x20` | 8/8 | Zero-init helper: zeroes two `u32` fields then four `u16` fields of a 16-byte struct, returns `this` unchanged. Non-obvious: source **statement order** (not declared struct layout) drives armcc's instruction scheduling here — the two int stores had to be assigned before the four short-field stores to match, even though both groups sit at consistent byte offsets either way. |
+
+  All five sit clustered together (`0x1f8c`-`0x1fe3`) right after
+  `DllBattle`'s large import-veneer table (895 entries,
+  `0x180`-`0x1d8c`) — this module uses an unusual `ldr pc, [pc, #-4]`
+  absolute-literal veneer idiom rather than the `b <target>` forwarder
+  seen in most other modules, worth noting for future agents mining
+  it. Untried leads: a twin `return 0` stub at `0x1fd0`, a 1-word
+  tail-call forwarder at `0x1fcc`, and a large VFP vector/matrix
+  function at `0x1d8c`-`0x1f74`.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
