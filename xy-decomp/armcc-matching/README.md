@@ -16,7 +16,7 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
 executor skill deliberately mines the *easiest* win per module first
 (trivial 1-2 instruction virtual-override stubs and field setters have a
 near-100% hit rate — see "What reliably works" below), so as of this note
-**25 of 36 matched modules have exactly one trivial `return 0`/`return 1`/
+**26 of 37 matched modules have exactly one trivial `return 0`/`return 1`/
 field-setter/forwarder stub proven and nothing else** — the module itself
 still has its full remaining function count (typically hundreds)
 completely unaddressed. The other 11 modules (`DllDialogCommon`, `DllNumberInput`,
@@ -557,6 +557,18 @@ completion.
   pushes real size to `0x38`, not `0x34`). The sibling function right
   after this one (`0x4fc`, same shape but member-load-first — the
   known-bad scheduling order) was skipped on sight.
+
+- `matched/DllPssFavorite/` — 1 function, a **thirty-seventh** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x430` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`. |
+
+  Import-veneer table runs `0x180`-`0x42f` (84 entries, unusually
+  large), then this stub and a twin at `0x438`, then three bare
+  `bx lr` single-word stubs at `0x440`/`0x444`/`0x448`, then the
+  module's first real function (a constructor-shaped dispatcher) at
+  `0x44c`.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
