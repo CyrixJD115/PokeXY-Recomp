@@ -194,3 +194,20 @@ Format per entry:
   `union`, an explicit vector intrinsic, or a differently-shaped source
   idiom entirely) — not logged as fully dead, just not solved in this
   pass.
+
+## DllPokeViewer — whole module is a dead end (not a single-function attempt)
+
+- What it is: this module's entire real `.text` is exactly one function,
+  at `0x180` — the `nnroControlObject_` module-control dispatcher (a
+  5-case jump-table `switch` with a `push {r4,lr}`/`pop {r4,pc}` frame
+  and a default-case tail of pool-constant loads interleaved with
+  `e320f000`/`mov r0,r0` NOP-hint words).
+- Stuck on: this is the exact unresolved jump-table/NOP-hint residue
+  class already logged above for `DllDialogCommon@0xdd8` and
+  `DllCommWait@0xce0`, and separately for `DllFieldDebug`'s own
+  `nnroControlObject_` (same shape). No prior agent has cracked this
+  class.
+- Lead for next time: the module offers no other candidate function —
+  it's the only real code in the file — so there is nothing else to try
+  here until the jump-table/NOP-hint class itself is solved. Skip this
+  module entirely (don't re-investigate) until that happens.
