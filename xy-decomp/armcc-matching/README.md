@@ -16,20 +16,21 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
 not depth. The swarm's executor skill deliberately mines the *easiest*
 win per module first (trivial 1-2 instruction virtual-override stubs and
 field setters have a near-100% hit rate — see "What reliably works"
-below), so as of this update **32 of 47 matched modules have exactly one
+below), so as of this update **33 of 50 matched modules have exactly one
 trivial `return 0`/`return 1`/field-setter/forwarder stub proven and
 nothing else** — the module itself still has its full remaining function
-count (typically hundreds) completely unaddressed. The other 15 modules
+count (typically hundreds) completely unaddressed. The other 17 modules
 (`DllDialogCommon`, `DllNumberInput`, `DllStrInput`, `DllFatalErrorProc`,
 `DllLangSelect`, `DllHeading`, `DllCommendation`, `DllBattleHouseConnect`,
 `DllGameClearSave`, `DllUSBigFourSteel`, `DllFriendEntry`,
-`DllBackGround`, `DllDendouDemo`, `DllBoxSearch`, `DllBattlePartySelect`)
-have either multiple matched functions or at least one structurally
-meaningful match (a destructor/constructor/dispatcher, or a genuine
-multi-instruction compile like `DllBackGround`'s three-way predicate, the
-`DllDendouDemo`/`DllBoxSearch` conditional-accessor pair, or
-`DllBattlePartySelect`'s instruction-order-sensitive leaf predicate, not
-just a 1-2 word stub). Treat "M modules touched" as a
+`DllBackGround`, `DllDendouDemo`, `DllBoxSearch`, `DllBattlePartySelect`,
+`DllDendouPC`, `DllEggDemo`) have either multiple matched functions or at
+least one structurally meaningful match (a destructor/constructor/
+dispatcher, or a genuine multi-instruction compile like `DllBackGround`'s
+three-way predicate, the `DllDendouDemo`/`DllBoxSearch`/`DllDendouPC`/
+`DllEggDemo` conditional-accessor family, or `DllBattlePartySelect`'s
+instruction-order-sensitive leaf predicate, not just a 1-2 word stub).
+Treat "M modules touched" as a
 toolchain-portability proof (the technique works on unrelated modules,
 not just the first one found), not as module
 completion.
@@ -694,6 +695,37 @@ completion.
   `r4` instead — a residue class distinct from the already-documented
   vptr-scheduling one (that one is member-load-vs-vtable-load order;
   this one is literal-load-vs-prologue-push order).
+
+- `matched/DllDendouPC/` — 1 function, a **forty-eighth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x650` | `0x1c` | 7/7 | Conditional accessor, same idiom as `DllDendouDemo@0x798`/`DllBoxSearch@0x5b8`: veneer call gates between a member load (here `+36`) and a re-materialized constant `2`. |
+
+  Module's first real function, right after the import-veneer table
+  (`0x180`-`0x61f`) and a trivial-stub cluster (`0x620`-`0x64f`: three
+  `return 1` stubs, five bare `bx lr` weak-evidence stubs, none claimed).
+
+- `matched/DllBattleVideoPlayer/` — 1 function, a **forty-ninth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xb14` | `0x4` | 1/1 | Thin tail-call forwarder (`b <import veneer>`), same idiom as `DllBattleVideoSave@0x454`/`DllBattleMatch@0xd90`. |
+
+  One of 8 near-identical one-word leaf functions (`0xb14`-`0xb33`:
+  alternating `b 0x188` forwarders and bare `bx lr` no-op stubs) right
+  after a veneer-calling wrapper ending at `0xb0c`. The other 7 stubs in
+  this run (`0xb18`/`0xb1c`/`0xb20`/`0xb24`/`0xb28`/`0xb2c`/`0xb30`) are
+  untried.
+
+- `matched/DllEggDemo/` — 1 function, a **fiftieth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x568` | `0x1c` | 7/7 | Conditional accessor, same idiom as `DllDendouDemo@0x798`/`DllBoxSearch@0x5b8`/`DllDendouPC@0x650`: veneer call gates between a member load (here `+24`) and a re-materialized constant `3`. |
+
+  Module's first real function, right after a ~125-entry import-veneer
+  table (`0x180`-`0x567`).
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
