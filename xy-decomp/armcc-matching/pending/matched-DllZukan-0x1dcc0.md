@@ -1,0 +1,6 @@
+Module: DllZukan
+Offset: 0x1dcc0
+Size: 0x8
+Match: 2/2
+One-line: returns &this->member at +0x10
+Note: siblings 0x1dcc8(+4) 0x1dcd0(+0x1c) 0x1dcd8(+8) 0x1dce0(+4) 0x1dce8(+0xc) same shape, unattempted
