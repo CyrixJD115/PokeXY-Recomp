@@ -24,7 +24,9 @@ completely unaddressed regardless of how many functions are proven in
 them. A module having **more than one** matched function is unambiguous
 evidence of that (recompute with `for d in matched/*/; do find "$d" -name
 '*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **25 of 104**
-as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
+as of this update (module count unchanged from the last update — these
+5 new functions landed in an already-counted module, `DllTrainerCase`):
+`DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllFatalErrorProc`, `DllIntro`, `DllSparringMenu`, `DllStatus`,
 `DllSubScreenTutorial`, `DllStartMenu`, `DllStaffRoll`, `DllWazaOboe`,
 `DllTrialDownload`, `DllTradelist`, `DllZukan`, `DllTitle`,
@@ -1333,7 +1335,7 @@ module-disassembly cost across several matches instead of one.
   (value-computed-first/`strd`-pair ordering), recognized on sight and
   skipped rather than re-attempted.
 
-- `matched/DllTrainerCase/` — 5 functions, a **ninety-seventh** module:
+- `matched/DllTrainerCase/` — 10 functions, a **ninety-seventh** module:
 
   | Offset | Size | Match | Note |
   |---|---|---|---|
@@ -1341,12 +1343,16 @@ module-disassembly cost across several matches instead of one.
   | `0x37a4` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`. |
   | `0x37ac` | `0x8` | 2/2 | Identical twin stub, `return 1`. |
   | `0x3850` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
-  | `0x3cc0` | `0x8` | 2/2 | New stub-idiom variant: trivial sub-object accessor, `add r0,r0,#16; bx lr` — returns `this+16` as a pointer, pure arithmetic, no load. |
+  | `0x3cc0` | `0x8` | 2/2 | Sub-object accessor, `add r0,r0,#16; bx lr` — returns `this+16` as a pointer, pure arithmetic, no load. |
+  | `0x37b4` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1` (twin of `0x37a4`/`0x37ac`). |
+  | `0x37bc` | `0x8` | 2/2 | Same `return 1` stub. |
+  | `0x37cc` | `0x8` | 2/2 | Same `return 1` stub — last of this twin-stub run. |
+  | `0x3cc8` | `0x8` | 2/2 | Sibling sub-object accessor, `add r0,r0,#4; bx lr` — returns `this+4`. |
+  | `0x3cd0` | `0x8` | 2/2 | Sibling sub-object accessor, `add r0,r0,#28; bx lr` — returns `this+28`. |
 
-  Leftover easy leads: twin stubs at `0x37b4`/`0x37bc`/`0x37cc` (same
-  `return 1` shape), three more `add r0,r0,#N; bx lr` siblings at
-  `0x3cc8`(`+4`), `0x3cd0`(`+28`), `0x3cd8`(`+8`), plus an untried thin
-  tail-call forwarder at `0x3cb8` and a bare `bx lr` stub at `0x3cbc`.
+  Leftover easy leads: a third accessor sibling at `0x3cd8` (`+8`), an
+  untried thin tail-call forwarder at `0x3cb8`, and a bare `bx lr`
+  stub at `0x3cbc`.
 
 - `matched/DllUSGymEsper/` — 5 functions, a **ninety-eighth** module:
 
