@@ -24,7 +24,7 @@ running logs.
 - [ghidra-scripts.md](ghidra-scripts.md) — running the 3DS Ghidra script
   suites under Ghidra 12 via PyGhidra (Jython-removal workaround + patches)
 - [armcc-toolchain.md](armcc-toolchain.md) — the retail toolchain is ARM
-  Compiler 5 (armcc), not GCC; setup, fingerprinted flags, 98 functions
+  Compiler 5 (armcc), not GCC; setup, fingerprinted flags, 100 functions
   masked-matched across `DllDialogCommon`, `DllNumberInput`,
   `DllStrInput`, `DllFatalErrorProc`, `DllLangSelect`, `DllConfig`,
   `DllHeading`, `DllCommWait`, `DllSalon`, `DllCommendation`,
@@ -48,8 +48,9 @@ running logs.
   `DllGts`, `DllKisekae`, `DllPCMenu`, `DllLiveCup`, `DllKawaigari`,
   `DllNuts`, `DllKawaigariArrange`, `DllPokeList`, `DllPoke3Select`,
   `DllPssAssistPower`, `DllPssCharaMenu`, `DllPromotion`,
-  `DllPssIconSelect`, `DllUSGymElec` and `DllPssMainMenu`, open
-  residue-class puzzle + two open block-layout/
+  `DllPssIconSelect`, `DllUSGymElec`, `DllPssMainMenu`,
+  `DllPssRuleSelect` and `DllPuzzle`, open residue-class puzzle + two
+  open block-layout/
   pointer-materialization puzzles (`0xd20`, `0x710`) + an open
   jump-table specimen (`0xdd8`) + an open store-merge puzzle (`0x31b8`).
   Verifier + matched specimens: `xy-decomp/armcc-matching/`.

@@ -16,7 +16,7 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
 not depth. The swarm's executor skill deliberately mines the *easiest*
 win per module first (trivial 1-2 instruction virtual-override stubs and
 field setters have a near-100% hit rate — see "What reliably works"
-below), so as of this update **52 of 76 matched modules have exactly one
+below), so as of this update **53 of 78 matched modules have exactly one
 trivial `return 0`/`return 1`/field-setter/forwarder stub proven and
 nothing else** — the module itself still has its full remaining function
 count (typically hundreds) completely unaddressed. The other 22 modules
@@ -1020,6 +1020,29 @@ completion.
   unclaimed twin sits at `0x430`, two bare `bx lr` weak-evidence stubs
   at `0x438`/`0x43c`, then the module's first real function (a
   multi-veneer dispatcher) at `0x440`.
+
+- `matched/DllPssRuleSelect/` — 1 function, a **seventy-seventh**
+  module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x318` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+
+  Right after the import-veneer table (`0x180`-`0x317`, 51 entries);
+  an identical twin stub immediately follows at `0x320`, two bare
+  `bx lr` weak-evidence stubs at `0x328`/`0x32c`, then the module's
+  first real function at `0x330` — a conditional field-reset leaf
+  (checks a byte field for value 4, zeroes two bytes if so), with a
+  near-twin set-to-4 variant at `0x354`, both untried.
+
+- `matched/DllPuzzle/` — 1 function, a **seventy-eighth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xae8` | `0x1c` | 7/7 | Prologue-less leaf, conditional field setter: chases `this->obj1` (`+4`) `->obj2` (`+0x2c`), reads a byte at `+0x60`, and if it equals 1, writes the literal 2 into a byte field at `this+8`. Void return. |
+
+  First real function in the module, right after the import-veneer
+  table (ends at `0xae4`).
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
