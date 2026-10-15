@@ -16,7 +16,7 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
 not depth. The swarm's executor skill deliberately mines the *easiest*
 win per module first (trivial 1-2 instruction virtual-override stubs and
 field setters have a near-100% hit rate — see "What reliably works"
-below), so as of this update **53 of 78 matched modules have exactly one
+below), so as of this update **53 of 79 matched modules have exactly one
 trivial `return 0`/`return 1`/field-setter/forwarder stub proven and
 nothing else** — the module itself still has its full remaining function
 count (typically hundreds) completely unaddressed. The other 22 modules
@@ -1043,6 +1043,17 @@ completion.
 
   First real function in the module, right after the import-veneer
   table (ends at `0xae4`).
+
+- `matched/DllRandomTrade/` — 1 function, a **seventy-ninth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x8b4` | `0x38` | 14/14 | Destructor — same idiom proven in 8 other modules: installs a new vtable, frees an owned member at `+0x14` if non-null, tail-calls a second import instead of returning `this` directly. |
+
+  Six unclaimed trivial stubs immediately precede it (`0x890`/`0x898`
+  = `return 1`, `0x8a0`-`0x8b0` = four bare `bx lr`), and a
+  near-identical sibling dtor sits right after at `0x8ec`
+  (member-load-vs-vtable-load order not yet checked).
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
