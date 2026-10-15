@@ -1722,6 +1722,10 @@ All re-run: `*** MASKED MATCH ***`.
   `0x1576c` (`strb` setters via `[r0,#4]`), `0x1baec`, `0x1bad0`,
   `0x1dcc0`-`0x1dce8` (`add r0,r0,#N` getters), `0x1be18`/`0x1be20`/`0x1be28`/`0x1bdb8`.
 
+## 2026-10-15 swarm batch 4
+
+- `DllPokeList@0x8e4`, `0x8ec`, `0x8f8` (each `0x8`, 2/2, re-verified): return-true virtual-override stubs (`mov r0,#1; bx lr`), byte-identical to the already-matched `0x8dc`. Remaining easy candidates there are only bare `bx lr` stubs (`0x8f4`, `0x900`-`0x90c`, weak evidence); first real function is a constructor-shaped one at `0x910`.
+
 ## What this does *not* do yet
 
 This is per-function fingerprinting (prove a candidate's instruction
