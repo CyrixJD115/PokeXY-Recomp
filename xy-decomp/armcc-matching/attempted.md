@@ -350,3 +350,74 @@ compiled branchless via xor/or rather than cmp/cmp/and.
   `this` by value (forcing an AAPCS-style parameter copy). A fresh
   angle is needed, not more order permutations of the same three
   statements.
+
+## DllVSDemo@0x2984 (size 0x20)
+
+- What it is: prologue-less leaf, same idiom as the already-matched
+  `DllDialogCommon@0x6e8` — loads an owned object pointer from
+  `this+0x7c`; if null, returns 1; else tail-calls virtual slot 0 on it
+  (`bx rX`) with the object itself as the new `this`.
+- Tried: a nested struct with an `int (**vtbl)(O*)` field (same shape as
+  the matched `0x6e8` reference), accessed directly or through an
+  explicit intermediate `vt` local holding the vtable pointer before
+  indexing; a fully untyped `void*` double-deref through casts with the
+  function pointer assigned to its own local before calling — three
+  variants across `-O1`/`-O2`/`-O3`/`-Ospace` (12 compiles total).
+- Stuck on: 5/8 masked words best (variants 1/2, `-O2`/`-O3` tie). The
+  null-check and final `bx lr`/early-return path match exactly; the
+  two-instruction vtable-dereference-then-tail-call sequence never
+  reproduces. The retail binary picks **r1** as its scratch register for
+  both the vtable-pointer load and the function-pointer load
+  (`ldr r1,[r0]; ldr r1,[r1]; bx r1`); every C idiom tried instead makes
+  armcc 5.04u5 pick **r3** for the same two loads + tail branch —
+  otherwise byte-identical structure, just the wrong register number
+  throughout. `-O1` destabilizes further (moves the early-return
+  `mov r0,#1` after the branch, dropping to 3/8); `-Ospace` drops the
+  `beq` for a conditional `bxeq lr` (3/8, 7 words not 8).
+- Lead for next time: unlike `0x6e8` (reached via a two-hop nested
+  struct `t->p24->p4`), this specimen's object pointer is a single
+  direct field (`t->obj` at `+0x7c`) — the shallower pointer chain may
+  be exactly what changes armcc's register-pressure heuristic and
+  picks `r3` over `r1`. Not tried: deliberately keeping the struct two
+  levels deep (an unnecessary wrapper struct) purely to match `0x6e8`'s
+  register-pressure profile, or adding an unused dead local variable
+  before the vtable dereference to perturb the allocator's
+  free-register ordering.
+
+## DllUSGymIce@0x1974 (size 0x2c)
+
+- What it is: a no-argument "globals init" function. Loads the address
+  of global A (an 8-byte value) into `r2`, writes -1 to both words via
+  `mvn r0,#0; mov r1,r0; strd r0,[r2]`, then loads the address of
+  global B (also 8 bytes) into `r0` and zeroes both its words via
+  `mov r1,#0; mov r2,r1; stm r0,{r1,r2}`. Verified with
+  `--mask-ranges 0x24:4,0x28:4` (the function's own two unresolved
+  data-relocation literals).
+- Tried: `static int g_a[2]; static int g_b[2];` in the same file —
+  armcc recognizes the adjacent statics and constant-folds the second
+  address to `addr(g_a)+8`, totally wrong shape (3/11).
+  `extern volatile long long g_a; extern int g_b[2];` (both
+  external/unresolved so the compiler can't fold their relative
+  addresses) gets the **first half exactly right** (bit-for-bit
+  `strd` match) but the second half diverges — the compile reuses a
+  single register and emits `str`/`str` (recognizing it's storing the
+  same zero value twice), while the retail binary deliberately
+  computes two separate zero registers and issues one combined `stm`.
+  **Best result: 9/11 words**, only the last two differ. Marking
+  `g_b` `volatile` too made no difference; a chained assignment
+  `g_b[1] = g_b[0] = 0;` made it worse (7/11, different shape
+  entirely).
+- Working theory for next time: `strd` vs `stm` for a same-value pair
+  store appears to hinge on whether the two source registers end up as
+  an even-starting pair (`r0`/`r1` → `strd` available) or an
+  odd-starting pair (`r1`/`r2` → `strd` illegal, falls back to `stm`)
+  — a register-pressure side effect of which register holds the
+  destination address, not something controllable from the C source
+  directly. Getting armcc to deliberately materialize a *second*,
+  redundant register for the already-known-zero second word (instead
+  of reusing the first) might require the two stores to look
+  genuinely non-redundant to the optimizer (e.g. two different named
+  locals assigned to the same literal, or different modeled field
+  widths). Related to, but a distinct variant of, the
+  `DllFieldDebug@0x180`/`DllUSGymFighting@0x11dc` `strd`-vs-register-
+  role residue — this one got much closer (9/11 vs 3/11).
