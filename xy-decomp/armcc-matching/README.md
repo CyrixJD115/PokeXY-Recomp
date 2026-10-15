@@ -19,7 +19,7 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
   `xy-archive/src/cro.rs` — CRO modules need no decryption, just
   `xy archive exefs`/`extract-tree`/romfs to get them onto disk at
   `.Data/Raw_Extracted/romfs/`).
-- `matched/DllDialogCommon/` — 5 functions proven to **masked-match** the
+- `matched/DllDialogCommon/` — 14 functions proven to **masked-match** the
   retail binary word-for-word (branch immediates excepted, since those are
   link-layout facts no decompiled source can know ahead of linking):
 
@@ -30,6 +30,23 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
   | `0x688` | `0x3c` | 15/15 | Calls local fn @0x300 on a member, virtual call through slot 8. |
   | `0x6c4` | `0x24` | 9/9 | Virtual call through slot 2; the `r4` push is AAPCS stack-alignment padding, not a real save. |
   | `0x6e8` | `0x20` | 8/8 | Prologue-less leaf (missed by the original function catalog): a tail virtual call (`bx r1`). |
+  | `0x2d8` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1` (2026-10-15). |
+  | `0x2e0` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`. |
+  | `0x2e8` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`. |
+  | `0x2f0` | `0x4` | 1/1 | Trivial no-op void stub (single `bx lr`) — weak evidence, see note below. |
+  | `0x2f4` | `0x4` | 1/1 | Trivial no-op void stub (single `bx lr`) — weak evidence. |
+  | `0x2f8` | `0x4` | 1/1 | Trivial no-op void stub (single `bx lr`) — weak evidence. |
+  | `0x2fc` | `0x4` | 1/1 | Trivial no-op void stub (single `bx lr`) — weak evidence. |
+  | `0xd10` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
+  | `0xd18` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`. |
+
+  The six 2026-10-15 stubs at `0x2d8`-`0x2ff` and the pair at `0xd10`-`0xd1f`
+  are a run of near-identical 1-2 word leaf functions — likely default
+  virtual-method overrides on the dialog-proc base class (`IsXxx() ==
+  true/false`, no-op `OnXxx()`). The four single-word `bx lr` stubs are
+  **weak-evidence matches**: any void function with no observable side
+  effect compiles to that same one word, so the match alone doesn't prove
+  the real body was empty — only that it's at most this short.
 
 ## Reproducing a match in this repo
 

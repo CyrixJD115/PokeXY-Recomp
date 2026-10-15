@@ -24,6 +24,7 @@ running logs.
 - [ghidra-scripts.md](ghidra-scripts.md) — running the 3DS Ghidra script
   suites under Ghidra 12 via PyGhidra (Jython-removal workaround + patches)
 - [armcc-toolchain.md](armcc-toolchain.md) — the retail toolchain is ARM
-  Compiler 5 (armcc), not GCC; setup, fingerprinted flags, 5 functions
-  masked-matched in `DllDialogCommon`, open residue-class puzzle. Verifier
-  + matched specimens: `xy-decomp/armcc-matching/`.
+  Compiler 5 (armcc), not GCC; setup, fingerprinted flags, 14 functions
+  masked-matched in `DllDialogCommon`, open residue-class puzzle + an
+  open block-layout puzzle (`0xd20`). Verifier + matched specimens:
+  `xy-decomp/armcc-matching/`.

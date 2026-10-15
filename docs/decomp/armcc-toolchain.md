@@ -109,6 +109,41 @@ version skew rather than wrong source:
 Not yet investigated in this repo; tracked as an open item here and in
 the sibling repo's `docs/progress.md`.
 
+### 9 more functions matched in this repo (2026-10-15)
+
+Working from this repo's own freshly extracted `DllDialogCommon.cro`
+(no Ghidra available on this machine — no decompiled-C corpus to start
+from), the next-easiest unclaimed bytes in `.text` turned out to be two
+runs of trivial 1-2 word leaf functions sitting next to functions already
+matched: `0x2d8`-`0x2ff` (six stubs, right before the `0x300` state
+machine) and `0xd10`-`0xd1f` (a pair, between the `0xcdc` destructor and
+the `0xd20` dispatcher). All 9 masked-match; see the updated table in
+`xy-decomp/armcc-matching/README.md` for the per-offset breakdown and the
+weak-evidence caveat on the four single-word `bx lr` stubs (any
+no-op void function compiles to that same word, so the match proves
+"at most this short," not "this body").
+
+### Open: `0xd20` block-layout puzzle (not yet solved)
+
+`DllDialogCommon@0xd20` (size `0x8c`) is a message dispatcher: loads a
+handler object from `this+8`, and for `msg` in `{4,10}`/`{5,13}`/`{16}`
+calls `handler->vtbl[0](handler, 0|1|2)`, else returns 1 (0 on any call
+taken). The control-flow graph was fully recovered by hand from the
+disassembly and is not in doubt — reproducing it in C as both a
+`switch` and as an equivalent `goto`-chain compiles to the **same wrong
+block order**: armcc places the `msg>10` sub-check block (`0xd54`
+originally) immediately after the initial comparison chain, with an
+inserted skip-branch, and sinks the "return 1" default block afterward —
+the opposite of the real binary's order, which falls straight through
+into the default right after the initial checks and reaches the `>10`
+sub-check only via the explicit `bgt`. 11/35 masked words matched before
+this diverges (see `fingerprint_fn.py`'s per-word diff for the exact
+shape). Not blocked on the toolchain — this is armcc's own block-layout
+heuristic doing something source-order doesn't control directly. Needs
+either a different C shape (nested-if variations not yet tried) or
+accepting this specimen needs richer tooling than hand-written candidate
+C. Tracked here rather than attempted further this session.
+
 ### Dead end avoided (now corrected)
 
 The earlier framing — "compiler parity (matching **GCC** version/flags)"
