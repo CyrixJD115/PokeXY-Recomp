@@ -15,6 +15,69 @@ file is only for things still unsolved.
 Format per entry:
 
 ```
+## DllBox@0x1dfac (size 0x6c; sibling 0x1df3c, size 0x70)
+
+- What it is: dtor — `vptr=VT1; if (o->[36]) f258(f910(f910(sub+108)-24)-84); f260(o->[32]); vptr=VT2; if (o->[20]) { f620(o->[20]); o->[20]=0; } return o`. 0x1df3c is the same body plus a tail-call of a base dtor instead of `return o`.
+- Tried: `f620` returning `void*`, int-cast zero, `p=0; o->buf14=p`, reading `p` before the VT2 store (22/27), vt2 held in a local (9/27).
+- Stuck on: 0x1dfac 25/27 — only diff: retail zeroes via `mov r1,#0; str r1,[r4,#20]`, ours `mov r0,#0; str r0,[r4,#20]`. 0x1df3c 20/28: same zero-register diff plus a `mov r4,r0` ordering diff (retail loads VT and sub before `mov r4,r0`).
+- Lead for next time: something keeps r0 live (or r1 free) across the zeroing store; try different inlined-helper shapes for the member release.
+
+## DllPhotoViewer@0x19cc (size 0x3c)
+
+- What it is: this-0x24 thunk — checks state byte at +0x59 for values 7, 8, 11, then sets byte +0xb8 to 2 under a condition.
+- Tried: `char*` arithmetic, reassigned parameter, unsigned-int parameter, volatile state byte.
+- Stuck on: 13/15; logic right, only the first two words swapped. Retail does `sub r0,r0,#36` before `ldrb r2,[r0,#89]`; armcc hoists the load to `ldrb r2,[r0,#53]` ahead of the sub.
+- Lead for next time: none yet.
+
+## DllTownmap@0x32f0 (size 0x60)
+
+- What it is: table lookup `find(this, key, int *out)` — scans 64-byte entries (key +4, value +8) from a count at `[0]`, returns 0 or 1.
+- Tried: for loop, do-while inside `if (n > 0)`, char-pointer arithmetic with offset expressions.
+- Stuck on: best 4/24. Retail hoists constants 4 and 8 into registers (`mov r4,#4`, `mov r1,#8`) with a `push {r4,r5}` prologue; armcc folds the offsets into immediates every time.
+- Lead for next time: none yet.
+
+## DllTownmap@0x31d4 (size 0x38)
+
+- What it is: destructor — sets vtable, frees member `[0x14]` via a masked call, zeroes it, tail-calls.
+- Tried: two statement orderings.
+- Stuck on: 11/14. Retail loads the vtable pool word into r1 before the member load; both orderings put the member load first. Known-bad dtor shape.
+- Lead for next time: none yet.
+
+## DllTownmap@0x31a0 (size 0x30)
+
+- What it is: constructor — stores `vt` at `[0]` and `vt+0x40` at `[0x74]`, calls `fa`, tail-calls `fb`.
+- Tried: several store and local-variable orderings.
+- Stuck on: 8/12. Retail does `add r1,r0,#64` before the first store with `mov r0,r4` between the two stores.
+- Lead for next time: none yet.
+
+## DllPuzzle@0xb3fc (size 0x38; twin 0xbf80)
+
+- What it is: dtor stage — store VT, `if (this->f14) { fn1f8(f14); f14 = 0; }`, tail-call base `fn268(this)`.
+- Tried: plain C; local-variable `m` variant. Tail call (`void*` return) works.
+- Stuck on: 9/14. Retail interleaves `ldr r1,pool; ldr r0,[r0,#20]; str r1,[r4]` and zeroes through r1; armcc loads pool into r0, stores, then loads the member, `mov r0,#0`. Known-bad dtor member-load ordering. 0xbf80 differs only by using r0 for the zero.
+- Lead for next time: none yet.
+
+## DllTownmap@0x1324 (size 0x38)
+
+- What it is: bounds-checked accessor — `if (this->[4]->[0] <= idx) fail(0,0,0); return this->[0xc] + idx*8`.
+- Tried: struct-field C, hoisted count load, if/else forms, pointer-arith forms (~5 variants).
+- Stuck on: 9/14. Instruction stream identical except register allocation: retail keeps `this` in r4 and `idx` in r5; armcc gives the reverse.
+- Lead for next time: none yet (try swapping parameter order / an unused extra arg to shift allocation).
+
+## DllBattle@0x3038 (size 0x6c)
+
+- What it is: same body as matched 0x30a4 but retail loads the vtable pool word into r1 BEFORE `push {r4,lr}`, and ends with tail `b`.
+- Tried: 0x30a4 shape plus tail call to extern fc(r).
+- Stuck on: 21/26; only the first 5 words differ (ldr r1,pool hoisted above push, str r1,[r0] before mov r4,r0).
+- Lead for next time: none yet.
+
+## DllBag@0x10e4 (size 0x6c)
+
+- What it is: lazy-init + conditional setup: `if (!this->ctx(+0x4c)) fnInit(this); if (fnTest(ctx->p0->f8)) { fnA(this,1); fnB(ctx->p0,1,1,1,1[stack]); tail fnC(this, this->f38); }`.
+- Tried: unsigned char param types, varargs, local `k = 1`, hoisting the first arg into a local.
+- Stuck on: 15/27. Words up to the `fnA` call match. Retail: loads ctx first then `mov r1,#1; mov r3,r1; mov r2,r1; ldr r0,[r0]; str r1,[sp]` (constant lives in r1); ours: `mov r0,#1; str r0,[sp]; ldr ctx; mov r3,#1...`.
+- Lead for next time: fnB signature (struct/bool mix) or the 1s coming from distinct sources.
+
 ## DllGts@0x9880 (size 0x18)
 
 - What it is: stores constants then loads others (5/6 words matched).
@@ -28,6 +91,7 @@ Format per entry:
 - Tried: `--relax-nops`, struct-typed fields, locals `vt = VT`, char*/void**/unsigned* vtable types, member load before/after stores.
 - Stuck on: best 12/20. Retail loads the vtable pool word into r1 BEFORE `push {r4,lr}` and keeps it live with independent `add r0,r1,#16` / `add r2,r1,#32`; armcc loads it after `push` and chains the adds. Store order target `[12],[0],[32]`.
 - Lead for next time: three separate vtable externs (VT0/VT1/VT2 at +0/+16/+32 of one object) might force independent address materialisation — untried.
+- Update 2026-10-15 (batch 10): the three-separate-externs lead was **disproven** — VT0/VT1/VT2 scored 8/21 (worse; three independent pool loads, no shared base); single extern with `VT+16`/`VT+32` + `--relax-nops` stays at 12/20. Retail loads the pool into r1 before `push`; likely a different source construct (e.g. member-init in an inlined base dtor) — untried.
 
 ## DllStatus@0x459c (size 0xb8)
 
