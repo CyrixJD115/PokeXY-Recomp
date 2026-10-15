@@ -109,6 +109,22 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
   as the same already-documented vptr-install-scheduling residue class
   on sight and skipped rather than re-attempted.
 
+- `matched/DllFatalErrorProc/` — 1 function, a **fourth** module, this
+  one unrelated to the `Dll*Input` family (fatal-error dialog proc):
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x2bc` | `0x34` | 13/13 | Destructor: vptr install, free member @+0x14, returns `this`. |
+
+  Structurally byte-identical in shape to `DllDialogCommon@0xcdc` (same
+  member offset `0x14`, same literal-pool vtable load, same `bl` to a
+  masked free import) — confirms this dtor idiom is a shared-base-class
+  pattern reused verbatim across unrelated Dll modules, not a coincidence
+  tied to the dialog-input family. The module's neighboring `0x284`
+  function has the same prologue/body but tail-calls out (`pop {r4,lr};
+  b <import>`) instead of `pop {r4,pc}` — not attempted here, flagged as
+  a plausible next easy win for this module.
+
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
 Some larger dispatcher functions (`DllDialogCommon@0x300`/`0xdd8`,
