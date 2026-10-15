@@ -15,6 +15,13 @@ file is only for things still unsolved.
 Format per entry:
 
 ```
+## DllTownmap@0x1324 (size 0x38)
+
+- What it is: bounds-checked accessor — `if (this->[4]->[0] <= idx) fail(0,0,0); return this->[0xc] + idx*8`.
+- Tried: struct-field C, hoisted count load, if/else forms, pointer-arith forms (~5 variants).
+- Stuck on: 9/14. Instruction stream identical except register allocation: retail keeps `this` in r4 and `idx` in r5; armcc gives the reverse.
+- Lead for next time: none yet (try swapping parameter order / an unused extra arg to shift allocation).
+
 ## DllBattle@0x3038 (size 0x6c)
 
 - What it is: same body as matched 0x30a4 but retail loads the vtable pool word into r1 BEFORE `push {r4,lr}`, and ends with tail `b`.

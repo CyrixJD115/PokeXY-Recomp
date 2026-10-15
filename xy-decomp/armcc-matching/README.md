@@ -1816,6 +1816,11 @@ Open: DllPuzzle `0xb3fc`/`0xbf80` (0x38, free `this+0x14` + tail-call base), `0x
 
 `relaxed/DllBattle/0x30a4.c` (0x68, 26/26 **only with `--relax-nops`**): destructor — installs vtable, releases owned object at +0xc via vcall slot 4 then slot 1 and zeroes it, frees +0x38, calls base sub-object dtor at +0x18, returns result-0x18. Pool load comes before the member load (the shape that works). Byte-match pending nop re-insertion; promote to `matched/` if relaxed matches are accepted.
 
+## 2026-10-15 swarm batch 13
+
+- `DllTownmap@0x35f4` (0x1c, 7/7): virtual-call wrapper — if member at +0x10 is non-null, tail-calls vtable slot 3, else returns. Needs **two** pass-through int args (`int a, int b`) so the vtable load lands in r3 (one arg -> r2).
+- `DllTownmap@0x3610` (0x2c, 11/11): globals-init, `volatile long long g_a = -1` (`strd`) + plain `long long g_b = 0` (`stm`). Verify at size **0x2c** (includes the two pool words); at 0x24 the candidate is longer than the target and fails.
+
 ## What this does *not* do yet
 
 This is per-function fingerprinting (prove a candidate's instruction
