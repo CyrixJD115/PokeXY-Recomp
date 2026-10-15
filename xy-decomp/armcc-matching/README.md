@@ -152,7 +152,7 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
   toolchain's residue notes (don't assume the "obvious" value is what's
   actually live in the register).
 
-- `matched/DllConfig/` — 1 function, a **fifth** module, mined from the
+- `matched/DllConfig/` — 1 function, a **sixth** module, mined from the
   tail stub cluster:
 
   | Offset | Size | Match | Note |
@@ -170,6 +170,19 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
   over-merged into one 3-word `stm`/`stmia!`, never the target's
   "store the far field alone, then `strd` the adjacent pair" split.
   Logged as an open item in `attempted.md` rather than re-attempted.
+
+- `matched/DllHeading/` — 1 function, a **seventh** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x28bc` | `0xc` | 3/3 | Trivial field setter: zeroes a byte flag at `this+0xb4`, void return. |
+
+  Sits in the same lone-`bx lr`-stub cluster shape already documented
+  for `DllDialogCommon`/`DllStrInput`/`DllLangSelect`: three
+  single-instruction no-op stubs immediately precede it, then the next
+  function's full prologue starts right after — the trivial-stub/
+  simple-setter cluster near a dialog-proc base class's vtable tail
+  recurs in a seventh independent module.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 

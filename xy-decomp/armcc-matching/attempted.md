@@ -25,6 +25,35 @@ Format per entry:
 
 ---
 
+## DllConfig@0x31b8 (size 0x20)
+
+- What it is: no-branch, no-call field-copy helper. `r1` points to a
+  3-word source struct (f0,f4,f8); copies those into `r0`'s fields at
+  +0x38,+0x3c,+0x40, and *also* re-copies f0/f4 into +0x44/+0x48 (so
+  f0/f4 are each written twice, to two different destinations).
+- Tried: (1) flat field-by-field assignment, every statement order —
+  compiles to 5 separate ldr/str pairs, no merging (11 words vs
+  target's 8). (2) `d->sub = *s;` via a 3-word nested sub-struct at
+  +0x38 plus the two extra re-reads — reproduces the target's `ldm
+  r1,{r2,r3,ip}` read side exactly, but the write side merges into one
+  `stmia r0!,{r2,r3,ip}` (full 3-word post-increment store), not the
+  target's split. (3) same via an explicit local `S tmp = *s;` with
+  three separate per-field stores in the target's own store order —
+  identical over-merge, byte-for-byte.
+- Stuck on: 5/8 masked words. The `ldm` line and the two +0x44/+0x48
+  re-read/re-store lines already match. The 3 words in between never
+  reproduce: armcc 5.04u5 at -O2 -Otime either doesn't merge adjacent
+  stores at all, or merges all three into one block op — never the
+  target's partial merge (one lone `str` + one `strd` pair, skipping
+  the 3-word `stm`). Source statement order didn't change the outcome
+  in either the flat or struct-copy case.
+- Lead for next time: maybe the real destination isn't one flat struct
+  — e.g. the far field (+0x40) could belong to a different member or a
+  union arm that breaks armcc's "is this one aggregate" merge check
+  while the +0x38/+0x3c pair stays recognized as adjacent. Not tried:
+  `-O1`/`-O3`/`-Ospace` flag variants, or reaching +0x40 through a
+  genuinely unrelated pointer variable rather than the same `d` base.
+
 ## DllDialogCommon@0xd20 (size 0x8c)
 
 - What it is: message dispatcher — loads a handler from `this+8`, and
