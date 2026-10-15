@@ -1821,6 +1821,10 @@ Open: DllPuzzle `0xb3fc`/`0xbf80` (0x38, free `this+0x14` + tail-call base), `0x
 - `DllTownmap@0x35f4` (0x1c, 7/7): virtual-call wrapper — if member at +0x10 is non-null, tail-calls vtable slot 3, else returns. Needs **two** pass-through int args (`int a, int b`) so the vtable load lands in r3 (one arg -> r2).
 - `DllTownmap@0x3610` (0x2c, 11/11): globals-init, `volatile long long g_a = -1` (`strd`) + plain `long long g_b = 0` (`stm`). Verify at size **0x2c** (includes the two pool words); at 0x24 the candidate is longer than the target and fails.
 
+## 2026-10-15 swarm batch 14
+
+- `DllPuzzle@0x1404` (0x30, masked): dtor-stage variant — stores the vtable passed as 2nd arg (`void *vt`), `fn71b0(o)`, `fn260(fn1c8(o->p4->f14), 17)`, then tail-calls `fn268(o)` (returning `void*`). `0x92e4` (0x28, masked): same variant as `0x9310` — stores `vt`, `fn8d0(o->p12, o->p4->f34)`, tail-calls `fn268(o)` (size 0x28: pool word at 0x930c belongs to the next function).
+
 ## What this does *not* do yet
 
 This is per-function fingerprinting (prove a candidate's instruction

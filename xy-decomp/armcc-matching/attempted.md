@@ -15,6 +15,13 @@ file is only for things still unsolved.
 Format per entry:
 
 ```
+## DllPuzzle@0xb3fc (size 0x38; twin 0xbf80)
+
+- What it is: dtor stage — store VT, `if (this->f14) { fn1f8(f14); f14 = 0; }`, tail-call base `fn268(this)`.
+- Tried: plain C; local-variable `m` variant. Tail call (`void*` return) works.
+- Stuck on: 9/14. Retail interleaves `ldr r1,pool; ldr r0,[r0,#20]; str r1,[r4]` and zeroes through r1; armcc loads pool into r0, stores, then loads the member, `mov r0,#0`. Known-bad dtor member-load ordering. 0xbf80 differs only by using r0 for the zero.
+- Lead for next time: none yet.
+
 ## DllTownmap@0x1324 (size 0x38)
 
 - What it is: bounds-checked accessor — `if (this->[4]->[0] <= idx) fail(0,0,0); return this->[0xc] + idx*8`.
