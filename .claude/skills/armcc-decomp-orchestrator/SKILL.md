@@ -18,7 +18,7 @@ to re-explain its process, just spawn it correctly and verify its output.
   this repo is currently checked out to when you start — ask the user if
   ambiguous and no default makes sense). As of 2026-10-15 this is **`dev`**,
   a long-lived branch the orchestrator merges into; `main` is reached only
-  via a PR from `dev` (see "Releasing to main" below), never written to
+  via a squash-merged PR from `dev` (see "Releasing to main" below), never written to
   directly.
 - `count=N` — how many agents to top up to THIS pass, overriding `cap` for a
   one-shot burst (rare; normally you just top up to `cap`).
@@ -167,62 +167,41 @@ is actively running; widen it once things quiet down. Mention in your
 visible update: how many agents are running, how many matched/attempted
 since the last pass, and the current true totals.
 
-### 5. Releasing to `main` — a real stacked-PR chain
+### 5. Releasing to `main` — one `dev` → `main` PR, squash-merged
 
 `main` is never written to directly — not by agents, not by you, and a
 direct push/merge (e.g. `git push origin dev:main`) is blocked by this
-environment's own guardrails ("Merge Without Review") regardless — don't
-try to work around that.
+environment's own guardrails ("Merge Without Review"). Don't work around it.
 
-**2026-10-15: switched from "one `dev`→`main` PR that keeps absorbing
-commits" to a real stacked chain**, per the user's explicit ask ("i want
-a real stack pr like a chain") after a PR (#1, then #2) grew large by
-sitting open while `dev` kept moving. `dev` itself is unaffected by this
-— it's still the single branch every agent always fetches/rebases onto
-and the single branch you always merge agent work into. The chain is a
-separate, orchestrator-only bookkeeping layer on top: periodic frozen
-snapshots of `dev`, each its own small PR against the previous snapshot
-instead of against `main` directly.
+**2026-10-15: replaced the stacked `stack/NNN` chain** (it was more
+bookkeeping than it was worth) with a single long-lived `dev` and periodic
+squash-merged PRs. Never squash or force-push `dev` itself — every agent
+rebases onto `origin/dev`.
 
-**Cutting a new segment** (roughly every 25 commits accumulated on `dev`
-since the last segment was cut — check with `git log --oneline
-stack/<last-NNN>..dev | wc -l` — treat that as a trigger to check in with
-the user, not a hard mechanical rule; also cut one whenever the user
-asks, or whenever the swarm is being paused, so work never sits
-unsegmented for long):
+**Cadence:** every ~25 commits on `dev` since the last release
+(`git rev-list --count origin/main..dev` overcounts after a squash-merge,
+see below — count since the last "sync after PR" merge commit instead), when
+the swarm pauses, or when the user asks. Treat the trigger as a prompt to
+check in with the user.
 
 ```sh
-# regenerate the heatmap first (cheap, ~0.7s once xy-viz is already built;
-# derives from the Ghidra/recomp corpus, not armcc-matching, so this is
-# usually just a timestamp bump -- commit it anyway, on dev)
+# 1. refresh derived assets on dev first
 python3 xy-heatmap/heatmap.py readme
-git add docs/assets/ && git commit -m "..." # if it changed
+git add docs/assets/ && git commit -m "docs: regenerate README heatmap (...)" && git push origin dev
 
-N=002  # next unused stack/NNN, zero-padded 3 digits
-git branch stack/$N origin/dev
-git push -u origin stack/$N
+# 2. open ONE PR dev -> main (the user merges it; choose "Squash and merge")
+gh pr create --base main --head dev --title "..." --body "..."
 
-PREV=stack/001  # the previous segment -- or `main` if this is the first ever
-gh pr create --base "$PREV" --head stack/$N --title "..." --body "..."
+# 3. after the user has merged it, sync main back into dev (no force-push)
+git fetch origin && git merge origin/main -m "Merge origin/main into dev (sync after PR #N)" && git push origin dev
 ```
 
-Each segment's PR diff is only what's new since the previous segment was
-cut — small and reviewable on its own — while `dev` keeps moving forward
-underneath for the swarm's ongoing work, which will become `stack/<N+1>`
-at the next checkpoint.
+You can't merge PRs yourself — that's the user's call. After a squash-merge
+the old commits remain reachable only from `dev`, so a GitHub PR's commit
+*list* stays long, but its *diff* is correct (merge base = main's tip after
+step 3). Don't "fix" that by rewriting `dev`.
 
-**When a lower segment merges**, retarget the next segment's PR base so
-its diff stays against the new tip of the chain instead of a branch that
-no longer exists as a distinct ref:
-```sh
-gh pr edit <next-segment-PR-number> --base main   # if stack/001 merged straight into main
-# or --base stack/<the segment below it>, if the chain is more than 2 deep
-```
-
-You can't merge PRs yourself (same guardrail as the direct push) — that's
-the user's call. If you notice an older segment's PR has sat open a long
-time while newer segments stacked on top of it, mention it; don't let a
-whole stale chain build up unmerged.
+Never leave an old release PR open while `dev` keeps moving — mention it.
 
 ## Things that will bite you if you skip them
 
