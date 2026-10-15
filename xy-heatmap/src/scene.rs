@@ -102,6 +102,13 @@ pub struct Cells {
     pub cols: usize,
     /// ladder index per cell
     pub tiers: Vec<usize>,
+    /// per-cell overlay flags (parallel to `tiers`): relaxed armcc matches
+    /// and attempted-but-unmatched functions. Rendered as outlines; empty
+    /// when the module has none (the common case).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub hints: Vec<bool>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub attempted: Vec<bool>,
     #[serde(default = "default_gap")]
     pub gap: f64,
     #[serde(default = "default_stride")]

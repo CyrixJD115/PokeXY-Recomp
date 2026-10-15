@@ -149,7 +149,7 @@ cd xy-heatmap && cargo run -- serve --watch --port 8765   # live UI (writes noth
 cargo run -- summary                                   # text table to stdout
 cargo run -- export --view treemap --format png \
     --out treemap.png --scale 3                        # also: overview | namespaces | module:<Name> | all
-cargo run -- readme                                    # regen docs/assets/ heatmap-*.svg
+cargo run -- readme                                    # regen docs/assets/ heatmap-*.svg + progress-bar png
 cargo test                                             # bundled test suite (synthetic fixtures)
 # dev loop without building the SPA: `pnpm --dir ui dev` (Vite proxies /api,/view)
 

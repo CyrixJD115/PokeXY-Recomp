@@ -13,7 +13,12 @@ use crate::error::{HeatmapError, Result};
 use crate::palette;
 
 pub const FLAG_COVERED: u8 = 1;
+/// armcc masked-match that only passes with `--relax-nops` — excluded from
+/// the verified total (armcc-matching/README.md rule), shown as an overlay.
 pub const FLAG_HINT: u8 = 2;
+/// A function an armcc-matching agent attempted (up to its time cap) without
+/// reaching a masked match — recorded in `attempted.md` so nobody retried it.
+pub const FLAG_ATTEMPTED: u8 = 4;
 
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Cell {
@@ -32,6 +37,10 @@ impl Cell {
 
     pub fn hint(&self) -> bool {
         self.flags & FLAG_HINT != 0
+    }
+
+    pub fn attempted(&self) -> bool {
+        self.flags & FLAG_ATTEMPTED != 0
     }
 
     pub fn escalate(&mut self, tier: usize) {
@@ -67,6 +76,10 @@ impl Module {
 
     pub fn hint_count(&self) -> u64 {
         self.cells.iter().filter(|c| c.hint()).count() as u64
+    }
+
+    pub fn attempted_count(&self) -> u64 {
+        self.cells.iter().filter(|c| c.attempted()).count() as u64
     }
 }
 
@@ -119,6 +132,10 @@ impl Dataset {
 
     pub fn hint_count(&self) -> u64 {
         self.modules.iter().map(|m| m.hint_count()).sum()
+    }
+
+    pub fn attempted_count(&self) -> u64 {
+        self.modules.iter().map(|m| m.attempted_count()).sum()
     }
 
     /// (ok, total) over modules that carry relink data, else None.
@@ -259,6 +276,9 @@ fn escalate_from_flags(
         if get_bool(spec, name, where_)? {
             cell.escalate(idx);
         }
+    }
+    if get_bool(spec, "attempted", where_)? {
+        cell.flags |= FLAG_ATTEMPTED;
     }
     Ok(())
 }

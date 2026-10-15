@@ -9,7 +9,7 @@ use crate::layout::{
 };
 use crate::scene::Scene;
 
-pub const VIEW_NAMES: [&str; 4] = ["treemap", "overview", "grid", "namespaces"];
+pub const VIEW_NAMES: [&str; 5] = ["treemap", "progress", "overview", "grid", "namespaces"];
 
 /// `"treemap" | ... | "module:NAME"` -> (view, module).
 pub fn parse_view(spec: &str) -> Result<(String, Option<String>)> {
@@ -44,6 +44,7 @@ pub fn build_scene(
 ) -> Result<Scene> {
     match view {
         "treemap" => Ok(treemap_scene(ds, cfg, min_tier, minor_max)),
+        "progress" => Ok(crate::layout::progress_scene(ds, cfg)),
         "overview" => overview_scene(ds, cfg, min_tier),
         "grid" => Ok(corpus_grid_scene(ds, cfg, min_tier, cols)),
         "namespaces" => namespaces_scene(ds, cfg, min_tier),

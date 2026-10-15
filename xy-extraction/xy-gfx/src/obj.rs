@@ -154,7 +154,7 @@ pub fn export_bch_model(
         // 1-based and include the accumulated offset.
         for sub in &mesh.submeshes {
             let tris = triangles(sub.primitive_mode, &sub.indices);
-            for t in tris.chunks_exact(3) {
+            for t in tris.as_chunks::<3>().0 {
                 let (a, b, c) = (t[0] + v_out + 1, t[1] + v_out + 1, t[2] + v_out + 1);
                 writeln!(obj, "f {a}/{a}/{a} {b}/{b}/{b} {c}/{c}/{c}")?;
             }

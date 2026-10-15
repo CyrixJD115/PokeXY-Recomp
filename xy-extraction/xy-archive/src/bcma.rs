@@ -160,8 +160,10 @@ fn decode_name(table: &[u8], p: usize) -> String {
         end += 2;
     }
     let units: Vec<u16> = table[p..end]
-        .chunks_exact(2)
-        .map(|c| u16::from_le_bytes([c[0], c[1]]))
+        .as_chunks::<2>()
+        .0
+        .iter()
+        .map(|c| u16::from_le_bytes(*c))
         .collect();
     String::from_utf16_lossy(&units)
 }

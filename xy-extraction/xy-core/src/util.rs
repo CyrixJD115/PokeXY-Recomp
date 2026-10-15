@@ -41,8 +41,10 @@ pub fn f32_le(b: &[u8], off: usize) -> Result<f32> {
 /// Trailing padding after the first NUL unit is ignored.
 pub fn utf16le_string(bytes: &[u8]) -> String {
     let units: Vec<u16> = bytes
-        .chunks_exact(2)
-        .map(|c| u16::from_le_bytes([c[0], c[1]]))
+        .as_chunks::<2>()
+        .0
+        .iter()
+        .map(|c| u16::from_le_bytes(*c))
         .collect();
     let end = units.iter().position(|&u| u == 0).unwrap_or(units.len());
     String::from_utf16_lossy(&units[..end])

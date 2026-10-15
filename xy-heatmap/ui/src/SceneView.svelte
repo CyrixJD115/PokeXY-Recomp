@@ -7,6 +7,7 @@
     type DatasetPayload,
     type Hover,
     type Scene,
+    type SceneCells,
   } from "./lib/api";
 
   let {
@@ -22,6 +23,20 @@
     onhover: (hover: Hover | null) => void;
     onopenmodule: (name: string) => void;
   } = $props();
+
+  /// One square subpath per flagged cell — mirrors the Rust svg.rs overlay
+  /// rendering (relaxed matches / attempted functions).
+  function flagPath(item: SceneCells, flags: boolean[]): string {
+    const stride = item.size + item.gap;
+    let d = "";
+    flags.forEach((f, i) => {
+      if (!f) return;
+      const cx = item.x + (i % item.cols) * stride;
+      const cy = item.y + Math.floor(i / item.cols) * stride;
+      d += `M${cx} ${cy}h${item.size}v${item.size}h-${item.size}z`;
+    });
+    return d;
+  }
 
   // Live "what am I pointing at" decode — locate the [data-cells] group
   // under the pointer, invert the screen transform, and index the module's
@@ -54,6 +69,7 @@
         module,
         addr: base + idx * stride,
         tier: cell ? cell[3] : 0,
+        flags: cell ? cell[4] : 0,
         name: cell ? cell[2] : "",
       });
       return;
@@ -125,6 +141,24 @@
               {#if item.tip}<title>{item.tip}</title>{/if}
               <path d={g.d} fill={TIER_COLORS[g.tier]} shape-rendering="crispEdges" />
             </g>
+          {/each}
+          {#each [item.hints, item.attempted] as flags, fi}
+            {#if flags?.some((f) => f)}
+              <!-- overlay outlines: relaxed matches (red) / attempted (violet) -->
+              <g
+                data-module={item.module}
+                data-cells="{item.base_addr}:{item.addr_stride}:{item.cols}:{item.size + item.gap}:{item.tiers.length}"
+              >
+                {#if item.tip}<title>{item.tip}</title>{/if}
+                <path
+                  d={flagPath(item, flags)}
+                  fill="none"
+                  stroke={fi === 0 ? "var(--hint, #e05252)" : "#8f7ff0"}
+                  stroke-width="1"
+                  shape-rendering="crispEdges"
+                />
+              </g>
+            {/if}
           {/each}
         {/if}
       {/each}

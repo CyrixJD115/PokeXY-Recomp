@@ -67,40 +67,68 @@ fn cells_svg(item: &Cells) -> String {
     }
     by_tier.sort_by_key(|(t, _)| *t);
 
+    let mut attrs = String::new();
+    if !item.module.is_empty() {
+        attrs += &format!(" data-module=\"{}\"", escape_attr(&item.module));
+    }
+    attrs += &format!(
+        " data-cells=\"{}:{}:{}:{}:{}\"",
+        item.base_addr,
+        item.addr_stride,
+        item.cols,
+        num(stride),
+        item.tiers.len()
+    );
+    let tip = tip_el(&item.tip, "");
+
     let mut parts = String::new();
     for (tier, idxs) in &by_tier {
-        let mut seg = String::new();
-        for &i in idxs {
-            let cx = item.x + (i % item.cols) as f64 * stride;
-            let cy = item.y + (i / item.cols) as f64 * stride;
-            seg.push_str(&format!(
-                "M{} {}h{}v{}h-{}z",
-                num(cx),
-                num(cy),
-                num(item.size),
-                num(item.size),
-                num(item.size)
-            ));
-        }
-        let mut attrs = String::new();
-        if !item.module.is_empty() {
-            attrs += &format!(" data-module=\"{}\"", escape_attr(&item.module));
-        }
-        attrs += &format!(
-            " data-cells=\"{}:{}:{}:{}:{}\"",
-            item.base_addr,
-            item.addr_stride,
-            item.cols,
-            num(stride),
-            item.tiers.len()
-        );
+        let seg = cells_path(idxs, item, stride);
         parts.push_str(&format!(
-            "<g{attrs}>{}<path d=\"{seg}\" fill=\"{}\" shape-rendering=\"crispEdges\"/></g>\n",
-            tip_el(&item.tip, ""),
+            "<g{attrs}>{tip}<path d=\"{seg}\" fill=\"{}\" shape-rendering=\"crispEdges\"/></g>\n",
             tier_color(*tier),
         ));
     }
+    // overlay outlines (relaxed matches / attempted functions): unfocused
+    // strokes on top of the tier fills, same hover metadata
+    for (flags, color) in [
+        (&item.hints, crate::palette::HINT_COLOR),
+        (&item.attempted, crate::palette::ATTEMPTED_COLOR),
+    ] {
+        let idxs: Vec<usize> = flags
+            .iter()
+            .enumerate()
+            .filter(|(_, f)| **f)
+            .map(|(i, _)| i)
+            .collect();
+        if idxs.is_empty() {
+            continue;
+        }
+        let seg = cells_path(&idxs, item, stride);
+        parts.push_str(&format!(
+            "<g{attrs}>{tip}<path d=\"{seg}\" fill=\"none\" stroke=\"{color}\" \
+             stroke-width=\"1\" shape-rendering=\"crispEdges\"/></g>\n"
+        ));
+    }
     parts
+}
+
+/// One square subpath per cell index (shared by tier fills and overlays).
+fn cells_path(idxs: &[usize], item: &Cells, stride: f64) -> String {
+    let mut seg = String::new();
+    for &i in idxs {
+        let cx = item.x + (i % item.cols) as f64 * stride;
+        let cy = item.y + (i / item.cols) as f64 * stride;
+        seg.push_str(&format!(
+            "M{} {}h{}v{}h-{}z",
+            num(cx),
+            num(cy),
+            num(item.size),
+            num(item.size),
+            num(item.size)
+        ));
+    }
+    seg
 }
 
 pub fn render_svg(scene: &Scene) -> Vec<u8> {

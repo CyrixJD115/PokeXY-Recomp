@@ -118,6 +118,8 @@ async fn api_module(State(app): State<App>, Path(name): Path<String>) -> Respons
         "tiers": { "raw": counts[0], "decompiled": counts[1], "named": counts[2], "verified": counts[3] },
         "covered": m.covered_count(),
         "named_symbols": named,
+        "relaxed": m.hint_count(),
+        "attempted": m.attempted_count(),
         "relink_ok": m.relink_ok,
         "addr_range": addr_range,
         "imports": m.imports,

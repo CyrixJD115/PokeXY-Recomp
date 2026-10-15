@@ -204,7 +204,7 @@ impl<'a> TextFile<'a> {
             .ok_or_else(|| Error::truncated(start, units * 2, "textfile line data"))?;
         let mut key = KEY_BASE.wrapping_add(KEY_ADVANCE.wrapping_mul(index as u16));
         let mut out = Vec::with_capacity(units);
-        for chunk in bytes.chunks_exact(2) {
+        for chunk in bytes.as_chunks::<2>().0 {
             let unit = u16::from_le_bytes([chunk[0], chunk[1]]) ^ key;
             key = rol3(key);
             out.push(unit);

@@ -276,8 +276,10 @@ impl<'a> Bcwav<'a> {
                     }
                     Codec::Pcm16 => {
                         let smp: Vec<i16> = pcm
-                            .chunks_exact(2)
-                            .map(|c| i16::from_le_bytes([c[0], c[1]]))
+                            .as_chunks::<2>()
+                            .0
+                            .iter()
+                            .map(|c| i16::from_le_bytes(*c))
                             .collect();
                         let mut chans = vec![
                             Vec::with_capacity(smp.len() / self.channels as usize);
@@ -311,8 +313,10 @@ impl<'a> Bcwav<'a> {
                         .collect()),
                     Codec::Pcm16 => Ok(c
                         .samples
-                        .chunks_exact(2)
-                        .map(|p| i16::from_le_bytes([p[0], p[1]]))
+                        .as_chunks::<2>()
+                        .0
+                        .iter()
+                        .map(|p| i16::from_le_bytes(*p))
                         .collect()),
                 })
                 .collect::<Result<_>>()?,
@@ -397,7 +401,7 @@ fn low_nibble_signed(b: u8) -> i64 {
 pub(crate) fn decode_dsp(data: &[u8], coefs: &[i16; 16]) -> Vec<i16> {
     let mut out = Vec::with_capacity(data.len() / 8 * 14);
     let (mut hist1, mut hist2) = (0i64, 0i64);
-    for frame in data.chunks_exact(8) {
+    for frame in data.as_chunks::<8>().0 {
         let header = frame[0];
         let scale = 1i64 << (header & 0xF);
         let mut coef_index = ((header >> 4) & 0xF) as usize;

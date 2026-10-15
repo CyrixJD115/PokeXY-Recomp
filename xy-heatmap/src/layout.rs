@@ -67,17 +67,32 @@ fn legend(scene: &mut Scene, ds: &Dataset, cfg: &Config, y: f64, min_tier: usize
         )));
         x += 16.0 + CHAR_W * cfg.small_size * label.chars().count() as f64 + 20.0;
     }
-    let hint_label = format!("interpreter hits {}", thousands(ds.hint_count()));
-    scene.add(Item::Rect(
-        Rect::new(x, y, 11.0, 11.0, cfg.panel).stroke(HINT_COLOR, 1.4),
-    ));
-    scene.add(Item::Text(Text::new(
-        x + 16.0,
-        y + 9.5,
-        hint_label,
-        cfg.small_size,
-        cfg.muted,
-    )));
+    // overlay outlines, only when present: relaxed armcc matches (excluded
+    // from verified) and attempted-but-unmatched functions
+    for (label, count, color) in [
+        ("relaxed", ds.hint_count(), HINT_COLOR),
+        (
+            "attempted",
+            ds.attempted_count(),
+            crate::palette::ATTEMPTED_COLOR,
+        ),
+    ] {
+        if count == 0 {
+            continue;
+        }
+        let label = format!("{label} {}", thousands(count));
+        scene.add(Item::Rect(
+            Rect::new(x, y, 11.0, 11.0, cfg.panel).stroke(color, 1.4),
+        ));
+        scene.add(Item::Text(Text::new(
+            x + 16.0,
+            y + 9.5,
+            label.clone(),
+            cfg.small_size,
+            cfg.muted,
+        )));
+        x += 16.0 + CHAR_W * cfg.small_size * label.chars().count() as f64 + 20.0;
+    }
     scene.add(Item::Text(
         Text::new(
             cfg.width as f64 - cfg.margin,
@@ -186,6 +201,13 @@ fn tip_for(mod_: &Module, min_tier: usize) -> String {
             pct(mod_.covered_count(), mod_.cells.len() as u64)
         ),
     ];
+    if mod_.hint_count() > 0 || mod_.attempted_count() > 0 {
+        lines.push(format!(
+            "armcc: {} relaxed · {} attempted (no match yet)",
+            thousands(mod_.hint_count()),
+            thousands(mod_.attempted_count())
+        ));
+    }
     if !mod_.imports.is_empty() {
         let shown: Vec<&str> = mod_.imports.iter().take(4).map(|s| s.as_str()).collect();
         let mut line = format!("imports from: {}", shown.join(", "));
@@ -205,14 +227,17 @@ fn tip_for(mod_: &Module, min_tier: usize) -> String {
     lines.join("\n")
 }
 
-/// (tiers, base_addr, stride) honouring the tier filter.
-fn filter_cells(mod_: &Module, min_tier: usize) -> (Vec<usize>, u64, u64) {
+/// (tiers, hint overlays, attempted overlays, base_addr, stride) honouring
+/// the tier filter. Overlay vectors are parallel to `tiers`.
+fn filter_cells(mod_: &Module, min_tier: usize) -> (Vec<usize>, Vec<bool>, Vec<bool>, u64, u64) {
     let cells: Vec<&crate::dataset::Cell> = if min_tier > 0 {
         mod_.cells.iter().filter(|c| c.tier >= min_tier).collect()
     } else {
         mod_.cells.iter().collect()
     };
     let tiers: Vec<usize> = cells.iter().map(|c| c.tier).collect();
+    let hints: Vec<bool> = cells.iter().map(|c| c.hint()).collect();
+    let attempted: Vec<bool> = cells.iter().map(|c| c.attempted()).collect();
     let base = cells.first().map(|c| c.addr).unwrap_or(0);
     let stride = if cells.len() > 1 {
         cells
@@ -223,7 +248,18 @@ fn filter_cells(mod_: &Module, min_tier: usize) -> (Vec<usize>, u64, u64) {
     } else {
         4
     };
-    (tiers, base, stride.clamp(1, 64))
+    (tiers, hints, attempted, base, stride.clamp(1, 64))
+}
+
+/// Overlay vector trimmed to the drawn capacity; empty (and thus omitted
+/// from scene JSON) when no drawn cell carries the flag.
+fn overlay_vec(v: &[bool], cap: usize) -> Vec<bool> {
+    let trimmed = &v[..cap.min(v.len())];
+    if trimmed.iter().any(|b| *b) {
+        trimmed.to_vec()
+    } else {
+        Vec::new()
+    }
 }
 
 // ------------------------------------------------------------------ treemap
@@ -295,13 +331,14 @@ fn major_box(scene: &mut Scene, mod_: &Module, r: Rect, cfg: &Config, min_tier: 
     let (x, y, w, h) = (r.x, r.y, r.w, r.h);
     // One squarified treemap box: label + as many function cells as fit,
     // rows computed against the label band so cells never cross the border.
-    let (tiers, base, astride) = filter_cells(mod_, min_tier);
+    let (tiers, hints, attempted, base, astride) = filter_cells(mod_, min_tier);
     let cs = cfg.treemap_cell;
     let pitch = cs + 1.0;
     let label_h = if w > 60.0 && h > 40.0 { 15.0 } else { 0.0 };
     let cols = (((w - 8.0) / pitch) as usize).max(1);
     let rows = (((h - label_h - 6.0) / pitch) as usize).max(1);
     let capacity = cols * rows;
+    let cap = capacity.min(tiers.len());
     let tip = tip_for(mod_, min_tier);
     scene.add(Item::Rect(Rect::new(x, y, w, h, cfg.panel)));
     scene.add(Item::Cells(Cells {
@@ -309,7 +346,9 @@ fn major_box(scene: &mut Scene, mod_: &Module, r: Rect, cfg: &Config, min_tier: 
         y: y + label_h + 3.0,
         size: cs,
         cols,
-        tiers: tiers[..capacity.min(tiers.len())].to_vec(),
+        tiers: tiers[..cap].to_vec(),
+        hints: overlay_vec(&hints, cap),
+        attempted: overlay_vec(&attempted, cap),
         gap: 1.0,
         addr_stride: astride,
         base_addr: base,
@@ -361,9 +400,10 @@ fn minor_card(
     min_tier: usize,
 ) {
     let (x, y, bw, bh) = (r.x, r.y, r.w, r.h);
-    let (tiers, base, astride) = filter_cells(mod_, min_tier);
+    let (tiers, hints, attempted, base, astride) = filter_cells(mod_, min_tier);
     let cs = cfg.treemap_cell;
     let capacity = cols * rows;
+    let cap = capacity.min(tiers.len());
     let tip = tip_for(mod_, min_tier);
     scene.add(Item::Rect(Rect::new(x, y, bw, bh, cfg.panel)));
     scene.add(Item::Cells(Cells {
@@ -371,7 +411,9 @@ fn minor_card(
         y: y + 17.0,
         size: cs,
         cols,
-        tiers: tiers[..capacity.min(tiers.len())].to_vec(),
+        tiers: tiers[..cap].to_vec(),
+        hints: overlay_vec(&hints, cap),
+        attempted: overlay_vec(&attempted, cap),
         gap: 1.0,
         addr_stride: astride,
         base_addr: base,
@@ -506,7 +548,7 @@ fn grid_of(
     cfg: &Config,
     min_tier: usize,
 ) -> Cells {
-    let (tiers, base, astride) = filter_cells(mod_, min_tier);
+    let (tiers, hints, attempted, base, astride) = filter_cells(mod_, min_tier);
     let count = tiers.len();
     Cells {
         x,
@@ -514,6 +556,8 @@ fn grid_of(
         size: cell,
         cols: cols.max(1),
         tiers,
+        hints: overlay_vec(&hints, count),
+        attempted: overlay_vec(&attempted, count),
         gap: cfg.gap,
         addr_stride: astride,
         base_addr: base,
@@ -683,12 +727,13 @@ pub fn corpus_grid_scene(ds: &Dataset, cfg: &Config, min_tier: usize, cols: Opti
     for (mod_, y, fn_count) in layout {
         let counts = mod_.tier_counts();
         let mut head = format!(
-            "{}   {} fns · covered {} · decompiled {} · named {}",
+            "{}   {} fns · covered {} · decompiled {} · named {} · verified {}",
             mod_.name,
             thousands(mod_.cells.len() as u64),
             pct(mod_.covered_count(), mod_.cells.len() as u64),
             pct(counts[1], mod_.cells.len() as u64),
             thousands(counts[2]),
+            thousands(counts[3]),
         );
         match mod_.relink_ok {
             Some(true) => head += " · relink ok",
@@ -725,6 +770,107 @@ pub fn corpus_grid_scene(ds: &Dataset, cfg: &Config, min_tier: usize, cols: Opti
     }
 
     legend(&mut scene, ds, cfg, height - cfg.legend_h + 12.0, min_tier);
+    scene
+}
+
+// ------------------------------------------------------------------ progress
+
+/// The whole corpus as one progress banner: a 100%-stacked tier-composition
+/// bar (raw → decompiled → named → verified) with in-segment percentages,
+/// plus a slim recomp-covered progress bar — the at-a-glance numbers the
+/// README embeds as `heatmap-progress-bar.png`.
+pub fn progress_scene(ds: &Dataset, cfg: &Config) -> Scene {
+    let bar_x = cfg.margin;
+    let bar_w = cfg.width as f64 - 2.0 * cfg.margin;
+    let bar_y = cfg.header_h + 18.0;
+    let bar_h = 46.0;
+
+    let total = ds.total_cells();
+    let counts = ds.tier_counts();
+    let denom = total.max(1) as f64;
+
+    let height = bar_y + bar_h + 56.0 + cfg.legend_h + cfg.margin;
+    let subtitle = "overall progress — every function of the corpus at its highest stage reached";
+    let mut scene = chrome(ds, cfg, height, subtitle, None, true);
+
+    // main stacked bar, ladder order
+    let mut off = 0.0;
+    for (tier, name) in TIER_LADDER.iter().enumerate() {
+        let seg_w = counts[tier] as f64 / denom * bar_w;
+        if seg_w <= 0.0 {
+            continue;
+        }
+        scene.add(Item::Rect(Rect::new(
+            bar_x + off,
+            bar_y,
+            seg_w,
+            bar_h,
+            TIER_COLORS[tier],
+        )));
+        // in-segment label: "name NN.N%" when it fits, bare percentage when
+        // only that fits; dark text on the colored rungs, light on grey
+        let pct_s = crate::fmt::pct(counts[tier], total);
+        let wide = format!("{} {}", name, pct_s);
+        let label = if CHAR_W * cfg.label_size * wide.chars().count() as f64 + 16.0 <= seg_w {
+            wide
+        } else if CHAR_W * cfg.label_size * pct_s.chars().count() as f64 + 12.0 <= seg_w {
+            pct_s
+        } else {
+            String::new()
+        };
+        if !label.is_empty() {
+            let text_fill = if *name == "raw" { cfg.text } else { "#10141a" };
+            scene.add(Item::Text(
+                Text::new(
+                    bar_x + off + seg_w / 2.0,
+                    bar_y + bar_h / 2.0 + 4.0,
+                    label,
+                    cfg.label_size,
+                    text_fill,
+                )
+                .anchor(Anchor::Middle),
+            ));
+        }
+        off += seg_w;
+    }
+    // frame so the bar reads on any background
+    scene.add(Item::Rect(
+        Rect::new(bar_x, bar_y, bar_w, bar_h, "#00000000").stroke(cfg.line, 1.0),
+    ));
+
+    // recomp-covered progress bar (covered is a flag, not a tier — own row)
+    let label_w = 150.0;
+    let track_y = bar_y + bar_h + 22.0;
+    let track_w = bar_w - label_w;
+    let covered = ds.covered_count();
+    scene.add(Item::Text(Text::new(
+        cfg.margin,
+        track_y + 9.0,
+        "recomp-covered",
+        cfg.small_size,
+        cfg.muted,
+    )));
+    scene.add(Item::Rect(
+        Rect::new(bar_x, track_y, track_w, 10.0, cfg.panel).stroke(cfg.line, 1.0),
+    ));
+    let fill_w = covered as f64 / denom * track_w;
+    if fill_w > 0.0 {
+        scene.add(Item::Rect(Rect::new(
+            bar_x, track_y, fill_w, 10.0, "#2fa39e",
+        )));
+    }
+    scene.add(Item::Text(
+        Text::new(
+            bar_x + track_w + 12.0,
+            track_y + 9.0,
+            format!("{} · {}", pct(covered, total), thousands(covered)),
+            cfg.small_size,
+            cfg.muted,
+        )
+        .anchor(Anchor::Start),
+    ));
+
+    legend(&mut scene, ds, cfg, height - cfg.legend_h + 12.0, 0);
     scene
 }
 

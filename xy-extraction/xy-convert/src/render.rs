@@ -193,7 +193,7 @@ pub fn render(
 
         let screen: Vec<[f32; 3]> = mesh.positions.iter().map(|p| project(*p)).collect();
 
-        for tri in mesh.indices.chunks_exact(3) {
+        for tri in mesh.indices.as_chunks::<3>().0 {
             let (ia, ib, ic) = (tri[0] as usize, tri[1] as usize, tri[2] as usize);
             let (a, b, c) = (screen[ia], screen[ib], screen[ic]);
             if a[0].is_nan() || b[0].is_nan() || c[0].is_nan() {

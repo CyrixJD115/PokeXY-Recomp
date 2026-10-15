@@ -22,19 +22,28 @@ export interface DatasetPayload {
   sources: string;
 }
 
+/// Cell flag bits (dataset FLAG_*): covered = recomp port, hint = relaxed
+/// armcc match (excluded from verified), attempted = an armcc-matching
+/// agent tried here without a match.
+export const FLAG_COVERED = 1;
+export const FLAG_HINT = 2;
+export const FLAG_ATTEMPTED = 4;
+
 export interface ModuleFacts {
   name: string;
   total: number;
   tiers: { raw: number; decompiled: number; named: number; verified: number };
   covered: number;
   named_symbols: number;
+  relaxed: number;
+  attempted: number;
   relink_ok: boolean | null;
   addr_range: [string, string] | null;
   imports: string[];
 }
 
 export type ViewTab = "treemap" | "overview" | "grid" | "namespaces" | "module";
-export const BASE_TABS = ["treemap", "overview", "grid", "namespaces"] as const;
+export const BASE_TABS = ["treemap", "progress", "overview", "grid", "namespaces"] as const;
 
 // ------------------------------------------------------------------ scene
 
@@ -65,6 +74,9 @@ export interface SceneCells {
   tiers: number[];
   gap: number; addr_stride: number; base_addr: number;
   module: string; names: string[];
+  /// overlay outlines, parallel to tiers (omitted when empty)
+  hints?: boolean[];
+  attempted?: boolean[];
   tip?: string | null;
   attrs: [string, string][];
 }
@@ -120,5 +132,5 @@ export function pct(n: number, d: number): string {
 /// What the pointer is over, structured so the readout bar can render
 /// chips (tier color, mono address) instead of one flat string.
 export type Hover =
-  | { kind: "cell"; module: string; addr: number; tier: number; name: string }
+  | { kind: "cell"; module: string; addr: number; tier: number; flags: number; name: string }
   | { kind: "module"; module: string; count: number };

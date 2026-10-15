@@ -5,8 +5,8 @@ effort — a Rust-first toolkit where [3dsrecomp](https://github.com/fearkov/3ds
 turns a decrypted dump into a native Linux binary, the `xy` CLI extracts and
 converts every game format, a matching-decompilation loop
 (3DS-Decomp-Pipeline + objdiff) rebuilds the original code byte-for-byte,
-and a zakuro-based runtime track carries the HLE runtime layer. Python
-shows up only as helper scripts under `xy-heatmap/` (heatmap, rebuild glue).
+and a zakuro-based runtime track carries the HLE runtime layer. The
+progress-heatmap studio is a Rust/axum + Svelte app of its own.
 
 ## Layout
 
@@ -39,6 +39,8 @@ cargo build --release
 ```
 
 ## Status
+
+![overall progress bar](docs/assets/heatmap-progress-bar.png)
 
 ![recomp/decomp progress](docs/assets/heatmap-progress.svg)
 

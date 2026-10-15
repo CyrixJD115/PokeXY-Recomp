@@ -87,7 +87,7 @@ fn parse_view_and_filename() {
         "module-a_b.svg"
     );
     assert_eq!(view_filename("treemap", None, "png"), "treemap.png");
-    assert_eq!(VIEW_NAMES.len(), 4);
+    assert_eq!(VIEW_NAMES.len(), 5);
 }
 
 #[test]
@@ -195,4 +195,39 @@ fn thousands_and_pct_helpers() {
     assert_eq!(crate::fmt::thousands(999), "999");
     assert_eq!(crate::fmt::pct(1, 0), "0.0%");
     assert_eq!(crate::fmt::pct(1, 3), "33.3%");
+}
+
+#[test]
+fn progress_scene_bar_conserves_width_and_labels() {
+    let ds = sample_dataset();
+    let cfg = Config::default();
+    let scene = crate::layout::progress_scene(&ds, &cfg);
+    // the four tier segments tile the content width exactly
+    let segs: Vec<_> = scene
+        .items
+        .iter()
+        .filter_map(|i| match i {
+            crate::scene::Item::Rect(r) if r.h == 46.0 && r.fill != "#00000000" => Some(r),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(segs.len(), 4, "expected one segment per tier");
+    let total_w: f64 = segs.iter().map(|r| r.w).sum();
+    let content_w = cfg.width as f64 - 2.0 * cfg.margin;
+    assert!(
+        (total_w - content_w).abs() < 1e-9,
+        "bar width not conserved"
+    );
+    // segment order is ladder order
+    assert_eq!(segs[0].fill, TIER_COLORS[0]);
+    assert_eq!(segs[3].fill, TIER_COLORS[3]);
+    // covered track + labels exist; deterministic bytes via the svg renderer
+    let a = crate::svg::render_svg(&scene);
+    let b = crate::svg::render_svg(&scene);
+    assert_eq!(a, b);
+    let s = String::from_utf8(a).unwrap();
+    assert!(s.contains("recomp-covered"));
+    // the sample dataset has no covered cells and no verified-tier... rather:
+    // covered = 0 renders an empty track with the 0.0% label
+    assert!(s.contains("0.0%"));
 }

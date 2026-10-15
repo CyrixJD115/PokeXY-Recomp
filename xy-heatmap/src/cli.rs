@@ -245,17 +245,20 @@ fn cmd_readme(
         }
     };
     std::fs::create_dir_all(&out)?;
-    for (name, file) in [
-        ("treemap", "heatmap-treemap.svg"),
-        ("overview", "heatmap-progress.svg"),
-    ] {
+    let targets = [
+        ("treemap", "svg", "heatmap-treemap.svg"),
+        ("overview", "svg", "heatmap-progress.svg"),
+        // the overall progress banner goes into the README as a PNG
+        ("progress", "png", "heatmap-progress-bar.png"),
+    ];
+    for (view, format, file) in targets {
         cmd_export(
             data_root,
             dataset,
             width,
             ExportOpts {
-                view: name.to_string(),
-                format: "svg".to_string(),
+                view: view.to_string(),
+                format: format.to_string(),
                 out: out.join(file),
                 scale: 2,
                 dpi: None,

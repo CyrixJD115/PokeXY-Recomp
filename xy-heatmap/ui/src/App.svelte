@@ -43,6 +43,7 @@
     let total = 0;
     let covered = 0;
     let hint = 0;
+    let attempted = 0;
     let relinkOk = 0;
     let relinkKnown = 0;
     for (const m of ds.modules) {
@@ -55,9 +56,10 @@
         counts[c[3]]++;
         if (c[4] & 1) covered++;
         if (c[4] & 2) hint++;
+        if (c[4] & 4) attempted++;
       }
     }
-    return { counts, total, covered, hint, relinkOk, relinkKnown };
+    return { counts, total, covered, hint, attempted, relinkOk, relinkKnown };
   });
 
   function baseName(): string {
@@ -271,6 +273,15 @@
     <span class="ro-addr">0x{hover.addr.toString(16).toUpperCase().padStart(6, "0")}</span>
     <span class="ro-sep">·</span>
     <span class="ro-tier" style="color:{TIER_COLORS[hover.tier]}">{TIER_NAMES[hover.tier]}</span>
+    {#if hover.tier === 3}
+      <span class="ro-flag" title="armcc masked-match proven — recompiles byte-identical to the retail binary">armcc</span>
+    {/if}
+    {#if hover.flags & 2}
+      <span class="ro-flag ro-flag-relaxed" title="matches only with --relax-nops — not counted as verified">relaxed</span>
+    {/if}
+    {#if hover.flags & 4}
+      <span class="ro-flag ro-flag-attempted" title="an armcc-matching agent attempted this without reaching a match">attempted</span>
+    {/if}
     {#if hover.name}
       <span class="ro-sep">·</span>
       <span class="ro-name">{hover.name}</span>
@@ -289,14 +300,21 @@
 <footer>
   <span class="legend">
     {#each TIER_NAMES as t, i}
-      <span class="sw" title="{t} — color = highest stage reached">
+      <span class="sw" title="{t} — color = highest stage reached{t === 'verified' ? ' (armcc masked-match proven)' : ''}">
         <i style="background:{TIER_COLORS[i]}"></i>{t}
         {#if totals}<em>{totals.counts[i].toLocaleString()}</em>{/if}
       </span>
     {/each}
-    <span class="sw" title="interpreter had to step in">
-      <i class="ring"></i>hint{#if totals}<em>{totals.hint}</em>{/if}
-    </span>
+    {#if totals?.hint}
+      <span class="sw" title="armcc match only with --relax-nops — excluded from verified">
+        <i class="ring ring-relaxed"></i>relaxed<em>{totals.hint.toLocaleString()}</em>
+      </span>
+    {/if}
+    {#if totals?.attempted}
+      <span class="sw" title="armcc-matching agents attempted these without a match — don't blindly retry">
+        <i class="ring ring-attempted"></i>attempted<em>{totals.attempted.toLocaleString()}</em>
+      </span>
+    {/if}
   </span>
   {#if ds?.warnings.length}
     <span id="warn" title={ds.warnings.join("\n")}>{ds.warnings.length} collector warnings</span>
@@ -620,6 +638,24 @@
   .sw i.ring {
     background: var(--panel2);
     border: 1.4px solid var(--hint);
+  }
+  .sw i.ring-attempted {
+    border-color: #8f7ff0;
+  }
+  .ro-flag {
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0 7px;
+    color: var(--gold);
+  }
+  .ro-flag-relaxed {
+    color: var(--hint);
+  }
+  .ro-flag-attempted {
+    color: #8f7ff0;
   }
   .sw em {
     color: var(--faint);

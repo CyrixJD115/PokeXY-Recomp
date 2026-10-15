@@ -9,6 +9,10 @@ pub const TIER_COLORS: [&str; 4] = ["#454b57", "#2fa39e", "#58b368", "#eec84a"];
 
 pub const HINT_COLOR: &str = "#e05252";
 
+/// Overlay outline for cells an armcc-matching agent attempted without a
+/// match (distinct from HINT_COLOR = relaxed matches).
+pub const ATTEMPTED_COLOR: &str = "#8f7ff0";
+
 pub fn tier_index(name: &str) -> Option<usize> {
     TIER_LADDER.iter().position(|&t| t == name)
 }

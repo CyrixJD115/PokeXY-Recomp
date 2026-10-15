@@ -45,8 +45,14 @@
     </div>
     <div class="stat">
       <b>{facts.tiers.verified.toLocaleString()}</b>
-      <span>verified</span>
+      <span>armcc-verified</span>
     </div>
+    {#if facts.relaxed || facts.attempted}
+      <div class="stat">
+        <b>{facts.relaxed.toLocaleString()} / {facts.attempted.toLocaleString()}</b>
+        <span>relaxed / attempted</span>
+      </div>
+    {/if}
     <div class="stat">
       <b class="mono">{facts.addr_range ? `${facts.addr_range[0]} – ${facts.addr_range[1]}` : "—"}</b>
       <span>address range</span>

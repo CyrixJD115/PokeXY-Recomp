@@ -380,7 +380,7 @@ pub fn decode_rgba(
     }
 
     // BGRA → RGBA (single final swap; every case above wrote BGRA).
-    for px in bgra.chunks_exact_mut(4) {
+    for px in bgra.as_chunks_mut::<4>().0 {
         px.swap(0, 2);
     }
     Ok(bgra)

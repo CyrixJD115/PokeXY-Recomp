@@ -5,6 +5,23 @@
 //!
 //! Canonical frames: **Main** cells use absolute addresses (0x00100000
 //! base); **CRO** cells use module-relative text offsets (the 0x180 frame).
+//!
+//! Status tiers (color = highest rung reached):
+//! - **raw** — the function is catalogued (Ghidra symbol CSV / recomp
+//!   coverage) but has no decompiled C and no real name: still raw binary.
+//! - **decompiled** — a C file for this address exists in the decomp corpus
+//!   (`decomp/code_c`, `decomp/cro_c/<Mod>/`).
+//! - **named** — a real symbol (CRO export table or a named CSV row).
+//! - **verified** — **armcc masked-match proven**: a
+//!   `xy-decomp/armcc-matching/matched/<Mod>/<offset>.c` candidate compiled
+//!   with the retail toolchain reproduces the binary word-for-word
+//!   (branch immediates excepted).
+//!
+//! Flags (overlays, never color steps): `covered` = recomp port coverage;
+//! hint = relaxed armcc match (`relaxed/`, `--relax-nops` only — excluded
+//! from verified per the armcc-matching README rule); attempted = an
+//! armcc-matching agent burned its time cap here without a match
+//! (`attempted.md`).
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -12,7 +29,7 @@ use std::path::{Path, PathBuf};
 use sha1::{Digest, Sha1};
 use sha2::Sha256;
 
-use crate::dataset::{Cell, Dataset, Module, FLAG_COVERED};
+use crate::dataset::{Cell, Dataset, Module, FLAG_ATTEMPTED, FLAG_COVERED, FLAG_HINT};
 use crate::error::{HeatmapError, Result};
 
 const MAIN: &str = "Main";
@@ -20,6 +37,7 @@ const GHIDRA_BASE: u64 = 0x100000;
 
 const TIER_DECOMPILED: usize = 1;
 const TIER_NAMED: usize = 2;
+const TIER_VERIFIED: usize = 3;
 
 /// Data-source abstraction shared by the CLI and the server: the project
 /// corpus, or one generic JSON dataset file.
@@ -117,6 +135,107 @@ fn parse_hex16(s: &str) -> Option<u64> {
         .or_else(|| s.strip_prefix("0X"))
         .unwrap_or(s);
     u64::from_str_radix(s, 16).ok()
+}
+
+// ------------------------------------------------------- armcc-matching
+
+/// armcc-matching evidence (the masked-match decomp workflow in
+/// `xy-decomp/armcc-matching/` — see its README; PRs #1–#3). Module keys
+/// are lowercased dir names / references.
+#[derive(Default)]
+struct Armcc {
+    /// module -> [(function offset in the module frame, parsed size)]
+    matched: BTreeMap<String, Vec<(u64, Option<u64>)>>,
+    /// module -> function offsets (only matches with `--relax-nops`:
+    /// excluded from the verified total per the armcc-matching rule)
+    relaxed: BTreeMap<String, Vec<u64>>,
+    /// (module, function offset) references from attempted.md — functions
+    /// agents burned their time cap on without reaching a match
+    attempted: Vec<(String, u64)>,
+}
+
+/// Walk up from the data root looking for the repo's armcc-matching tree
+/// (the heatmap is standalone; the matching tree is repo content, found as
+/// `<ancestor>/xy-decomp/armcc-matching` with a populated `matched/`).
+fn find_armcc_dir(start: &Path) -> Option<PathBuf> {
+    let mut cur = Some(start);
+    while let Some(dir) = cur {
+        let candidate = dir.join("xy-decomp").join("armcc-matching");
+        if candidate.join("matched").is_dir() {
+            return Some(candidate);
+        }
+        cur = dir.parent();
+    }
+    None
+}
+
+/// `matched/<Mod>/*.c` entries -> (offset from the filename stem, size from
+/// the header comment). Files whose stem is not `0x<HEX>` are skipped.
+fn scan_match_dir(dir: &Path) -> Vec<(u64, Option<u64>)> {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return Vec::new();
+    };
+    let mut out = Vec::new();
+    for p in entries.flatten() {
+        let path = p.path();
+        if !path.is_file() {
+            continue;
+        }
+        let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("");
+        let Some(off) = parse_hex16(stem) else {
+            continue;
+        };
+        let size = match_header_size(&path);
+        out.push((off, size));
+    }
+    out.sort();
+    out
+}
+
+/// The proven function length from a matched file's header comment: the
+/// first `size <hex|dec>` in the leading `/* Module @ 0xNNN size 0xMMM …`
+/// block (two observed shapes: `@ 0x1404 size 0x30` and
+/// `@ CRO file offset 0xae8, size 0x1c.`). Prose later in the header may
+/// discuss wrong candidate sizes — first occurrence is the canonical one.
+fn match_header_size(path: &Path) -> Option<u64> {
+    static SIZE: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
+    let re = SIZE.get_or_init(|| regex::Regex::new(r"size\s+(0x[0-9A-Fa-f]+|\d+)").unwrap());
+    let bytes = std::fs::read(path).ok()?;
+    let head = String::from_utf8_lossy(&bytes[..bytes.len().min(1024)]);
+    let cap = re.captures(&head)?;
+    let s = cap[1].trim_start_matches("0x");
+    if cap[1].starts_with("0x") {
+        u64::from_str_radix(s, 16).ok()
+    } else {
+        s.parse().ok()
+    }
+}
+
+/// attempted.md references: `DllPuzzle@0x100c`, plus `/0x881c`
+/// continuations sharing the preceding module reference
+/// (`DllHeading@0x87e4/0x881c`). Prose also cites already-matched
+/// functions — the caller skips references that ended up verified.
+fn parse_attempted(path: &Path) -> Vec<(String, u64)> {
+    static REF: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
+    let re = REF.get_or_init(|| {
+        regex::Regex::new(r"([A-Za-z][A-Za-z0-9_]*)@0x([0-9A-Fa-f]+)((?:/0x[0-9A-Fa-f]+)*)")
+            .unwrap()
+    });
+    let text = String::from_utf8_lossy(&std::fs::read(path).unwrap_or_default()).into_owned();
+    let mut out = Vec::new();
+    for cap in re.captures_iter(&text) {
+        let module = cap[1].to_lowercase();
+        let first = u64::from_str_radix(&cap[2], 16).unwrap_or(0);
+        out.push((module.clone(), first));
+        if let Some(rest) = cap.get(3) {
+            for tok in rest.as_str().split('/').skip(1) {
+                if let Some(off) = parse_hex16(tok) {
+                    out.push((module.clone(), off));
+                }
+            }
+        }
+    }
+    out
 }
 
 /// The project dataset: lazily collected, fingerprinted for live reload.
@@ -302,6 +421,36 @@ impl ProjectSource {
             top_level(&self.root.join("pipeline").join("out")),
         );
 
+        // armcc-matching evidence: per-function candidate files + the
+        // attempted log — every new match must trigger a live reload
+        if let Some(dir) = find_armcc_dir(&self.root) {
+            for sub in ["matched", "relaxed"] {
+                let mut mods: Vec<(String, PathBuf)> = Vec::new();
+                if let Ok(entries) = std::fs::read_dir(dir.join(sub)) {
+                    for d in entries.flatten() {
+                        if d.path().is_dir() {
+                            mods.push((d.file_name().to_string_lossy().into_owned(), d.path()));
+                        }
+                    }
+                }
+                mods.sort();
+                for (name, d) in mods {
+                    let mut files = Vec::new();
+                    if let Ok(entries) = std::fs::read_dir(&d) {
+                        for p in entries.flatten() {
+                            if let Some(e) = name_and_size(&p.path()) {
+                                files.push(e);
+                            }
+                        }
+                    }
+                    feed(&mut h, &format!("armcc/{sub}/{name}"), files);
+                }
+            }
+            if let Some((_, size)) = name_and_size(&dir.join("attempted.md")) {
+                feed(&mut h, "armcc", vec![("attempted.md".to_string(), size)]);
+            }
+        }
+
         let digest = h.finalize();
         Ok(hex(&digest)[..16].to_string())
     }
@@ -435,9 +584,10 @@ impl ProjectSource {
                 if !namespace.is_empty() && namespace != "Global" && acc.namespace.is_empty() {
                     acc.namespace = namespace.clone();
                 }
-            } else {
-                acc.tier = acc.tier.max(TIER_DECOMPILED);
             }
+            // else: an anonymous FUN_ catalog row only proves the function
+            // EXISTS (address + size). Tier stays raw — "decompiled" is
+            // earned solely by a C file in the decomp corpus below.
         }
         Ok(out)
     }
@@ -554,6 +704,66 @@ impl ProjectSource {
         result
     }
 
+    /// Load the armcc-matching evidence tree if one sits next to the data
+    /// root; `None` (no warning — the matching workflow is optional) when
+    /// the repo has none.
+    fn load_armcc(&self) -> Option<(Armcc, PathBuf)> {
+        let dir = find_armcc_dir(&self.root)?;
+        let mut armcc = Armcc::default();
+        for (sub, is_matched) in [("matched", true), ("relaxed", false)] {
+            let Ok(entries) = std::fs::read_dir(dir.join(sub)) else {
+                continue;
+            };
+            let mut dirs: Vec<PathBuf> = entries
+                .flatten()
+                .map(|e| e.path())
+                .filter(|p| p.is_dir())
+                .collect();
+            dirs.sort();
+            for d in dirs {
+                let Some(name) = d.file_name().and_then(|f| f.to_str()) else {
+                    continue;
+                };
+                let funcs = scan_match_dir(&d);
+                if funcs.is_empty() {
+                    continue;
+                }
+                if is_matched {
+                    armcc
+                        .matched
+                        .entry(name.to_lowercase())
+                        .or_default()
+                        .extend(funcs);
+                } else {
+                    // relaxed entries carry no size (the relaxed/ dirs name
+                    // functions, not proof lengths)
+                    armcc
+                        .relaxed
+                        .entry(name.to_lowercase())
+                        .or_default()
+                        .extend(funcs.into_iter().map(|(off, _)| off));
+                }
+            }
+        }
+        let attempted_md = dir.join("attempted.md");
+        if attempted_md.is_file() {
+            armcc.attempted = parse_attempted(&attempted_md);
+        }
+        Some((armcc, dir))
+    }
+
+    /// Module-frame address of an armcc offset: CRO matched offsets are
+    /// already module-relative file offsets. Main (code.bin) offsets are
+    /// accepted either as VAs (≥ 0x100000, the corpus frame) or as file
+    /// offsets (< 0x100000, shifted up by the load base).
+    fn armcc_addr(is_main: bool, off: u64) -> u64 {
+        if is_main && off < GHIDRA_BASE {
+            off + GHIDRA_BASE
+        } else {
+            off
+        }
+    }
+
     /// Build the full dataset (port of `ProjectSource.dataset`).
     pub fn dataset(&self) -> Result<Dataset> {
         let mut warnings: Vec<String> = Vec::new();
@@ -565,6 +775,7 @@ impl ProjectSource {
         let cro_dir = self.root.join("cro_extracted");
         let decomp_root = self.root.join("decomp");
         let relink = self.relink_map();
+        let armcc = self.load_armcc();
 
         let mut modules = Vec::new();
         // Main first, then the CROs in entries.c order (builder = alphabetical).
@@ -664,6 +875,48 @@ impl ProjectSource {
                 warnings.push(format!("{name}: no decompiled C corpus"));
             }
 
+            // armcc-matching evidence: proven masked matches are the
+            // verified tier; relaxed matches and attempted functions are
+            // overlays. Offsets no other source knows still become cells —
+            // prologue-less leaves are routinely missed by the Ghidra
+            // function catalog (see armcc-matching/README.md).
+            let lc = name.to_lowercase();
+            let keys: Vec<&str> = if is_main {
+                vec!["main", "static"]
+            } else {
+                vec![lc.as_str()]
+            };
+            if let Some((armcc, _)) = armcc.as_ref() {
+                for key in &keys {
+                    for (off, size) in armcc.matched.get(*key).into_iter().flatten() {
+                        let cell = accs.entry(Self::armcc_addr(is_main, *off)).or_default();
+                        cell.tier = cell.tier.max(TIER_VERIFIED);
+                        if let Some(s) = size {
+                            // the proven masked-compare length — the symbol
+                            // CSV's guess can be wrong (literal-pool gotcha)
+                            cell.size = *s;
+                        }
+                    }
+                    for off in armcc.relaxed.get(*key).into_iter().flatten() {
+                        accs.entry(Self::armcc_addr(is_main, *off))
+                            .or_default()
+                            .flags |= FLAG_HINT;
+                    }
+                }
+                for (module, off) in &armcc.attempted {
+                    if !keys.contains(&module.as_str()) {
+                        continue;
+                    }
+                    let cell = accs.entry(Self::armcc_addr(is_main, *off)).or_default();
+                    if cell.tier < TIER_VERIFIED {
+                        // attempted.md prose also cites already-matched
+                        // functions; only unproven addresses carry the
+                        // "effort spent here" marker
+                        cell.flags |= FLAG_ATTEMPTED;
+                    }
+                }
+            }
+
             let cells: Vec<Cell> = accs
                 .into_iter()
                 .map(|(addr, acc)| Cell {
@@ -699,6 +952,42 @@ impl ProjectSource {
                 namespace: String::new(),
                 imports,
             });
+        }
+
+        // armcc dirs/references naming no known module (casing, renamed
+        // CROs, typos) — surface rather than silently drop
+        if let Some((armcc, dir)) = armcc.as_ref() {
+            let known: std::collections::HashSet<String> = specs
+                .iter()
+                .map(|(n, _)| n.to_lowercase())
+                .chain(["main".to_string(), "static".to_string()])
+                .collect();
+            let mut unknown: Vec<&String> = armcc
+                .matched
+                .keys()
+                .chain(armcc.relaxed.keys())
+                .filter(|k| !known.contains(*k))
+                .collect();
+            unknown.sort();
+            unknown.dedup();
+            for k in unknown {
+                warnings.push(format!(
+                    "armcc-matching: matched/relaxed module {k:?} matches no known module \
+                     (under {})",
+                    dir.display()
+                ));
+            }
+            let unknown_refs = armcc
+                .attempted
+                .iter()
+                .filter(|(m, _)| !known.contains(m))
+                .count();
+            if unknown_refs > 0 {
+                warnings.push(format!(
+                    "armcc-matching attempted.md: {unknown_refs} reference(s) to unknown \
+                     modules skipped"
+                ));
+            }
         }
 
         Ok(Dataset {
