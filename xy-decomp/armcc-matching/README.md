@@ -213,6 +213,30 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
   `0xdc4`; the stub occupies exactly `0xdc8`-`0xdcf`, and the next
   function (`0xdd0`) starts immediately after.
 
+- `matched/DllCommendation/` — 1 function, a **tenth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0xc94` | `0x38` | 14/14 | Destructor: vptr install, free member @+0x14 if non-null, tail-calls a second import instead of returning `this`. |
+
+  Identical idiom to `DllFatalErrorProc@0x284`, including the "good"
+  load ordering from the toolchain's residue-class rule #4: the vtable
+  literal is loaded into `r1` **before** the member load into `r0`, with
+  the store to `o->vptr` deferred until after both loads. The module's
+  neighboring function at `0xccc` has the same shape but with the known-
+  bad member-load-first ordering and was skipped on sight.
+
+- `matched/DllBattleHouseConnect/` — 1 function, an **eleventh** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x2fc` | `0x38` | 14/14 | Same dtor idiom: vptr install, free member @+0x14, tail-call a second import. |
+
+  Same gotcha already documented for `DllFatalErrorProc@0x284`: the
+  naive `0x34` size guess omits the function's own literal-pool word
+  (at file offset `0x330`, right before the next function's
+  `push {r4,lr}` at `0x334`) — real size is `0x38`.
+
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
 Some larger dispatcher functions (`DllDialogCommon@0x300`/`0xdd8`,
