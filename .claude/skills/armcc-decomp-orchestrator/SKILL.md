@@ -14,9 +14,12 @@ to re-explain its process, just spawn it correctly and verify its output.
 ## Parameters (from `args`, all optional)
 
 - `cap=N` — max concurrent agents (default **5**).
-- `branch=<name>` — git branch all agents work on (default: whatever branch
+- `branch=<name>` — the shared integration branch (default: whatever branch
   this repo is currently checked out to when you start — ask the user if
-  ambiguous and no default makes sense).
+  ambiguous and no default makes sense). As of 2026-10-15 this is **`dev`**,
+  a long-lived branch the orchestrator merges into; `main` is reached only
+  via a PR from `dev` (see "Releasing to main" below), never written to
+  directly.
 - `count=N` — how many agents to top up to THIS pass, overriding `cap` for a
   one-shot burst (rare; normally you just top up to `cap`).
 
@@ -161,6 +164,61 @@ that logic here). A reasonable fallback heartbeat is 600–900s when a swarm
 is actively running; widen it once things quiet down. Mention in your
 visible update: how many agents are running, how many matched/attempted
 since the last pass, and the current true totals.
+
+### 5. Releasing to `main`
+
+`main` is never written to directly — not by agents, not by you. Release
+roughly **every 25 commits accumulated on `dev` since the last release**
+(check with `git log --oneline <last-release-sha>..dev | wc -l`) — treat
+that as a trigger to check in with the user, not a hard mechanical rule;
+a count that lands mid-round (an agent not yet consolidated) can wait for
+the round to finish. Also release whenever the user asks, or whenever the
+swarm is being paused — don't let two releases' worth of work stack up
+in one open PR (see the dated note at the end of this section for why
+that defeats the whole point of `dev`).
+
+When it's time to release:
+
+**First, regenerate the heatmap** (cheap — ~0.7s once `xy-viz` is already
+built; only rebuilds `xy-viz` itself the very first time, which takes
+~55s):
+```sh
+python3 xy-heatmap/heatmap.py readme
+git status --short docs/assets/
+```
+This derives from the Ghidra/recomp corpus (`decomp/`, `recomp/`), not
+from `xy-decomp/armcc-matching/`, so a PR that's pure armcc-matching work
+will usually only bump the embedded `generated` timestamp (not the
+counts) — commit it anyway, on `dev`, before opening the PR. Only treat a
+counts change as notable; a timestamp-only diff is expected and fine to
+commit quietly.
+
+Then open the PR:
+```sh
+gh pr create --base main --head dev --title "..." --body "..."
+```
+
+A direct push/merge to `main` (e.g. `git push origin dev:main`) is blocked
+by this environment's own guardrails ("Merge Without Review") — don't try
+to work around that; a PR is the correct path anyway, not a fallback. If a
+PR from `dev` is already open, new consolidation commits on `dev` land in
+it automatically (no need to open a second one) — just tell the user it
+updated. Once the user merges the PR, keep working on `dev` as normal;
+`dev` stays ahead of `main` by whatever hasn't been released yet.
+
+**2026-10-15 note — don't let an open PR go stale while `dev` keeps
+growing.** The first PR (#1, from the pre-`dev` branch
+`armcc-matching-dllnumberinput`) sat open while `dev` was created from
+its tip and the swarm kept adding commits on top. Since `dev` already
+contained everything in that PR, every commit added to `dev` afterward
+was *also* owed to that same unmerged PR — so the next `dev`→`main` PR
+would have re-included all of it plus the new work, right back to one
+giant diff, defeating the reason `dev` exists. If you ever notice an
+older PR targeting `main` is still open when you're about to open a new
+one, or when a release checkpoint comes up, flag it to the user instead
+of opening a second PR on top of it — ask them to merge or close the
+stale one first (you can't merge PRs yourself; it hits the same
+guardrail as a direct push).
 
 ## Things that will bite you if you skip them
 
