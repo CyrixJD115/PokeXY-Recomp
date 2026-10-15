@@ -1,4 +1,5 @@
 /* DllKisekae@0xb6f0 - 3/3 match
+ * Style: trick(redundant-local) -- redundant local (`int v = 1;`) only to force a register/store order
  * Byte-field setter: stores literal 1 at this+0x40a (1034), void return.
  * Retail's source explicitly materializes the 1 into r1 before the strb,
  * rather than letting armcc fold the immediate into the strb encoding.

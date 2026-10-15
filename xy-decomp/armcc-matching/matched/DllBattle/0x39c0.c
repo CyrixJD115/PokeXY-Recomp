@@ -1,4 +1,5 @@
 /*
+ * Style: trick(redundant-local) -- redundant local (`int v = 1;`) only to force a register/store order
  * DllBattle @ 0x39c0, size 0x28 -- if (call(this)) this->+4->+0x14 = 1; return 1. Masked match 10/10.
  * Note: an explicit `int one = 1; b->f = one;` temp is what makes armcc load the pointer
  * before the constant (direct `b->f = 1` swaps r0/r1: 7/10).

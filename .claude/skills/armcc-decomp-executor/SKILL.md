@@ -183,8 +183,17 @@ of them up to the end in case you run out of budget mid-way):
   Size: 0x...
   Match: N/N
   One-line: <what it does>
+  Style: natural | trick(<kind>) -- <why>
   Note: <anything non-obvious worth folding into the README row, optional>
   ```
+  `Style:` is required, and the same line goes in the `.c` header comment.
+  Use `trick(<kind>)` if the C contains anything that exists only to make
+  armcc emit the retail bytes (a `volatile` the original wouldn't need, a
+  redundant local, an unused extra arg, a one-use static helper, a `void*`
+  return used only to avoid a spare move); prefer a natural form when two
+  both match. Kinds are listed in `xy-decomp/armcc-matching/README.md`
+  ("Match style: natural vs. trick"). Relaxed-only (`--relax-nops`) results
+  are NOT matches — don't put them under `matched/`.
 - Commit both files together (include `Co-Authored-By: Claude Sonnet 5
   <noreply@anthropic.com>`) **on your own worktree branch** — never on
   `<branch>` itself. One commit per matched function is fine even across

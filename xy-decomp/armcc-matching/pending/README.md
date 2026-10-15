@@ -36,5 +36,16 @@ Offset: 0x...
 Size: 0x...
 Match: N/N
 One-line: <what it does>
+Style: natural | trick(<kind>) -- <why>      (see README "Match style")
 Note: <anything non-obvious worth folding into the README row, optional>
 ```
+
+`Style:` is required. Use `trick(<kind>)` whenever the C contains something
+that exists only to make armcc emit the retail bytes (a `volatile` that isn't
+justified by the original code, a redundant local, an extra unused argument,
+a one-use static helper, a `void*` return used only to avoid a spare move) and
+ALSO put the same line in the `.c` file's header comment. Kinds so far:
+`volatile-strd`, `volatile-load`, `redundant-local`, `extra-arg`,
+`static-helper`, `void-ptr-passthrough` — or invent a short new kind.
+Relaxed-only matches (`--relax-nops`) don't count as matches: report them,
+don't put them under `matched/`.

@@ -205,6 +205,7 @@ Never leave an old release PR open while `dev` keeps moving — mention it.
 
 ## Things that will bite you if you skip them
 
+- **Carry the `Style:` tag into the README row** (and flag any note missing it); relaxed-only results go under `relaxed/`, never `matched/`.
 - **Never trust a running total without recomputing it from the filesystem.**
   This is the single most common failure mode with parallel agents — see
   step 1.

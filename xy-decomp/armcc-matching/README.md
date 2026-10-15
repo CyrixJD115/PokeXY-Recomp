@@ -1676,6 +1676,41 @@ extracted `DllDialogCommon.cro` on migration day and reproduce their
 masked match exactly — the toolchain and verifier are proven portable,
 not a one-off result tied to the sibling repo's layout.
 
+## Match style: natural vs. trick
+
+A masked match proves the *bytes*; it doesn't say whether the C is how the
+original authors wrote it. Following `pokebw2`'s "natural C only" rule, each
+matched file may carry a `Style:` line in its header comment:
+
+- **no tag (or `Style: natural`)** — plain C a human would write.
+- **`Style: trick(<kind>) -- <why>`** — compiles to the retail bytes, but the C
+  contains a construct that exists only to appease armcc. Fine as a
+  placeholder; rewrite (or re-derive the real source construct) before this
+  becomes readable decomp or feeds the native port.
+
+Kinds so far (find them all with
+`grep -rl 'Style: trick' xy-decomp/armcc-matching/matched`):
+
+| kind | what it is | files tagged |
+|---|---|---|
+| `volatile-strd` | `volatile` on a 64-bit global only to get `strd` | 9 (globals-init family) |
+| `volatile-load` | `volatile` field only to keep armcc from narrowing/dropping a load | DllUSGymIce@0x278, DllSequence@0x10a80 |
+| `redundant-local` | `int v = 1;` temporary only to force a register/store order | DllKisekae@0xb6f0, DllBattle@0x39c0 |
+| `extra-arg` | unused pass-through int arg(s) to shift register allocation (1 arg -> vtable in r2, 2 -> r3) | DllTownmap@0xb10, 0x3554, 0x35f4 |
+| `static-helper` | one-use static helper to reproduce retail's r0 reuse | DllEshop@0x1b10 |
+| `void-ptr-passthrough` | callee declared `void*`, result offset `(char*)fn(p) - N`, to avoid a spare `mov r4,r0` | DllPuzzle@0x1e90, 0x4ba0 |
+
+Only the cases found so far are tagged; earlier matches weren't audited, so
+**no tag does not yet prove natural**. New matches must set the tag (see
+`pending/README.md`). Tiny stubs (`bx lr`, return-const, one-field setters) are
+natural but weak evidence — any function of that shape compiles identically.
+
+**Relaxed matches are not matches.** A function that only passes with
+`--relax-nops` (nop words dropped from both sides, pool offsets masked) is
+filed under `relaxed/<Module>/<offset>.c` and excluded from the totals; it is
+the analogue of a row in `pokebw2`'s `docs/nonmatching-functions.md`. Current
+list: `relaxed/DllBattle/0x30a4.c` (26/26 relaxed, destructor).
+
 ## 2026-10-15 swarm batch (9 functions, independently re-verified)
 
 All re-run with `fingerprint_fn.py` -> `*** MASKED MATCH ***`.
