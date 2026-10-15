@@ -109,6 +109,20 @@ version skew rather than wrong source:
 Not yet investigated in this repo; tracked as an open item here and in
 the sibling repo's `docs/progress.md`.
 
+**Confirmed to recur in a second module (2026-10-15):** `DllNumberInput`'s
+three destructor-stage functions (`0x1974`, `0x1a44`, `0x1a7c` — all the
+"install dtor vtable, free an owned member if present, optionally
+tail-call operator delete" shape) hit exactly this vptr-install
+scheduling mismatch: armcc 5.04u5 always schedules the vtable-pointer
+pool load before the member load and assigns it whichever register is
+issued first (so the pool load wins `r0`), while the retail binary
+schedules the member load first and puts the pool load in `r1` — the
+*opposite* preference. This held regardless of C statement order,
+intermediate-variable use, or expression fusion, strengthening the
+version-skew theory: this isn't a source-shape problem, it's armcc
+5.04u5 making a different latency-hiding choice than whatever built the
+retail binary.
+
 ### 9 more functions matched in this repo (2026-10-15)
 
 Working from this repo's own freshly extracted `DllDialogCommon.cro`
@@ -128,9 +142,14 @@ no-op void function compiles to that same word, so the match proves
 `DllNumberInput.cro` was fingerprinted next, to check whether the
 trivial-stub pattern and the fingerprinting approach were specific to
 `DllDialogCommon` or general. They generalize: the same 1-2 word
-virtual-override stubs recur (`0x1888`, `0x1a40`, `0x1ab0`), plus two
+virtual-override stubs recur (`0x1888`, `0x1a40`, `0x1ab0`), plus three
 non-trivial functions — a field-copy-and-veneer-call helper (`0x18dc`,
-8/8) and a 19-word notification dispatcher (`0x1890`, 19/19). See
+8/8), a 19-word notification dispatcher (`0x1890`, 19/19), and a
+30-word constructor (`0x18fc`, 30/30) whose node-initialization tail is
+written as a **sequence of moving-pointer-cursor stores** (`str rX,
+[rY,#N]!` pre-indexed writes that advance the pointer as a side effect)
+rather than fixed-offset struct-member access — translating it the same
+way in C (`p += N; *p = v; p += M; ...`) matched on the first try. See
 `xy-decomp/armcc-matching/README.md` for the per-offset table.
 
 `0x1890` surfaced a real decompilation lesson, not just a toolchain
@@ -189,12 +208,18 @@ where it's stored as a return value. This reordering survived every
 C-shape variant tried (typed struct member access vs. raw byte-offset
 casts, splitting the subtraction into its own statement, forcing an
 early use) and also survived `-O1`/`-O3`/`-Ospace` (all strictly worse
-matches, not better). A real specimen in `DllNumberInput` (`0x18fc`,
-not yet attempted) performs the analogous adjustment as a chain of
-sequential `pointer += delta` reassignments rather than fixed-offset
-struct-member access, which is suspected to be the actual shape that
-produces early materialization — worth trying that style here if this
-specimen is revisited.
+matches, not better).
+
+**Update:** the sibling specimen `DllNumberInput@0x18fc` (same overall
+shape: fetch object, install vtable, build buffer, placement-allocate a
+node) was fingerprinted afterward and matched 30/30 on the first try —
+but its node-init tail genuinely *is* written as a sequential
+`pointer += delta; *p = v;` cursor chain in the retail binary (confirmed
+by its own pre-indexed `str rX,[rY,#N]!` instructions), unlike `0x710`'s
+tail, which really does use one `sub` followed by fixed offsets off a
+stable base. So the two specimens use genuinely different source idioms
+rather than one hidden rule explaining both; `0x710`'s specific
+early-materialization gap remains unexplained and still open.
 
 ### Dead end avoided (now corrected)
 

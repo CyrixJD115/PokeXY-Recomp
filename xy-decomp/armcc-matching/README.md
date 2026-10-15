@@ -48,7 +48,7 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
   effect compiles to that same one word, so the match alone doesn't prove
   the real body was empty — only that it's at most this short.
 
-- `matched/DllNumberInput/` — 5 functions, proving the technique
+- `matched/DllNumberInput/` — 6 functions, proving the technique
   generalizes past `DllDialogCommon` to a second module:
 
   | Offset | Size | Match | Note |
@@ -58,6 +58,17 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
   | `0x1ab0` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`. |
   | `0x18dc` | `0x20` | 8/8 | Copies a field into a sub-object, calls a veneer with it, stores the result. |
   | `0x1890` | `0x4c` | 19/19 | Notification dispatcher, two early-outs sharing one epilogue — see note below. |
+  | `0x18fc` | `0x78` | 30/30 | Constructor; node-init tail is a moving-pointer-cursor chain, not fixed struct offsets — see note below. |
+
+  Three more functions in this module (`0x1974`, `0x1a44`, `0x1a7c` —
+  destructor-stage helpers that install a dtor vtable and conditionally
+  free one member) were attempted and reconstructed correctly in
+  semantics, but hit the **same vptr-install scheduling residue class**
+  already documented for `DllDialogCommon`'s `0xc34`/`0xc68`/`0xca4`:
+  armcc 5.04u5 always schedules the vtable pool-load register-first,
+  while the retail binary schedules the member load first. Confirms the
+  residue class is a toolchain-version property, not a per-function
+  fluke — see `docs/decomp/armcc-toolchain.md`.
 
   `0x1890` is the most instructive specimen so far: its two early-return
   paths share a single `pop {r4, pc}` epilogue with **no** `mov r0, #N`
@@ -68,6 +79,20 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
   sitting in the register at each branch (0 at the null-handle check, 1
   at the already-notified check), not which value reads naturally as
   true/false. See the file's header comment for the full trace.
+
+  `0x18fc` is a constructor whose node-initialization tail is written in
+  the retail binary as a **sequence of moving-pointer-cursor stores**
+  (`str r6,[r0,#92]!` / `add r0,r0,#4` / `str r6,[r0,#-84]!` / `str r5,
+  [r0,#-12]!` — each a pre-indexed store that writes and advances the
+  pointer in one instruction) rather than fixed-offset struct-member
+  access off one stable base. Translating it the same way in C
+  (`p += 0x5c; *p = 0; p += 4; p = fn(p); p -= 0x54; *p = 0; p -= 0xc;
+  *p = parent;`) matched on the first try. This is the sibling pattern
+  to `DllDialogCommon@0x710` (same overall constructor shape) — but that
+  specimen's node-init tail uses one `sub` followed by fixed offsets
+  instead of a continued cursor chain, and still doesn't match; the two
+  specimens turned out to use genuinely different source idioms rather
+  than one rule explaining both. See `docs/decomp/armcc-toolchain.md`.
 
 ## Reproducing a match in this repo
 
