@@ -23,11 +23,12 @@ still have their full remaining function count (typically hundreds)
 completely unaddressed regardless of how many functions are proven in
 them. A module having **more than one** matched function is unambiguous
 evidence of that (recompute with `for d in matched/*/; do find "$d" -name
-'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **15 of 94**
+'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **16 of 95**
 as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllFatalErrorProc`, `DllIntro`, `DllSparringMenu`, `DllStatus`,
 `DllSubScreenTutorial`, `DllStartMenu`, `DllStaffRoll`, `DllWazaOboe`,
-`DllTrialDownload`, `DllTradelist`, `DllZukan`, `DllTitle`). Many of the
+`DllTrialDownload`, `DllTradelist`, `DllZukan`, `DllTitle`,
+`DllTownmap`). Many of the
 remaining single-match modules are also genuinely meaningful (a
 destructor/constructor/dispatcher/conditional-accessor, not a 1-2 word
 stub) — see each module's own entry above for which; that split isn't
@@ -1293,6 +1294,23 @@ module-disassembly cost across several matches instead of one.
   4-int equality predicate, 6/10 — pure register-allocation swap) and
   `0xd54c` (a 64-bit `ldrd` getter, stuck on an indirect-return-vs-
   single-`ldrd` toolchain residue).
+
+- `matched/DllTownmap/` — 5 functions, a **ninety-fifth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x46c` | `0x1c` | 7/7 | Conditional accessor, same idiom as `DllLangSelect@0x5b0`/`DllDendouDemo@0x798`/`DllBoxSearch@0x5b8`/etc.: veneer call gates between a member load (`+0x10`) and a re-materialized constant `3`. |
+  | `0x438` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+  | `0x488` | `0x10` | 4/4 | Calls a local module function (`0x1f94`) with `this` unchanged, discards the result, returns 1; the `push {r4,lr}` is AAPCS alignment padding. |
+  | `0x24dc` | `0x8` | 2/2 | Trivial int field setter: stores the 2nd arg into the object at `+0xec`, void return. |
+  | `0x3240` | `0x8` | 2/2 | Trivial virtual-override stub, `return 0`, ignores `this` — mid-module, not near the import-veneer table. |
+
+  Unclaimed leads: `0x3248` (`ldr r0,[r0,#4]; ldr r0,[r0]; bx lr`,
+  double-indirection getter, size `0xc`), a bare `bx lr` weak-evidence
+  stub at `0x1494`, and a double-field-store helper around `0x3628`
+  (`mov r2,r1; stm r0,{r1,r2}; bx lr`). Several larger dispatcher/
+  destructor-shaped functions (`0x498`, `0x4fc`, `0x5ac`, etc.) were
+  seen but not attempted.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
