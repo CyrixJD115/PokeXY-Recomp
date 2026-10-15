@@ -26,6 +26,11 @@ different ones.
   Treat everything through that link as **strictly read-only** — it's the
   same files the main checkout and every sibling agent use, not a private
   copy.
+- **Never write scratch/temp files (e.g. a draft commit message) to the
+  shared session-wide scratchpad folder** — sibling agents run concurrently
+  and will race on any path there, which can leak one agent's text into
+  another's temp file. Put any such temp file inside your own worktree
+  instead (it's private to you) and clean it up before you finish.
 - Read, in this order, before touching any code:
   1. `xy-decomp/armcc-matching/README.md` — the match table (what's already
      proven, so you don't repeat it) and the "Working on this" rules
