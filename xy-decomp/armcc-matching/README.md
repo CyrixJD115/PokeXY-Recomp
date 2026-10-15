@@ -16,7 +16,7 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
 not depth. The swarm's executor skill deliberately mines the *easiest*
 win per module first (trivial 1-2 instruction virtual-override stubs and
 field setters have a near-100% hit rate — see "What reliably works"
-below), so as of this update **43 of 66 matched modules have exactly one
+below), so as of this update **46 of 69 matched modules have exactly one
 trivial `return 0`/`return 1`/field-setter/forwarder stub proven and
 nothing else** — the module itself still has its full remaining function
 count (typically hundreds) completely unaddressed. The other 22 modules
@@ -905,6 +905,41 @@ completion.
   long import-veneer table (ends ~`0xd84`); plenty of unmined real
   functions remain, e.g. the thin-forwarder cluster right after the
   veneer table at `0xd88`-`0xdd8`.
+
+- `matched/DllNuts/` — 1 function, a **sixty-seventh** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x3384` | `0xc` | 3/3 | Trivial field setter: unconditionally zeroes a byte flag at `this+156` (`0x9c`), void return. |
+
+  Three bare `bx lr` single-word stubs (`0x3378`/`0x337c`/`0x3380`,
+  weak-evidence class) sit right before it, unclaimed. See
+  `attempted.md` for a new VFP `vldm`/`vstm` residue class found (not
+  solved) on this module's other two candidates.
+
+- `matched/DllKawaigariArrange/` — 1 function, a **sixty-eighth**
+  module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x773c` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+
+  Found as a clean 2-word stub between two real functions in a module
+  whose import-veneer table is unusually large (`0x180`-`0x647`) and
+  whose other functions are mostly larger/non-trivial.
+
+- `matched/DllPokeList/` — 1 function, a **sixty-ninth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x8dc` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+
+  Sits right after the import-veneer table (`0x180`-`0x8db`) in a
+  cluster of near-identical leaf stubs (more `return 1` stubs at
+  `0x8e4`/`0x8ec`/`0x8f8`, bare `bx lr` weak-evidence stubs at
+  `0x8f4`/`0x900`/`0x904`/`0x908`/`0x90c`, all unclaimed), followed by
+  the module's first real function (a constructor-shaped dispatcher)
+  at `0x910`.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 

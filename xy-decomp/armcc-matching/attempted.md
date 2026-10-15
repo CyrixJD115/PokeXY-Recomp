@@ -171,3 +171,26 @@ Format per entry:
   `DllDialogCommon@0xdd8`/`DllNumberInput@0x1af8`/`DllCommWait@0xce0`,
   not attempted here.
 
+
+## DllNuts@0x708 (size 0x20) and DllNuts@0x728 (size 0x28)
+
+- What it is: the module's first two real functions, right after the
+  import-veneer table. Both copy an 8-single-float block, plus a
+  trailing int/pair field, from one struct to another.
+- Tried: struct assignment, a nested float-only sub-struct, `memcpy(32)`,
+  an element-wise loop, a manually unrolled per-element float
+  assignment, and `--fpu=vfpv2`/`--fpu=softvfp+vfpv2` flag overrides.
+- Stuck on: every variant lowers either to GPR `ldm`/`stm` (which needs
+  `push`/`pop r4-r8`; the target doesn't push those) or to individual
+  per-element `vldr`/`vstr` pairs (no `vldm`/`vstm` formation) — never
+  the target's single merged 8-register VFP multiple-transfer
+  (`vldmia`/`vstmia`).
+- Lead for next time: this looks like a new residue class, distinct
+  from the already-documented vptr-scheduling one — armcc 5.04u5
+  doesn't appear to peephole-merge consecutive single-float scalar
+  loads/stores into one `vldm`/`vstm`, and its generic aggregate-copy
+  lowering (struct assignment / inlined `memcpy`) always picks GPRs
+  regardless of the aggregate's element type. Worth a fresh angle (a
+  `union`, an explicit vector intrinsic, or a differently-shaped source
+  idiom entirely) — not logged as fully dead, just not solved in this
+  pass.
