@@ -23,7 +23,7 @@ still have their full remaining function count (typically hundreds)
 completely unaddressed regardless of how many functions are proven in
 them. A module having **more than one** matched function is unambiguous
 evidence of that (recompute with `for d in matched/*/; do find "$d" -name
-'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **30 of 106**
+'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **32 of 106**
 as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllFatalErrorProc`, `DllIntro`, `DllSparringMenu`, `DllStatus`,
 `DllSubScreenTutorial`, `DllStartMenu`, `DllStaffRoll`, `DllWazaOboe`,
@@ -31,7 +31,8 @@ as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllTownmap`, `DllTradeDemo`, `DllTrainerCase`, `DllUSGymEsper`,
 `DllTrialHouseResult`, `DllUSGymFighting`, `DllUSKinomi`,
 `DllUSPassage`, `DllVSDemo`, `DllUSGymIce`, `DllWazaOmoidashi`,
-`DllBattle`, `DllBattleMatch`, `DllSequence`, `DllField`). Many of the
+`DllBattle`, `DllBattleMatch`, `DllSequence`, `DllField`, `DllGts`,
+`DllBox`). Many of the
 remaining single-match modules are also genuinely meaningful (a
 destructor/constructor/dispatcher/conditional-accessor, not a 1-2 word
 stub) — see each module's own entry above for which; that split isn't
@@ -632,18 +633,22 @@ of a second summary number.
   |---|---|---|---|
   | `0x46fc` | `0x8` | 2/2 | `xy_system::bg::System::SetIsCallDraw(bool)` — same shared setter as `DllCaptureRegister@0x27b0`/`DllTrainingAppManager@0xd68`/`DllPssConfig@0x1c20`, confirmed directly from the module's own named-export table (`_ZN9xy_system2bg6System13SetIsCallDrawEb`, load addr `0x1046fc`). |
 
-- `matched/DllBox/` — 1 function, a **forty-first** module:
+- `matched/DllBox/` — 6 functions, a **forty-first** module:
 
   | Offset | Size | Match | Note |
   |---|---|---|---|
   | `0x9e8` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+  | `0x9f0` | `0x8` | 2/2 | Same `return 1` stub, 2nd of the three identical siblings. |
+  | `0x9f8` | `0x8` | 2/2 | Same `return 1` stub, 3rd of the three. |
+  | `0xa00` | `0x4` | 1/1 | Bare `bx lr` no-op void stub (weak evidence). |
+  | `0xa04` | `0x8` | 2/2 | Another `return 1` stub, interleaved in the bare-`bx lr` run right before the module's first real function. |
+  | `0x1f46c` | `0x10` | 4/4 | Call-through-then-tail-call wrapper: two fixed no-arg calls, second compiles as a tail `b` since it's the function's last statement; `r4` push/pop is AAPCS stack-alignment padding. Found via `find_candidates.py`. |
 
-  Sits right after the import-veneer table (`0x180`-`0x9e7`): three
-  identical `return 1` stubs at `0x9e8`/`0x9f0`/`0x9f8` (only `0x9e8`
-  claimed), a `return 1` stub at `0xa04`, and bare `bx lr`
-  weak-evidence stubs at `0xa00`/`0xa08`/`0xa0c`/`0xa10`, before the
-  module's first real function (a 10-register-push dispatcher) at
-  `0xa14`.
+  Sits right after the import-veneer table (`0x180`-`0x9e7`): all three
+  identical `return 1` stubs at `0x9e8`/`0x9f0`/`0x9f8` are now claimed,
+  plus `0xa00`/`0xa04`, before the module's first real function (a
+  10-register-push dispatcher) at `0xa14` — unattempted, worth a future
+  agent's look.
 
 - `matched/DllFieldEventSlopeSlip/` — 1 function, a **forty-second** module:
 
@@ -882,11 +887,16 @@ of a second summary number.
   `0xf14` is a destructor-shaped helper with two conditional vtable
   calls, untried.
 
-- `matched/DllGts/` — 1 function, a **sixty-second** module:
+- `matched/DllGts/` — 6 functions, a **sixty-second** module:
 
   | Offset | Size | Match | Note |
   |---|---|---|---|
   | `0x1b7e4` | `0x8` | 2/2 | `xy_system::bg::System::SetIsCallDraw(bool)`, confirmed via the module's own named export (`_ZN9xy_system2bg6System13SetIsCallDrawEb`). |
+  | `0x5be0` | `0x3c` | 15/15 | Call+return helper: forwards two fields to an import veneer, zeroes two members, calls a second veneer, returns constant 56. Scheduling trap: armcc evaluates the two memory-backed call args in left-to-right source order while deferring the two constant args to the end in reverse order — writing the call inline or assigning locals in the wrong order flips three words. |
+  | `0x5ba8` | `0x1c` | 7/7 | Double-pointer-deref call+return: `fn4f4(**field10, field30)`, returns `0x1b`. Load-latency-hiding trap: retail does a pre-indexed load (`ldr r2,[r0,#16]!`) advancing the base while fetching field10, then a plain offset load for field30 — one expression or a manually-advanced cursor produces plain non-writeback loads instead (3/7 off); fix is separate local-variable statements in that exact order. |
+  | `0x5bc4` | `0x1c` | 7/7 | Identical sibling of `0x5ba8`, returns `0x26` instead of `0x1b`. |
+  | `0x53e4` | `0x1c` | 7/7 | Third sibling of `0x5ba8`/`0x5bc4`, returns `0x13`. **`find_candidates.py` size-hint correction**: the tool (pre-trim-fix) flagged `0x24`; real/Ghidra boundary is `0x1c` — the extra 8 bytes are dead padding before the next function's prologue, not part of this one. |
+  | `0x8850` | `0x28` | 10/10 | Double-indirect call+return: `fn284(this->field20->field5c, 1,1,1,1)`, returns 8. Register-CSE-master trap: armcc's constant-CSE for the four identical `1` args defaults to materializing into `r1` and copying outward, but retail materializes into `r2` — naming only the arg3 occurrence as its own local nudges the CSE to pick `r2` as master, matching retail exactly. Sibling at `0x12afc` (field `+0x24`, returns 7) uses the identical template — unclaimed, flagged as a quick pickup. |
 
   Candidate compiled as `.cpp` (not `.c`) — the C++ `namespace`
   wrapper needed for the demangled symbol name requires armcc's C++
