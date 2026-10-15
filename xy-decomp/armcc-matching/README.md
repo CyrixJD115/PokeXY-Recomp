@@ -16,7 +16,7 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
 not depth. The swarm's executor skill deliberately mines the *easiest*
 win per module first (trivial 1-2 instruction virtual-override stubs and
 field setters have a near-100% hit rate — see "What reliably works"
-below), so as of this update **51 of 75 matched modules have exactly one
+below), so as of this update **52 of 76 matched modules have exactly one
 trivial `return 0`/`return 1`/field-setter/forwarder stub proven and
 nothing else** — the module itself still has its full remaining function
 count (typically hundreds) completely unaddressed. The other 22 modules
@@ -1009,6 +1009,17 @@ completion.
   veneers `0x180`-`0x25f`, then a run of `bx lr`/`return 0` stubs; this
   is the first of three identical `return 0` stubs at
   `0x268`/`0x270`/`0x278`, only `0x268` claimed).
+
+- `matched/DllPssMainMenu/` — 1 function, a **seventy-sixth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x428` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+
+  Right after the import-veneer table (`0x180`-`0x427`); an identical
+  unclaimed twin sits at `0x430`, two bare `bx lr` weak-evidence stubs
+  at `0x438`/`0x43c`, then the module's first real function (a
+  multi-veneer dispatcher) at `0x440`.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
