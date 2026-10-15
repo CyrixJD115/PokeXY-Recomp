@@ -1,4 +1,5 @@
 /* DllCommendation function @ CRO file offset 0xc94, size 0x38 — MATCHED (masked, 14/14). First match in this module (eighth module overall for the technique).
+ * Style: trick(ordering-local) -- local(s) (e.g. `vt = VT`, hoisted member loads) only to fix load/pool-load order
  *
  * Same vptr-install/free-member destructor idiom already documented for
  * DllFatalErrorProc@0x284 and DllDialogCommon@0xcdc: install a vtable

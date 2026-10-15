@@ -1,4 +1,5 @@
 /*
+ * Style: trick(redundant-local) -- named literal/temp local only to steer armcc's constant-register choice
  * DllGts @ 0x8850, size 0x28, masked match 10/10.
  *
  * Call+return helper: double-indirects through `this->field20->field5c`

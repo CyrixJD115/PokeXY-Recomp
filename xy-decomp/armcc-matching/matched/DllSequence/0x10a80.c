@@ -1,4 +1,5 @@
 /* DllSequence function @ CRO file offset 0x10a80, size 0x10 — MATCHED (masked, 4/4).
+ * Style: trick(volatile-load) -- `volatile` on a field only to stop armcc narrowing/dropping a load
  * Third of the three untried "return 1"-shaped leads flagged in this
  * module's README entry for 0x1135c — the original lead quoted the
  * offset of just the trailing `mov r0,#1; bx lr` pair (0x10a88), but

@@ -1,4 +1,5 @@
 /* DllEshop function @ CRO file offset 0x554, size 0x38 — MATCHED
+ * Style: trick(ordering-local) -- local(s) (e.g. `vt = VT`, hoisted member loads) only to fix load/pool-load order
  * (masked, 14/14). First match in this module.
  * Standard vptr-install/free-member destructor idiom: zeroes the
  * `this+0x14` member if non-null (calling an import to free it), installs

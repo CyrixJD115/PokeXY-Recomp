@@ -1,4 +1,5 @@
 /* DllUSGymIce function @ CRO file offset 0x278, size 0x10 — MATCHED (masked, 4/4).
+ * Style: trick(volatile-load) -- `volatile` on a field only to stop armcc narrowing/dropping a load
  * Two-level-indirection sign-extended byte getter: follows a pointer at
  * `this+20`, reads a word at `+16` of the pointee, returns it narrowed to
  * `signed char`.

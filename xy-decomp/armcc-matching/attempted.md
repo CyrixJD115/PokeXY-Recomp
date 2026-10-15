@@ -15,6 +15,303 @@ file is only for things still unsolved.
 Format per entry:
 
 ```
+## "Release member, zero via r1" destructor class (DllPuzzle@0xb3fc, DllHeading@0x87e4/0x881c, DllBox@0x1dfac/0x1df3c, DllGts@0x9824)
+
+- Status 2026-10-15: the leaf variant is cracked (DllField@0xae58/0xe3fc/0xe380, see `matched/` — `trick(live-r1-passthrough)`); the dtor shape is **not**.
+- Solved: the instruction-ordering part. Declare in this order: `void **vt = VT; void *m = o->f14; o->vptr = vt; if (m) { fn(m); o->f14 = 0; } return fn268(o);` (swapping the `vt`/`m` lines or storing `vptr` first gives the old mismatch). With it: Puzzle@0xb3fc 12/14, Heading@0x87e4 12/14, Heading@0x881c 11/13 — ONLY the zero register differs (retail `mov r1,#0; str r1,[r4,#20]`, ours r0). DllBox 0x1dfac/0x1df3c and DllGts@0x9824 were not re-run with the new ordering (Box has an extra vtable-call prefix).
+- How armcc allocates: the shared zero goes in the lowest free scratch register after r0 (`this`). In the leaf, retail had r1 live (an incoming arg passed through), so the zero went to r2; unused params don't keep r1 live, returning `x` does but adds `mov r0,r1`, and a `long long` return `((long long)x<<32)|(unsigned)t` keeps r1 live with zero extra code. In the dtor, after the call both r0 and r1 are free; armcc picks r0, retail r1.
+- Tried on top of the fixed ordering (all still r0 or worse): reusing the `vt`/`m` locals as the zero, hoisted `z=0` (lands in callee-saved r5), const-folding forms (`vt-vt`, `vt&0`, `m==0`), int/`void*`/`long long` callee result ignored, inline `memset`, struct wrapper assigned from a static const zero (adds pool loads), `*(int*)&f14=0`, `do{}while(0)`, an empty else, a 64-bit zero cast, a `char` zero.
+- Lead for next time: need r0 live across the store via a use that emits no code; a C++ context with an inlined smart-pointer `reset()` is the one unexplored idea.
+
+## DllPuzzle@0x100c (size ?)
+
+- What it is: `if (f4->f2c->f60 == 1) f8 = 2` (push-less leaf).
+- Stuck on: misses 3 words — retail uses a branch here; armcc emits conditional execution (`moveq` / `strbeq`).
+- Lead for next time: a natural-looking way to stop armcc if-converting (a call or volatile read in the arm, or an `else` with real work).
+
+## DllGts@0x7c8c
+
+- What it is: stores 8 and 3 through a pointer and sets `byte@0x3c`.
+- Stuck on: 1 word — retail hoists `mov r1,#1` ahead of the second store; armcc emits it after (constant-hoisting class).
+- Lead for next time: none yet.
+- Update 2026-10-15: size 0x24 — setter chain `this->@0xc` bytes +0 = 8, +1 = 3, plus `this->@0x3c = 1`; retail hoists the three constant `mov`s before the stores; plain and redundant-locals versions both 2/9.
+
+## DllBattle@0x2cdc4 / 0x2cbfc / 0x2ce44 (0x38 each), 0x2c630 (0x50, probably the same)
+
+- What it is: gated tail-calls with an int arg — `if (vt[0x98](o)) fa(o->x /*+0x12c*/, a)`; `if (vt[0x98](o)) { o->b346 = a; tail fa(o); }`; the same with `b348` (`a` = incoming r1).
+- Tried: plain / negated / early-return forms, arg types int/char/short/unsigned/void*, local copy of the arg, static helper, function-pointer local, C++ member `virtual int v38()`, reordered `x` load.
+- Stuck on: all 12/14 — only the vtable-slot register differs. Retail does `mov r5,r1; ldr r1,[r0,#0x98]; blx r1`; armcc always emits `ldr r2 ... blx r2` when an int arg is live across the virtual call. Float-arg siblings (0x2ca28, 0x2d5d8) match since the arg is in s0.
+- Lead for next time: an extra-arg-style trick (cf. DllBattle@0xc9018) or an unknown original arg shape.
+
+## DllZukan@0x8adc (size 0xd4)
+
+- What it is: table lookup — loop `i < 7` over a 28-byte-stride global table comparing field0 to the arg; on a hit, scan `short arr[o->n@0xd4]` at 0xd6 for `i`, store the index to `short@0xe4`, range-check `(u8)i < 7` else `err(0,0,0)`, store a byte global, `fn(o,i)`, `fn2(o->q@0xe8->@0xd4, 0)`, vtable slot 2 call with `(p@0xd0, i & 0xff)`; returns 0 else 1.
+- Tried: for / while / do-while, `n` hoisted vs `o->n` each iteration, `short j` (adds `sxth`, worse).
+- Stuck on: best 46/53; only diff is a register swap in the inner scan loop (retail: count in r1, `j` in r0, `cmp r1,r0; bgt`; ours: count r0, `j` r1, `blt`).
+- Lead for next time: find the shape that makes armcc allocate `n` before `j` (maybe the scan is an inlined helper).
+
+## DllGts@0x9824 (size 0x38)
+
+- What it is: dtor-ish — `p = this->p@0x20; if (p) { p->vt[6](p); this->p = 0; } fn(this+0x24); return this->r@0x14`.
+- Tried: int-returning virtual, local zero variable.
+- Stuck on: best 12/14 — retail keeps the zero for `this->p = 0` in r1 (`mov r1,#0; str r1,[r4,#32]`); armcc uses r0 (same zero-register class as DllBox@0x1dfac, DllField@0xe380).
+- Lead for next time: none yet.
+
+## DllHeading@0x87e4 (size 0x38) / 0x881c (size 0x34)
+
+- What it is: destructors (tail-call / returns `this`) with the usual `vt`-local dtor idiom.
+- Tried: no `vt` local; explicit zero local (both worse).
+- Stuck on: 12/14 and 11/13 — retail zeroes the member with `mov r1,#0; str r1,...`, we emit r0 (the same zero-register class).
+- Lead for next time: none yet.
+
+## DllStatus@0x2fd8 (size 0x64) and 0x2e90 -- relaxed-only, NOT a masked match
+
+- What it is: forward search loop. `f480(buf, this->f4); start = n; for (;;) { n++; if ((unsigned)n >= 6) { n = start; break; } if (f4b0(this->f16, n, buf)) break; } f490(buf); return n;` (`buf[4]`). 0x2e90 has the same shape.
+- Result: matches only with `--relax-nops`; retail has a nop between `cmp r0,#0` and `beq`.
+- Lead: code is right; only the post-link nop differs.
+
+## DllStatus@0x6a30 / 0x6a00 / 0xa630 / 0xa664 (sizes 0x34/0x2c/0x2c/0x28)
+
+- What it is: secondary-base ctor-stage family — `this->vt = VT; (this+8)->vt = VT+20; f448(this+8); return f450(this+8) - 8` (0x6a00 takes the vtable as an arg and tail-calls f310; 0xa630/0xa664 are the this-8 adjusted-thunk versions: `f448(this)` r0 passthrough, `f450(o+8)`).
+- Tried: `char*` cursors, struct members, hoisted `q = VT+20`, `o = this-8` forms, store reorderings.
+- Stuck on: 0xa664 best 7/10 (only scheduling: retail does `sub r4,r0,#8` first, then `add r2,r1,#20`; ours sinks the `sub` after the stores); 0x6a30 retail hoists `add r1,r0,#20` before `str r0,[r4]` and `add r0,r4,#8` before the second store, best 9/13.
+- Lead for next time: none yet (scheduler-order class).
+
+## DllBag@0x10844 (size 0x58)
+
+- What it is: sibling of 0x7330/0xc508 state handlers, but `fnB(this)` is called before the `b == 1` test; `b = this->q->b` (q at +0x44) is loaded into r6 before the call.
+- Tried: the sibling `struct Sub *s = &this->sub` style (true branch via `s->p->h`, `s->v`) -> best 15/22; every variant writing the true branch via `this` flips register allocation (this->r4, s->r6/r5, b->r5): 8-9/22.
+- Stuck on: retail's true branch uses `ldr r3,[r5,#8]` (this, not s), hoists `mov r1,#0 / r2,#75 / r0,#1`, then `strh / str [r5,#56]! / str [r5,#8]`.
+- Lead for next time: a source form where `s` (= this+8) stays live in r4 but the true branch addresses via `this`.
+
+## DllBag@0x1089c (size 0x54)
+
+- What it is: `fnC(this->y->ctx, this+0x50, 5, 0, 0, 0)` (two stack zeros); `this->st = 55; this->y->flag(+0x2c) = 1; return 4`.
+- Tried: `int r = 4;` local (spills to r5, 8/21).
+- Stuck on: 14/21 — retail does `ldr r0,[r4,#76]; mov r1,#1; mov r2,#4; strb r1,[r0,#44]; mov r0,r2` (return value 4 hoisted into r2 before the store); mine emits `ldr r1 / mov r0,#1 / strb / mov r0,#4`.
+- Lead for next time: none yet (constant-hoisting class).
+
+## DllTownmap@0xaa4 (size 0x6c; sibling 0xa34) -- relaxed-only, NOT a masked match
+
+- What it is: dtor stage — store VT, virtual-delete members `[0x14]` (slot 6) / `[0x18]` (slot 1) zeroing, `fn1b8(this+0x1c)`, `return (char*)fn228(this+0x1c) - 0x1c` (void* callee). 0xa34 is the same with `pop {..,lr}` + tail `b fn230`.
+- Result: 26/26 with `--relax-nops` (one nop elided before the `bl fn228`); masked 21/27 because the retail nop can't be reproduced.
+- Lead: the code is right; only the post-link nop differs (same as DllBattle@0x30a4).
+
+## DllTownmap@0x928 / @0x94c (size 0x24 each)
+
+- What it is: `o = this[1]; if (o) o[1] = K; this[0x34] = 1; tail fn(this[0x14], 0)` with K = 1 (0x928) / 0 (0x94c).
+- Tried: a static helper taking K as a parameter.
+- Stuck on: 0x94c 5/9, 0x928 mismatched. Retail loads K into r1 unconditionally before the `cmp` and reloads 1 for the second store; armcc emits a conditional `movne` and reuses r1.
+- Lead for next time: none yet.
+
+## DllStatus@0x3ed8 (size 0x48)
+
+- What it is: function loading a global, with a stack argument fed from `#0`.
+- Tried: several rewrites (details not logged by the agent).
+- Stuck on: 11/18. Retail keeps `this` in r4 and the loaded global in r5 (armcc swaps them) and reuses r1 for the `#0` that feeds the stack arg.
+- Lead for next time: none yet (register-allocation class, like DllTownmap@0x1324).
+
+## DllBox@0x1dfac (size 0x6c; sibling 0x1df3c, size 0x70)
+
+- What it is: dtor — `vptr=VT1; if (o->[36]) f258(f910(f910(sub+108)-24)-84); f260(o->[32]); vptr=VT2; if (o->[20]) { f620(o->[20]); o->[20]=0; } return o`. 0x1df3c is the same body plus a tail-call of a base dtor instead of `return o`.
+- Tried: `f620` returning `void*`, int-cast zero, `p=0; o->buf14=p`, reading `p` before the VT2 store (22/27), vt2 held in a local (9/27).
+- Stuck on: 0x1dfac 25/27 — only diff: retail zeroes via `mov r1,#0; str r1,[r4,#20]`, ours `mov r0,#0; str r0,[r4,#20]`. 0x1df3c 20/28: same zero-register diff plus a `mov r4,r0` ordering diff (retail loads VT and sub before `mov r4,r0`).
+- Lead for next time: something keeps r0 live (or r1 free) across the zeroing store; try different inlined-helper shapes for the member release.
+- Update 2026-10-15 (dtor retry): with `extern char VT1[]/VT2[]` the natural form is 23/25 — only the zero-in-r1 diff remains (same as DllPuzzle@0xb3fc). 0x1df3c with a vt1 local is 20/28: retail loads VT1 into r2 and the member into r1 and delays `mov r4,r0`; a vt2 local spills to r5/r6 (8/28). Fixing the zero-in-r1 diff would likely unlock both.
+
+## DllPhotoViewer@0x19cc (size 0x3c)
+
+- What it is: this-0x24 thunk — checks state byte at +0x59 for values 7, 8, 11, then sets byte +0xb8 to 2 under a condition.
+- Tried: `char*` arithmetic, reassigned parameter, unsigned-int parameter, volatile state byte.
+- Stuck on: 13/15; logic right, only the first two words swapped. Retail does `sub r0,r0,#36` before `ldrb r2,[r0,#89]`; armcc hoists the load to `ldrb r2,[r0,#53]` ahead of the sub.
+- Lead for next time: none yet.
+
+## DllTownmap@0x32f0 (size 0x60)
+
+- What it is: table lookup `find(this, key, int *out)` — scans 64-byte entries (key +4, value +8) from a count at `[0]`, returns 0 or 1.
+- Tried: for loop, do-while inside `if (n > 0)`, char-pointer arithmetic with offset expressions.
+- Stuck on: best 4/24. Retail hoists constants 4 and 8 into registers (`mov r4,#4`, `mov r1,#8`) with a `push {r4,r5}` prologue; armcc folds the offsets into immediates every time.
+- Lead for next time: none yet.
+
+## DllTownmap@0x31a0 (size 0x30)
+
+- What it is: constructor — stores `vt` at `[0]` and `vt+0x40` at `[0x74]`, calls `fa`, tail-calls `fb`.
+- Tried: several store and local-variable orderings.
+- Stuck on: 8/12. Retail does `add r1,r0,#64` before the first store with `mov r0,r4` between the two stores.
+- Lead for next time: none yet.
+- Update 2026-10-15: locals a=VT, b=a+0x40 in several orders hoist the pool load above `push` (5-6/12); plain form stays 8/12. Retail: `ldr r0,pool` after `mov r4,r0; add r1,r0,#64; str r0,[r4]; mov r0,r4; str r1,[r4,#116]`. Sibling dtor 0x31d4 now matches.
+
+## DllPuzzle@0xb3fc (size 0x38; twin 0xbf80)
+
+- What it is: dtor stage — store VT, `if (this->f14) { fn1f8(f14); f14 = 0; }`, tail-call base `fn268(this)`.
+- Tried: plain C; local-variable `m` variant. Tail call (`void*` return) works.
+- Stuck on: 9/14. Retail interleaves `ldr r1,pool; ldr r0,[r0,#20]; str r1,[r4]` and zeroes through r1; armcc loads pool into r0, stores, then loads the member, `mov r0,#0`. Known-bad dtor member-load ordering. 0xbf80 differs only by using r0 for the zero.
+- Lead for next time: none yet.
+- Update 2026-10-15: twin 0xbf80 now MATCHES (trick ordering-local, `extern char VT[]`). 0xb3fc is 12/14 — only the 2-word zero-register diff (retail `mov r1,#0; str r1,[r4,#20]`, ours r0); tried an int member, `f1f8` returning `void*` with `(r&0)`, hoisted `z=0` (6/14), reusing the vt local as the zero (12/14). The same diff blocks DllBox 0x1dfac/0x1df3c.
+
+## DllTownmap@0x1324 (size 0x38)
+
+- What it is: bounds-checked accessor — `if (this->[4]->[0] <= idx) fail(0,0,0); return this->[0xc] + idx*8`.
+- Tried: struct-field C, hoisted count load, if/else forms, pointer-arith forms (~5 variants).
+- Stuck on: 9/14. Instruction stream identical except register allocation: retail keeps `this` in r4 and `idx` in r5; armcc gives the reverse.
+- Lead for next time: none yet (try swapping parameter order / an unused extra arg to shift allocation).
+
+## DllBattle@0x3038 (size 0x6c)
+
+- What it is: same body as matched 0x30a4 but retail loads the vtable pool word into r1 BEFORE `push {r4,lr}`, and ends with tail `b`.
+- Tried: 0x30a4 shape plus tail call to extern fc(r).
+- Stuck on: 21/26; only the first 5 words differ (ldr r1,pool hoisted above push, str r1,[r0] before mov r4,r0).
+- Lead for next time: none yet.
+- Update 2026-10-15: 16/27 with a vt local; retail has a post-link nop word at 0x308c so it can never be a pure masked match, and it loads the pool into r1 before `push`. Relaxed-only at best.
+
+## DllBag@0x10e4 (size 0x6c)
+
+- What it is: lazy-init + conditional setup: `if (!this->ctx(+0x4c)) fnInit(this); if (fnTest(ctx->p0->f8)) { fnA(this,1); fnB(ctx->p0,1,1,1,1[stack]); tail fnC(this, this->f38); }`.
+- Tried: unsigned char param types, varargs, local `k = 1`, hoisting the first arg into a local.
+- Stuck on: 15/27. Words up to the `fnA` call match. Retail: loads ctx first then `mov r1,#1; mov r3,r1; mov r2,r1; ldr r0,[r0]; str r1,[sp]` (constant lives in r1); ours: `mov r0,#1; str r0,[sp]; ldr ctx; mov r3,#1...`.
+- Lead for next time: fnB signature (struct/bool mix) or the 1s coming from distinct sources.
+
+## DllGts@0x9880 (size 0x18)
+
+- What it is: stores constants then loads others (5/6 words matched).
+- Tried: see note. Retail hoists `mov r2,#10` and `mov r1,#1` before the first store; armcc emits `mov r1,#1` after it (word 0x988c).
+- Stuck on: 5/6, constant-hoisting order.
+- Lead for next time: none yet.
+
+## DllPokeList@0xaac (size 0x54; same shape at 0xa50 size 0x5c)
+
+- What it is: multiple-inheritance destructor.
+- Tried: `--relax-nops`, struct-typed fields, locals `vt = VT`, char*/void**/unsigned* vtable types, member load before/after stores.
+- Stuck on: best 12/20. Retail loads the vtable pool word into r1 BEFORE `push {r4,lr}` and keeps it live with independent `add r0,r1,#16` / `add r2,r1,#32`; armcc loads it after `push` and chains the adds. Store order target `[12],[0],[32]`.
+- Lead for next time: three separate vtable externs (VT0/VT1/VT2 at +0/+16/+32 of one object) might force independent address materialisation — untried.
+- Update 2026-10-15 (batch 10): the three-separate-externs lead was **disproven** — VT0/VT1/VT2 scored 8/21 (worse; three independent pool loads, no shared base); single extern with `VT+16`/`VT+32` + `--relax-nops` stays at 12/20. Retail loads the pool into r1 before `push`; likely a different source construct (e.g. member-init in an inlined base dtor) — untried.
+- Update 2026-10-15: 0xa50 has a nop word at 0xa94 (between the two `bl`) — relaxed-only at best; 0xaac not re-disassembled.
+
+## DllStatus@0x459c (size 0xb8)
+
+- What it is: byte-toggle region at `this+0xf5`.
+- Tried: if/else, ternary, local variable, goto join.
+- Stuck on: best 26/46. Retail never hoists constants #0/#1 into registers (re-materializes `mov r0,#1; mov r3,r0`), armcc does in every shape.
+- Lead for next time: none yet.
+
+## DllStatus@0x6f74 (size 0x1c)
+
+- What it is: vldmia/vstmia copy of 32 bytes src+0 -> dst+32, then 8-byte copy src+32 -> dst+64.
+- Tried: u32[8]/float[8] struct assignment, loops, unrolled float assigns, V4 structs.
+- Stuck on: armcc gives ldm/stm or vldr/vstr, never vldmia.
+- Lead for next time: none yet.
+
+## DllStatus@0x25c8 (size 0x18)
+
+- What it is: `(float)a/(float)b` from two u32 args.
+- Tried: `float fn(unsigned a,unsigned b){return (float)a/(float)b;}`.
+- Stuck on: 2/6. Target does both `vmov` first and divides s2/s1; armcc interleaves vmov/vcvt and swaps the divide operands.
+- Lead for next time: none yet.
+
+## DllZukan@0x1bdc0 (size 0x58)
+
+- What it is: `if (this[0xe0]) { a = vA(x) != 0; b = vB(x) != 0 }` then `return (vC(this)|a|b) != 0`.
+- Tried: plain int, ternary, temp variable, C++ `bool` (.cpp, 7/22).
+- Stuck on: best 9/22. `mov r4,#0; mov r5,r4` init matches, but bool normalization differs: retail emits `cmp r0,#0; movne rN,#1; moveq rN,#0` (first call result in r4, second in r5); armcc emits `adds rN,r0,#0; movne` and swaps r4/r5.
+- Lead for next time: none yet.
+
+## DllBattle@0x23e8 (size 0x34), 0x23b0 (same + tail call)
+
+- What it is: simple destructors — vtable store + free member at +0x14.
+- Tried: plain C dtor; 0x23b0 not separately compiled.
+- Stuck on: 8/13 words. Candidate hoists the member load ahead of the vtable store; retail interleaves (`ldr r1,pool; ldr r0,[r0,#20]; str r1,[r4]`). Known-bad dtor shape.
+- Lead for next time: none yet.
+
+## DllBattle@0x2390 (size 0x1c)
+
+- What it is: ctor wrapper — calls a base function, installs vtable, stores an argument at +0x28.
+- Tried: `char[]` and `int` forms of the extern vtable symbol.
+- Stuck on: 5/7. armcc picks r2 for the vtable temporary where retail uses r1.
+- Lead for next time: none yet.
+
+## DllFieldDebug@0x1ac (size 0xac) -- same function in every tiny debug/test module
+Also present identically at @0x180 (size 0xac) in DllDebugPokeMake, DllDebugProcLoop,
+DllPokeViewer, DllTest{Ariizumi,Hosaka,Ikuta,Ito,Mori,Taya,NCL,...} (all have .text of
+only 0xac bytes, 0 imports) and at @0x1ac in DllFieldDebug/DllTestKawada (0xdc text,
+preceded by the 0x2c strd/stm function below). One match would cover ~20 modules.
+
+- What it is: `int f(int *out, int op)` -- switch on op (cmp r1,#5 / ldrcc pc,[pc,r1,lsl#2]
+  inline jump table, 5 cases, push {r4,lr}):
+  0: *out = <reloc addr>; 1: g_ptr = out (str r0,[r2], r2 = reloc addr of a module global);
+  2: *out = *g_ptr; 3: out[0]=<addr>, out[1]=<addr>; 4: same with 2 other addrs; all return 0.
+  default: `ldr r0,=0x30000000; nop; ldr r0,=0x30000026; nop{0}; nop; ldr r0,=0xD8E12C21;
+  pop {r4,pc}` -- three consecutive dead-looking r0 loads separated by nop windows
+  (likely bl-to-import windows relaxed to nops), returns 0xD8E12C21.
+- Tried: plain C switch with externs (`extern int A1..`, `*out = A1` derefs, `return 0xD8E12C21`
+  default): 7/43 only. Findings: (a) the case values are ADDRESSES (ldr rN,=sym, no deref) -- use
+  `extern char X[]; *out=(int)X`; (b) retail has push {r4,lr}/pop {r4,pc} (a call exists
+  somewhere, in the default path's nop windows); mine is a leaf (bx lr).
+- Stuck: the default block. No C construct tried yields dead r0 loads + nops without bl (those
+  would be bl words, absent in target even with --relax-nops). Untried: `--relax-nops` plus
+  calls to externs in default (target has no bl, so would need the nop-window hypothesis proven),
+  or __asm blocks (would not be a genuine decomp).
+- Also: 0x180 (size 0x2c, set two u64 globals) is the known strd/stm residue; retried the
+  extern-helper idea (static helper `set_u64(v,&g)` => 5/11, non-static noinline => calls
+  not inlined 0/11) and unsigned/-1 literal/local-copy/struct variants (3-5/11). Still stuck.
+
+Module: DllDebugPokeMake (identical 0xac function in DllDebugProcLoop, DllPokeViewer, ~17 DllTest* modules; also at 0x1ac in the 0xdc-sized ones)
+Offset: 0x180
+Size: 0xac
+
+What it is: 5-way switch on r1 (`cmp r1,#5; ldrcc pc,[pc,r1,lsl #2]`, inline jump table of relocs) with push {r4,lr}. Cases in body order: *p=&X1; g=p (r2=&g); *p=g; p[0]=&X2,p[1]=&X3; p[0]=&X4,p[1]=&X5. Default (op>=5) returns 0xd8e12c21 through a weird tail: ldr r0,=0x30000000; nop; ldr r0,=0x30000026; nop,nop(0xe320f000 in the middle); ldr r0,=0xd8e12c21; pop {r4,pc} (dead loads of the first two constants survive).
+
+Tried: plain switch C with extern int objects and (int)&Xn stores, default return 0xd8e12c21. Got 0 full match: armcc emits no push {r4,lr} (bx lr leaf, no shared tail), puts the default as a separate leaf, and the table layout differs. Case-body shape (ldr const / str / b shared tail) matches in spirit.
+Lead: the dead 0x30000000/0x30000026 loads + nops look like inlined Result-construct helpers (nn::Result module/description bits) emitted unoptimized, and the r4 push suggests a call-free non-leaf frame; likely needs the original inline helper structure. Not worth more until a second example of that Result idiom is matched elsewhere.
+
+## DllTestOhno@0x180 (size 0xac) -- same function in ~25 stub modules
+
+- What it is: the ONLY function in DllTestOhno (text +0xac). Identical shape
+  (0xac; 0xdc variant in FieldDebug/TestIchiraku/TestKawada/TestKosaka/
+  TestNagihashi/TestSuzuki) in every unmined stub module: DebugPokeMake,
+  DebugProcLoop, PokeViewer, TestAriizumi/Hosaka/Ikeda/Ikuta/Ishiguro/Ito/
+  Mori/Nakahiro/NCL/Obata/Ohno/Onoue/SeqDemoView/Sogabe/Tamada/Taya/Tomoya
+  (all 25 unmined Dll*.cro). One solve would unlock them all. Same
+  jump-table/NOP-hint residue class as DllDialogCommon@0xdd8.
+- Shape: f(int *out, unsigned sel), 5-case switch (`ldrcc pc` table at +0x14,
+  5 words; mask with --mask-ranges 0x14:0x14), returns 0; pool words are
+  relocated (zero in the CRO). Bodies in physical order:
+  *out = &symA; gv = out (str r0,[r2]); *out = gv (ldr r1,[r2]; str r1,[r0]);
+  out[0]=&symB,out[1]=&symC; out[0]=&symD,out[1]=&symE (all plain
+  `ldr r1,[pc]` of a pool word = address constant, NOT a deref).
+  Default: ldr r0,=0x30000000; nop; ldr r0,=0x30000026; nop{0}; nop; ldr
+  r0,=0xd8e12c21; pop {r4,pc} -> returns 0xd8e12c21 (nn result code).
+- Got: with `extern char symX; *out=(int)&symX` and a global `gv`, the first
+  case bodies' words match (up to case 2's load); the rest differs in the
+  shared-tail layout and the default case. Original frame is
+  `push {r4,lr}`; mine only gets one if a call exists. `__nop()` x3 in
+  default gives e320f000 words (original interleaves mov r0,r0 / ldr /
+  nop-hint); `dbg(0x3000...)` calls give bl (original has nops) and
+  `mov r0,#0x30000000` instead of the pool `ldr`.
+  So the default's dead loads of 0x30000000/0x30000026 come from some
+  inline/intrinsic (likely an SDK assert/log macro) that leaves dead loads +
+  nops and no call, which also would explain the frame. Unresolved.
+- Lead: find what yields `ldr r0,=const; nop` pairs without a call. Not
+  solved in ~20 min; skip all these stub modules until the DialogCommon@0xdd8
+  class is cracked.
+
+## Unmined-module survey 2026-10-15 (DllPokeViewer + all remaining Dll{Test*,Debug*} modules)
+
+- Every module without a matched/ dir is an 8192-byte stub. Surveyed first
+  words at 0x180 for all 26: 21 (incl. DllPokeViewer, DllDebugPokeMake,
+  DllDebugProcLoop, DllTestAriizumi/Hosaka/Ikeda/Ikuta/Ishiguro/Ito/Mori/NCL/
+  Nakahiro/Obata/Ohno/Onoue/SeqDemoView/Sogabe/Tamada/Taya/Tomoya) contain
+  ONLY the nnroControlObject_ 5-case jump-table dispatcher (known dead end).
+- DllTestIchiraku, Kawada, Kosaka, Nagihashi, Suzuki additionally have a
+  leading globals-init function @0x180 (size 0x2c: `ldr r2,[pc]; mvn r0,#0;
+  mov r1,r0; strd r0,[r2]; ldr r0,[pc]; mov r1,#0; mov r2,r1; stm r0,{r1,r2};
+  bx lr`) -- same residue as DllUSGymFighting@0x11dc / DllUSGymIce@0x1974.
+  (Kosaka differs in one word: 0xe1c200f8, strd of r0:r1 to [r2,#8].)
+- Tried on DllTestIchiraku@0x180 (--mask-ranges 0x24:4,0x28:4): two named zero
+  locals assigned to g_b[0]/g_b[1] -> 4/11 (address-first, stm for the -1);
+  struct copy from a zeroed local -> 3/11. No improvement over prior notes.
+- Conclusion: no easy candidates remain in unmined modules; no matches produced.
+  Next batch should target partially-mined modules instead.
+
 ## <Module>@<offset> (size <hex>)
 
 - What it is: <one-line guess at what the function does>
@@ -288,34 +585,6 @@ compiled branchless via xor/or rather than cmp/cmp/and.
   size/shape) will have the identical problem and shouldn't be
   re-attempted until this one is solved.
 
-## DllUSGymFighting@0x11dc (size 0x2c)
-
-- What it is: no-arg globals-init function, right after the matched
-  `0x11c0` struct zero-initializer. Sets a 64-bit module-static global
-  to -1 (`ldr r2,[pc]@lit; mvn r0,#0; mov r1,r0; strd r0,[r2]`) then a
-  second 8-byte global (two ints) to 0 (`ldr r0,[pc]@lit; mov r1,#0;
-  mov r2,r1; stm r0,{r1,r2}`), then `bx lr`.
-- Tried: an `extern long long g_sentinel; extern struct{int a,b;}
-  g_zero;` pair with plain field assignment, and the same with the `-1`
-  value materialized through a named local before the assignment,
-  hoping to force value-first register allocation.
-- Stuck on: 3/11 masked words (both variants identical). This is the
-  exact same residue class already logged for `DllFieldDebug@0x180`:
-  armcc 5.04u5 always allocates the destination **address** into the
-  lowest free register (`r0`) and the 64-bit value into the next pair
-  (`r1:r2`, not eligible for `strd` since the start register is odd),
-  forcing a generic `stm` — while the retail binary computes the value
-  first into the even-aligned `r0:r1` pair and the address second into
-  `r2`, enabling the specialized `strd`. Source statement order didn't
-  change which assignment got the address-first treatment; the
-  compiler always routes whichever assignment it emits first through
-  that path.
-- Lead for next time: `DllFieldDebug@0x180`'s own note flags an
-  untried idea — an un-inlined helper (true extern-linkage, not
-  `static`) called as `set_u64(value, &dest)`, so the AAPCS calling
-  convention forces the value into `r0:r1` and the pointer into `r2`
-  regardless of what the caller does around it. Confirmed now present
-  in at least two independent modules.
 
 ## DllUSGymFighting@0xd64 (size 0x50)
 
@@ -384,43 +653,6 @@ compiled branchless via xor/or rather than cmp/cmp/and.
   before the vtable dereference to perturb the allocator's
   free-register ordering.
 
-## DllUSGymIce@0x1974 (size 0x2c)
-
-- What it is: a no-argument "globals init" function. Loads the address
-  of global A (an 8-byte value) into `r2`, writes -1 to both words via
-  `mvn r0,#0; mov r1,r0; strd r0,[r2]`, then loads the address of
-  global B (also 8 bytes) into `r0` and zeroes both its words via
-  `mov r1,#0; mov r2,r1; stm r0,{r1,r2}`. Verified with
-  `--mask-ranges 0x24:4,0x28:4` (the function's own two unresolved
-  data-relocation literals).
-- Tried: `static int g_a[2]; static int g_b[2];` in the same file —
-  armcc recognizes the adjacent statics and constant-folds the second
-  address to `addr(g_a)+8`, totally wrong shape (3/11).
-  `extern volatile long long g_a; extern int g_b[2];` (both
-  external/unresolved so the compiler can't fold their relative
-  addresses) gets the **first half exactly right** (bit-for-bit
-  `strd` match) but the second half diverges — the compile reuses a
-  single register and emits `str`/`str` (recognizing it's storing the
-  same zero value twice), while the retail binary deliberately
-  computes two separate zero registers and issues one combined `stm`.
-  **Best result: 9/11 words**, only the last two differ. Marking
-  `g_b` `volatile` too made no difference; a chained assignment
-  `g_b[1] = g_b[0] = 0;` made it worse (7/11, different shape
-  entirely).
-- Working theory for next time: `strd` vs `stm` for a same-value pair
-  store appears to hinge on whether the two source registers end up as
-  an even-starting pair (`r0`/`r1` → `strd` available) or an
-  odd-starting pair (`r1`/`r2` → `strd` illegal, falls back to `stm`)
-  — a register-pressure side effect of which register holds the
-  destination address, not something controllable from the C source
-  directly. Getting armcc to deliberately materialize a *second*,
-  redundant register for the already-known-zero second word (instead
-  of reusing the first) might require the two stores to look
-  genuinely non-redundant to the optimizer (e.g. two different named
-  locals assigned to the same literal, or different modeled field
-  widths). Related to, but a distinct variant of, the
-  `DllFieldDebug@0x180`/`DllUSGymFighting@0x11dc` `strd`-vs-register-
-  role residue — this one got much closer (9/11 vs 3/11).
 
 ## DllField@0xae58 (size 0x10)
 

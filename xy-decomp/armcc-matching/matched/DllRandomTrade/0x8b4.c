@@ -1,4 +1,5 @@
 /* DllRandomTrade function @ CRO file offset 0x8b4, size 0x38 — MATCHED (masked, 14/14).
+ * Style: trick(ordering-local) -- local(s) (e.g. `vt = VT`, hoisted member loads) only to fix load/pool-load order
  * First matched function in this module (a seventy-seventh module for the
  * swarm). Standard destructor idiom already proven in DllFatalErrorProc@0x284/
  * DllCommendation@0xc94/DllBattleHouseConnect@0x2fc/DllGameClearSave@0xd6c/

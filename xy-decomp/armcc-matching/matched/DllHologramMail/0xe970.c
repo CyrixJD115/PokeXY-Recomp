@@ -1,4 +1,5 @@
 /* DllHologramMail function @ CRO file offset 0xe970, size 0x24 — MATCHED (masked, 9/9).
+ * Style: trick(static-helper) -- one-use static helper only to pin an argument register
  * Calls an import veneer (file offset 0x190, target masked) with `this+8`
  * (a pointer field) and the literal 0, then sets two adjacent byte flags
  * (`this+17`, `this+16`, in that store order) to the literal 2. Void return.

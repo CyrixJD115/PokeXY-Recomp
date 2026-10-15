@@ -1,4 +1,5 @@
 /* DllGameSync function @ CRO file offset 0x5e0, size 0x38 — MATCHED (masked, 14/14).
+ * Style: trick(ordering-local) -- local(s) (e.g. `vt = VT`, hoisted member loads) only to fix load/pool-load order
  * First matched function in this module. Same recurring dtor idiom as
  * DllFatalErrorProc@0x284 / DllCommendation@0xc94 / DllBattleHouseConnect@0x2fc /
  * DllGameClearSave@0xd6c / DllFriendEntry@0x4c4 / DllEshop@0x554: installs a

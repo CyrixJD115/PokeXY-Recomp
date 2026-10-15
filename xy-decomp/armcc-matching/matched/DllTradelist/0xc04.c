@@ -1,4 +1,5 @@
 /* DllTradelist @ 0xc04, size 0x38 - destructor: installs a new vtable, frees
+ * Style: trick(ordering-local) -- local(s) (e.g. `vt = VT`, hoisted member loads) only to fix load/pool-load order
  * the owned member at `this+0x14` if non-null, tail-calls a second import
  * instead of returning `this` directly. Match 14/14.
  *

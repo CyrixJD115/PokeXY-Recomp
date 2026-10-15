@@ -1,4 +1,5 @@
 /* DllSubScreenTutorial@0x12cc (size 0x38) -- MATCHED (masked, 14/14).
+ * Style: trick(ordering-local) -- local(s) (e.g. `vt = VT`, hoisted member loads) only to fix load/pool-load order
  * Destructor: same idiom already proven in DllFatalErrorProc@0x284/
  * DllCommendation@0xc94/DllBattleHouseConnect@0x2fc/DllGameClearSave@0xd6c/
  * DllFriendEntry@0x4c4/DllEshop@0x554/DllGameSync@0x5e0/DllLiveCup@0x764:

@@ -1,4 +1,5 @@
 /* DllLiveCup function @ CRO file offset 0x764, size 0x38 — MASKED MATCH (14/14).
+ * Style: trick(ordering-local) -- local(s) (e.g. `vt = VT`, hoisted member loads) only to fix load/pool-load order
  * First matched function in this module. Same recurring dtor idiom already
  * proven in DllFatalErrorProc@0x284 / DllCommendation@0xc94 /
  * DllBattleHouseConnect@0x2fc / DllGameClearSave@0xd6c / DllFriendEntry@0x4c4 /

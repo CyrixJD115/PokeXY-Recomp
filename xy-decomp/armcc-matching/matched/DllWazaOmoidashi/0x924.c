@@ -1,4 +1,5 @@
 /*
+ * Style: trick(redundant-local) -- named literal/temp local only to steer armcc's constant-register choice
  * DllWazaOmoidashi @ 0x924 (size 0x14) — 5/5 masked match.
  *
  * Field setter: stores the 2nd argument (a halfword) into a sub-object
