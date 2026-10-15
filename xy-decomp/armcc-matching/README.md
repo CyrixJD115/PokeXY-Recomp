@@ -16,22 +16,22 @@ and its proof live in this repo too. Full writeup: `docs/decomp/armcc-toolchain.
 not depth. The swarm's executor skill deliberately mines the *easiest*
 win per module first (trivial 1-2 instruction virtual-override stubs and
 field setters have a near-100% hit rate — see "What reliably works"
-below), so as of this update **36 of 54 matched modules have exactly one
+below), so as of this update **39 of 58 matched modules have exactly one
 trivial `return 0`/`return 1`/field-setter/forwarder stub proven and
 nothing else** — the module itself still has its full remaining function
-count (typically hundreds) completely unaddressed. The other 18 modules
+count (typically hundreds) completely unaddressed. The other 19 modules
 (`DllDialogCommon`, `DllNumberInput`, `DllStrInput`, `DllFatalErrorProc`,
 `DllLangSelect`, `DllHeading`, `DllCommendation`, `DllBattleHouseConnect`,
 `DllGameClearSave`, `DllUSBigFourSteel`, `DllFriendEntry`,
 `DllBackGround`, `DllDendouDemo`, `DllBoxSearch`, `DllBattlePartySelect`,
-`DllDendouPC`, `DllEggDemo`, `DllEshop`) have either multiple matched
-functions or at least one structurally meaningful match (a destructor/
-constructor/dispatcher, or a genuine multi-instruction compile like
-`DllBackGround`'s three-way predicate, the `DllDendouDemo`/`DllBoxSearch`/
-`DllDendouPC`/`DllEggDemo` conditional-accessor family, `DllEshop`'s
-tail-calling destructor, or `DllBattlePartySelect`'s instruction-order-
-sensitive leaf predicate, not just a 1-2 word stub). Treat "M modules
-touched" as a
+`DllDendouPC`, `DllEggDemo`, `DllEshop`, `DllGameSync`) have either
+multiple matched functions or at least one structurally meaningful match
+(a destructor/constructor/dispatcher, or a genuine multi-instruction
+compile like `DllBackGround`'s three-way predicate, the `DllDendouDemo`/
+`DllBoxSearch`/`DllDendouPC`/`DllEggDemo` conditional-accessor family,
+the `DllEshop`/`DllGameSync` tail-calling destructor pair, or
+`DllBattlePartySelect`'s instruction-order-sensitive leaf predicate, not
+just a 1-2 word stub). Treat "M modules touched" as a
 toolchain-portability proof (the technique works on unrelated modules,
 not just the first one found), not as module
 completion.
@@ -776,6 +776,47 @@ completion.
 
   An untried `return 1` stub sits right next door at `0x1ee4`, and a
   small struct-zero init function at `0x1eec`-`0x1f0c`.
+
+- `matched/DllFieldEventPokeRideAction/` — 1 function, a **fifty-fifth**
+  module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x520` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+
+  Sits mid-module: a field-copy-and-store helper at `0x514`
+  (`add r0,r0,#0x24; stm r0,{r1,r2}; bx lr`, untried, looks tractable)
+  precedes it, a real `push {r4,r5,r6,lr}` function follows at `0x528`.
+
+- `matched/DllGameSync/` — 1 function, a **fifty-sixth** module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x5e0` | `0x38` | 14/14 | Destructor — same idiom already proven in `DllFatalErrorProc@0x284`/`DllCommendation@0xc94`/`DllBattleHouseConnect@0x2fc`/`DllGameClearSave@0xd6c`/`DllFriendEntry@0x4c4`/`DllEshop@0x554`: installs a new vtable, frees an owned member at `+0x14` if non-null, tail-calls a second import instead of returning `this` directly. |
+
+  An unclaimed easy follow-up: a trivial `return 1` stub at `0x5c8` in
+  the same module.
+
+- `matched/DllFieldEventSkatePipe/` — 1 function, a **fifty-seventh**
+  module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x1b28` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+
+  Two more promising, unclaimed candidates in the same module: a lone
+  `bx lr` stub at `0x1b30` (weak evidence), and a genuine field
+  accessor at `0x1b34` (`ldr r1,[r1,#28]; add r1,r1,#288; str
+  r1,[r0,#36]; bx lr`, size `0x10`).
+
+- `matched/DllFieldEventTakinobori/` — 1 function, a **fifty-eighth**
+  module:
+
+  | Offset | Size | Match | Note |
+  |---|---|---|---|
+  | `0x11d4` | `0x8` | 2/2 | Trivial int field setter: `str r1,[r0,#24]; bx lr` — stores the 2nd argument into the object at `+0x18`, void return. |
+
+  A twin `return 1` stub sits right next door at `0x11dc`, untried.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 

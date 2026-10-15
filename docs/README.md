@@ -86,9 +86,9 @@ notes belong; the pointers are starting points, not exhaustive briefs.
    functions (95 %) but **zero** are behaviorally verified; wiring the
    3dsrecomp verify / objdiff per-unit harness is the credibility gap.
    Separately, matching-decomp's compiler-parity blocker is now identified
-   (armcc 5, not GCC) and 75 functions across fifty-four modules are masked-matched
+   (armcc 5, not GCC) and 79 functions across fifty-eight modules are masked-matched
    proof-of-concept — see [decomp/armcc-toolchain.md](decomp/armcc-toolchain.md).
-   Read "modules" as breadth, not depth: 36 of those 54 have only a single
+   Read "modules" as breadth, not depth: 39 of those 58 have only a single
    trivial stub proven (see the caveat at the top of
    `xy-decomp/armcc-matching/README.md`), so most of each module's function
    count is still untouched. Scaling to the remaining ~38,347 functions is
