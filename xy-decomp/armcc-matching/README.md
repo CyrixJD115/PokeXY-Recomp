@@ -1131,7 +1131,7 @@ of a second summary number.
   remain around `0xeeb0`/`0xdb4`-area indexed-predicate shapes and other
   stub clusters).
 
-- `matched/DllField/` — 6 functions, an **eighty-fourth** module:
+- `matched/DllField/` — 16 functions, an **eighty-fourth** module:
 
   | Offset | Size | Match | Note |
   |---|---|---|---|
@@ -1141,11 +1141,24 @@ of a second summary number.
   | `0x228b8` | `0x8` | 2/2 | Pointer-field setter, stores 2nd argument at `this+224`, void return. Mid-module, not near the import-veneer table. |
   | `0x288c0` | `0x8` | 2/2 | Pointer-field setter, stores 2nd argument at `this+0`, void return. First of a sibling pair with `0x288c8`. |
   | `0x288c8` | `0xc` | 3/3 | Sibling of `0x288c0`, same field — hardcoded-zero variant: discards the 2nd argument and stores a freshly-materialized 0 instead. A bare `bx lr` weak-evidence stub at `0x288d4` right after is unclaimed. |
+  | `0xa6ff0` | `0x14` | 5/5 | Setter clearing `this+0xacd` and copying `this+0xac4` into `this+0xab8` (load-then-store order matters). Sibling of `0xa714c`. Found via `find_candidates.py`. |
+  | `0xa714c` | `0x14` | 5/5 | Sibling of `0xa6ff0`: sets `this+0xacd` to 1, copies `this+0xab8` into `this+0xac4` (opposite direction/flag value). Found via `find_candidates.py`. |
+  | `0x5445c` | `0x38` | 14/14 | Call+return helper: two import-veneer calls `(this, byte@10, 0, 2, 8)` then `(field0, 33)`, returns 1. `find_candidates.py`'s hint size (`0x40`) overran into two trailing one-word stubs past the real end — true size `0x38`. |
+  | `0x54d84` | `0x38` | 14/14 | Sibling of `0x5445c`: calls `(field0, 196)` then `(this, byte@10, 1, 1, 12)`, returns 1. Residue: the two identical-value args (`r2=r3=1`) only matched written as the bare literal `1, 1` — a named local reused for both compiled with armcc materializing into `r2` first instead of `r3` (retail's order). |
+  | `0x54dc4` | `0x18` | 6/6 | Call+return helper: veneer call with `(field0, 16)`, returns hardcoded 3. Found scanning right after `0x54d84`. Easy unclaimed neighbor at `0x54de4` (same shape, `(field0, 0, 8)`, also returns 3). |
+  | `0x54e08` | `0x38` | 14/14 | Two-call helper: `CallA(this, this->f10, 0, 2, 16)` then `CallB(this->f0, 31)`, always returns 1. Same `find_candidates.py` size-rounding correction as `0x5445c` (hinted `0x40`, real `0x38` — the extra bytes are two separate unclaimed one-word stubs). |
+  | `0x55384` | `0x38` | 14/14 | Sibling of `0x54e08`, same shape, different constants `(0,4,8` / `33)`. Same size correction (hinted `0x40`, real `0x38`). |
+  | `0x34238` | `0x10` | 4/4 | Two fixed no-arg calls, void return (`FunA(); FunB();`, second tail-called via `b`). Real size `0x10` (4 words) — `find_candidates.py`'s hint (`0x34`) overran into the next function's field setters; the `push/pop {r4,lr}` is AAPCS stack-alignment padding, not a real save. |
+  | `0x36d04` | `0x10` | 4/4 | Byte-identical shape to `0x34238`. Same size correction. |
+  | `0x39a88` | `0x10` | 4/4 | Byte-identical shape to `0x34238`/`0x36d04`. Same size correction. |
 
   Right after DllField's large import-veneer table (`0x180`-`0x5767`)
   and a run of small veneer-calling wrappers/float helpers
   (`0x5740`-`0x58c4`); plenty of unmined ground remains in this module
-  (9,277 functions — one of the largest CRO modules). An attempted
+  (9,277 functions — one of the largest CRO modules, now with two
+  agents mining it in parallel off a shared `find_candidates.py` scan
+  instead of each re-disassembling it — see the tool's own section
+  below). An attempted
   candidate at `0xae58` (zeroes two adjacent int fields) got stuck at
   1/4 — see `attempted.md`; siblings at `0xe380`/`0xe3fc` have the same
   shape and residue, don't re-attempt without a new idea.
@@ -1532,6 +1545,40 @@ is now a reasonable default for future rounds once genuinely-unmined
 modules run out: `for d in matched/*/; do n=$(find "$d" -name '*.c' -o
 -name '*.cpp' | wc -l); [ "$n" = 1 ] && echo "$(basename "$d")"; done`
 cross-referenced against `heatmap_data.json`'s per-module `n` field.
+
+### Tool addition: `find_candidates.py`, a shared candidate scan (2026-10-15)
+
+New deterministic, no-LLM tool at `tools/find_candidates.py <Module>`:
+disassembles nothing itself, instead regex-matching the already-generated
+Ghidra decompiled-C corpus (`decomp/cro_c/<Module>/`) against the small
+set of shapes this file's "What reliably works" list documents (trivial
+stubs, simple setters, short call+return helpers), excluding anything
+already in `matched/`/`attempted.md`. Built so that when a module has
+room for more than one agent at once (a big one like `DllField` has
+thousands of untouched functions), they can split one shared scan's
+output instead of each re-disassembling and re-scanning the same module
+from scratch — exactly what happened in the round right below: two
+agents split `DllField`'s candidate list with zero overlap and zero
+duplicated disassembly cost.
+
+**Explicitly a hint source, not proof** — Ghidra's decompiled C can be
+misleading for anything non-trivial, so every candidate still needs its
+own `fingerprint_fn.py` masked match before it counts (stated in the
+tool's own docstring and printed with every run).
+
+**Known rough edge, found by both agents in the very first real use**:
+reported sizes ("gap to the next Ghidra-tracked function start") are
+consistently a bit too large — in every case this round, the real
+function ends cleanly a few words early (`pop {...,pc}` or a tail `b`),
+with the extra hinted bytes belonging to one or more separate, untracked
+trailing stub(s) that Ghidra didn't carve its own file for (the same root
+cause as the size-sanity bug fixed earlier that day, just inside the
+plausibility bound that time instead of wildly over it). Agents correctly
+treated the hint as a starting offset only and found the real end
+themselves — this doesn't block using the tool, but a future improvement
+would have the script itself locate the first return instruction after
+each candidate's start (one extra disassembly pass, still done once
+centrally) instead of trusting the next tracked function's start.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
