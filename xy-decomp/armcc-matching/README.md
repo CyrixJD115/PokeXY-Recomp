@@ -23,7 +23,7 @@ still have their full remaining function count (typically hundreds)
 completely unaddressed regardless of how many functions are proven in
 them. A module having **more than one** matched function is unambiguous
 evidence of that (recompute with `for d in matched/*/; do find "$d" -name
-'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **27 of 106**
+'*.c' -o -name '*.cpp' | wc -l; done | awk '$1>1' | wc -l` — **30 of 106**
 as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllFatalErrorProc`, `DllIntro`, `DllSparringMenu`, `DllStatus`,
 `DllSubScreenTutorial`, `DllStartMenu`, `DllStaffRoll`, `DllWazaOboe`,
@@ -31,7 +31,7 @@ as of this update: `DllDialogCommon`, `DllNumberInput`, `DllStrInput`,
 `DllTownmap`, `DllTradeDemo`, `DllTrainerCase`, `DllUSGymEsper`,
 `DllTrialHouseResult`, `DllUSGymFighting`, `DllUSKinomi`,
 `DllUSPassage`, `DllVSDemo`, `DllUSGymIce`, `DllWazaOmoidashi`,
-`DllBattle`). Many of the
+`DllBattle`, `DllBattleMatch`, `DllSequence`, `DllField`). Many of the
 remaining single-match modules are also genuinely meaningful (a
 destructor/constructor/dispatcher/conditional-accessor, not a 1-2 word
 stub) — see each module's own entry above for which; that split isn't
@@ -704,11 +704,16 @@ of a second summary number.
   as `DllDialogCommon@0xdd8`, not attempted) and a long constructor at
   `0x50c`; this candidate is the module's last function.
 
-- `matched/DllBattleMatch/` — 1 function, a **forty-seventh** module:
+- `matched/DllBattleMatch/` — 6 functions, a **forty-seventh** module:
 
   | Offset | Size | Match | Note |
   |---|---|---|---|
   | `0xd90` | `0x4` | 1/1 | Thin tail-call forwarder — entire body is a single `b <import veneer>` instruction, same idiom as `DllBattleVideoSave@0x454`/`DllDialogCommon@0x6e8`. |
+  | `0xd8c` | `0x4` | 1/1 | Trivial no-op void stub, single `bx lr` (weak evidence — any void no-op compiles the same). Right before `0xd90`. |
+  | `0xd94` | `0x4` | 1/1 | Trivial no-op void stub, single `bx lr` (weak evidence). Immediately follows `0xd90`. |
+  | `0xde4` | `0x4` | 1/1 | Thin tail-call forwarder, same idiom as `0xd90`/`DllBattleVideoSave@0x454`/`DllDialogCommon@0x6e8`. |
+  | `0xde8` | `0x4` | 1/1 | Trivial no-op void stub, single `bx lr` (weak evidence). Right after `0xde4`. |
+  | `0xe38` | `0x10` | 4/4 | Two-call helper: `import_a(o)` then a tail call to an argument-less `import_b()`. Gotcha: the second call must take NO argument — passing `o` to both forces armcc to emit `mov r4,r0`/`mov r0,r4` save/restore pairs the retail binary doesn't have; once `import_b` is `void(void)`, `o` isn't live across the first call and `pop {r4,lr}; b <import_b>` falls out naturally. |
 
   Sandwiched between two bare `bx lr` no-op stubs (`0xd8c`/`0xd94`) at
   the tail of the import-veneer table. A more interesting neighbor at
@@ -1109,27 +1114,41 @@ of a second summary number.
   Module's first real function, right after its import-veneer table
   (`0x180`-`0x727`).
 
-- `matched/DllSequence/` — 1 function, an **eighty-third** module:
+- `matched/DllSequence/` — 6 functions, an **eighty-third** module:
 
   | Offset | Size | Match | Note |
   |---|---|---|---|
   | `0x1135c` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. |
+  | `0xee90` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. First of the module's previously-flagged untried leads. |
+  | `0xef98` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. Second of the previously-flagged untried leads. |
+  | `0x10a80` | `0x10` | 4/4 | Chased-pointer "touch then always return true" accessor (`this->inner->field0xcc`, result discarded, returns 1). The third flagged lead was mis-recorded as `0x10a88`/`0x8` (trailing stub words only) — real function starts at `0x10a80` and is `0x10` bytes. **Residue-class finding:** armcc 5.04u5 at `-O2 -Otime` fully eliminates two chained, unused, non-volatile pointer loads (0/4 without intervention); marking the leaf field `volatile` retains both loads and reproduces the target exactly. Worth re-checking other modules' "untried return-1 lead" notes in case some are this same pattern rather than a bare 2-word stub. |
+  | `0xdc8` | `0x8` | 2/2 | `xy_system::bg::System::SetIsCallDraw(bool)` — same shared setter as `DllTrainingAppManager@0xd68`/`DllPssConfig@0x1c20`/`DllCaptureRegister@0x27b0`/`DllColosseum@0x46fc`/`DllFieldDemo@0x1edc`/`DllIntro@0x9eb0`. |
+  | `0x1140` | `0x18` | 6/6 | Sets a single byte flag deep in a buffer (`this->buf[0x181d] = 1`) via two sequential pointer-cursor adds. Offset exceeds `strb`'s 12-bit immediate range; armcc's natural single-expression split (`add #0x1000; strb [r0,#0x81d]`) doesn't match retail's (`add #0x1800; add #29; strb [r0,#0]`) — only a literal sequential-cursor idiom (`p=buf; p+=0x1800; p+=29; *p=1;`) reproduces it. Same cursor-store pattern as `DllNumberInput@0x18fc`, now seen in a plain field-set rather than a constructor. |
 
   Inside the recurring tail-of-import-veneer-table leaf-stub cluster
   (bare `bx lr` stubs on both sides). Module has an unusually large
-  import-veneer table; three more untried `return 1`-shaped leads at
-  `0xee90`, `0xef98`, `0x10a88`.
+  import-veneer table; still far from exhausted (untried candidates
+  remain around `0xeeb0`/`0xdb4`-area indexed-predicate shapes and other
+  stub clusters).
 
-- `matched/DllField/` — 1 function, an **eighty-fourth** module:
+- `matched/DllField/` — 6 functions, an **eighty-fourth** module:
 
   | Offset | Size | Match | Note |
   |---|---|---|---|
   | `0x58c8` | `0xc` | 3/3 | Trivial hardcoded-true byte-field setter: unconditionally sets `this+0x1c` to 1, ignores any 2nd argument, void return. |
+  | `0x10f10` | `0x8` | 2/2 | Trivial virtual-override stub, `return 1`, ignores `this`. Right after a destructor-stage function (ending `0x10f08`), right before the sibling setter at `0x10f18`. |
+  | `0x10f18` | `0xc` | 3/3 | Byte-field setter: stores the *third* argument (`r2`, not `r1`) into `this+141`, then unconditionally returns 1. Watch register roles on siblings — not every setter in this module takes its value in `r1`. |
+  | `0x228b8` | `0x8` | 2/2 | Pointer-field setter, stores 2nd argument at `this+224`, void return. Mid-module, not near the import-veneer table. |
+  | `0x288c0` | `0x8` | 2/2 | Pointer-field setter, stores 2nd argument at `this+0`, void return. First of a sibling pair with `0x288c8`. |
+  | `0x288c8` | `0xc` | 3/3 | Sibling of `0x288c0`, same field — hardcoded-zero variant: discards the 2nd argument and stores a freshly-materialized 0 instead. A bare `bx lr` weak-evidence stub at `0x288d4` right after is unclaimed. |
 
   Right after DllField's large import-veneer table (`0x180`-`0x5767`)
   and a run of small veneer-calling wrappers/float helpers
   (`0x5740`-`0x58c4`); plenty of unmined ground remains in this module
-  (~9,227 functions — one of the largest CRO modules).
+  (9,277 functions — one of the largest CRO modules). An attempted
+  candidate at `0xae58` (zeroes two adjacent int fields) got stuck at
+  1/4 — see `attempted.md`; siblings at `0xe380`/`0xe3fc` have the same
+  shape and residue, don't re-attempt without a new idea.
 
 **2026-10-15: first batch under the multi-function-per-agent model** (up
 to 5 functions per spawn instead of exactly 1) — 5 agents landed 24
@@ -1495,6 +1514,24 @@ module-disassembly cost across several matches instead of one.
   it. Untried leads: a twin `return 0` stub at `0x1fd0`, a 1-word
   tail-call forwarder at `0x1fcc`, and a large VFP vector/matrix
   function at `0x1d8c`-`0x1f74`.
+
+**2026-10-15: first deepening round — targeting single-match modules by
+size.** With almost every CRO now touched at least once, the orchestrator
+started picking the next round's targets differently: instead of an
+unmined module, it ranked modules that already have exactly one matched
+function by their total Ghidra function count (from the heatmap's
+`heatmap_data.json`) and spawned agents on the three largest —
+`DllField` (9,277 functions), `DllBattleMatch` (1,572), `DllSequence`
+(1,247) — on the theory that a module with thousands of functions and
+only one proven match almost certainly still has easy siblings sitting
+unmined, same as the "scan near your last match" advice already in the
+executor skill, just applied at orchestrator-assignment time instead of
+within a single agent's run. All three paid off (each went from 1 to 6
+matched functions in one round) — see their updated entries above. This
+is now a reasonable default for future rounds once genuinely-unmined
+modules run out: `for d in matched/*/; do n=$(find "$d" -name '*.c' -o
+-name '*.cpp' | wc -l); [ "$n" = 1 ] && echo "$(basename "$d")"; done`
+cross-referenced against `heatmap_data.json`'s per-module `n` field.
 
 ### Tool addition: `--mask-ranges` for jump-table data (2026-10-15)
 
