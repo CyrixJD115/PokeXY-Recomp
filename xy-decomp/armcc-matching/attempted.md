@@ -15,6 +15,252 @@ file is only for things still unsolved.
 Format per entry:
 
 ```
+## DllBattle 0xbd2dc (round b, event-trigger sweep 0xb8000-0xca000)
+
+Module: DllBattle
+Offset: 0xbd2dc
+Size: 0x60
+Match: 15/24
+
+`if (g(3) == c) { v = (ushort)g(18); if (h(v, 30) != 0 || v == 26 || v == 136) post(50, K); }` -- retail does `cmp r4,#26; beq T; cmp r4,#136; bne end` with T the shared tail-call block; armcc fuses to `cmpne r4,#136; bne` and orders the tail call differently. Tried negated early return, if/else with a duplicated post call, `||` forms. The retail layout suggests the post call is reachable from two separate branches.
+
+## DllBattle 0xc4f60 (round b, event-trigger sweep 0xb8000-0xca000)
+
+Module: DllBattle
+Offset: 0xc4f60
+Size: 0x44
+Match: 15/17
+
+`if (g(3) == c && (ushort)g(18) == 505) post(54, 3072)`: retail compares via `sub r1,r0,#256; subs r1,r1,#249; bne` (two-step subtract), armcc emits `mvn r1,#504; cmn r0,r1`. Tried `- 256 - 249 == 0`, `- 256 == 249`, `g(18) - 505 == 0`. The retail split suggests the constant is built as 256 + 249 (macro/enum arithmetic); source form unknown.
+
+## DllBattle event-trigger predicates that save BOTH b (r1) and c (r2) -- ~213 functions in 0xb8000-0xca000 (e.g. 0xb8d3c, 0xb8008, 0xb8048, 0xb9c70, 0xbfc9c, 0xc06c8, 0xbca9c) (round b, event-trigger sweep 0xb8000-0xca000)
+
+Module: DllBattle
+Offset: 0xb8d3c (representative; full list = every unmatched 0x6b91c caller in range whose prologue has `mov rN, r1`)
+Size: 0x40
+Match: 14/16
+
+Shape (0xb8d3c): `if (g(3) == c && h1(b) == 1) post(44, 50)` -- retail prologue is `push {r4,r5,r6,lr}; mov r5,r1; mov r4,r2` (b first), armcc here emits `mov r4,r2; mov r5,r1`. Body otherwise identical (14/16, only the two prologue words differ). Same residue already logged in attempted.md for 0xa7cd0/0xa7188/0xc1244; this confirms it covers ~213 more functions here (the largest unmatched cluster in the range).
+
+Tried (all the same 14/16): plain `&&` form, nested ifs, `(void)b;` first, `int bb = b; int cc = c;` locals in both orders, swapping the parameter order/names, calling h1(b) first. No natural form found.
+
+Observation: the move order is NOT simply allocation order. Retail (b,c) emits r1-first; (d,c) = 0xc489c emits r3-first (matched, natural); (c,d) = 0xbc89c/0xbe5b8/0xbef24/0xc282c/0xc3cd0 emit r2-first while armcc here emits r3-first. So the (c,d) and (b,c) shapes both need the opposite order from what we produce; a single missing source-level fact (a 4th arg, an intermediate struct/vtable local) might explain both.
+
+## DllBattle event predicates saving c (r2) then d (r3) in that order -- 0xbc89c 0xbe5b8 0xbef24 0xc282c 0xc18d8 0xc3cd0 0xc44ac 0xc1ff8 (round b, event-trigger sweep 0xb8000-0xca000)
+
+Module: DllBattle
+Offset: 0xc282c (representative)
+Size: 0x24
+Match: 7/9
+
+`if (g(2) == c) *d = 0;` -- body correct, retail prologue is `mov r4,r2; mov r5,r3`, armcc emits `mov r5,r3; mov r4,r2`. Other members: 0xbc89c `if (g(2)==c && g(83)==0) *d = post(83,1)` (14/16), 0xc3cd0 `if (g(2)==c && d[3]) post(54,2048)` (13/15). Tried d as short*/char*, early-return form, local alias of d. Same family as the b+c residue (attempted-DllBattle-bc-saved-family.md); armcc's d-first order is what the natural source gives for the matched 0xc489c / 0xc1e40 / 0xbf0b0 shapes.
+
+## DllBattle nop-relaxed (round b, event-trigger sweep 0xb8000-0xca000)
+
+Module: DllBattle
+Offset: 0xc2a58 (siblings 0xc2afc 0xc2b88 0xc4b58 0xc556c; also 0xc23f4, 0xbce68/0xc1cb8/0xc4618 two-block variants)
+Size: 0x54
+Match: relaxed-only
+
+`if (g(4)==c && (ushort)g(30) != K) post(66,1) else *d = 0`-style predicates whose retail bytes carry the post-link branch-relaxation `nop nop` pair before the final `b`. Only matchable with --relax-nops, which does not count as a masked match, so none were saved.
+
+## DllField@0x90c00 (size 0x54) -- volatile-load retry, 2026-10-16
+
+- What it is: handler `(self, args)`: `o = self->+68; GetMgr(); s = (s16)args[2]; id = (u16)args[1]; tab = o->+144; x = mgr->+12->+72; r = (s == -1) ? tab->+16 : Q(G(x), s); if (r) T(r, id & 255); return 0`.
+- Lever applied: `volatile int *b` read (`int a1 = b[1]; int a2 = b[2];` first) gives the retail `ldr r2,[r1,#4]; ldr r1,[r1,#8]; uxth/sxth` and the whole body shape (cmn / ldreq / blne). Best 19/21.
+- Stuck on: callee-saved assignment only -- retail `o -> r5, id -> r6`, ours `o -> r6, id -> r5` (with `tab` volatile / hoisted `x = *(int*)(m+72)` before the `if` the instruction order matches exactly; without them the `ldr r1,[tab]` / `ldr r0,[r0,#72]` order differs). Declaration-order variants of o/s/id/a1/a2 (5 tried) all keep the swap; the variant that gets the right registers (volatile tab read inside the `if`) has the wrong load order.
+- Lead: same r5/r6 swap class as 0x9e550 / 0x9d970.
+
+## DllField@0x92424 (size 0x58) -- volatile-load retry 2026-10-16
+
+- What it is: `i = (u16)args[1]; m = mgr->+12; r = Q(G(m->+72), i); if (r) { o = m->+72->+344->+12; T(o, F2(F1(r))); } return 0`.
+- Lever applied (`volatile int *b`, `unsigned short i = b[1]`): arg handling and first half match (retail `ldr r4,[r0,#12]` = m, `movs r5,r0`).
+- Stuck on 11/22: retail does `movs r5,r0` (result kept in callee-saved r5) and runs the `+72 +344 +12` chain through r0, then `mov r0,r5; bl F1; bl F2; mov r1,r0; mov r0,r4; bl T`. Ours keeps `r` in r0 (plain `cmp r0,#0`), runs the chain through r1 and never copies. Hoisting `o` before the call, `F2(F1(r))` split into locals not yet tried beyond one variant.
+- Lead: r is probably used after the chain in a way that forces the copy (e.g. `r` also passed to `F1` after another call, or chain computed via a call); try a local used after F1.
+
+## DllField@0x9aa14 / 0x9ad24 / 0xa0290 / 0x923f0 / 0x5e098 / 0x5e030 / 0x5aa34 -- ldm/ldrd/writeback variants, volatile-load retry 2026-10-16
+
+All have the arg-load-width pattern PLUS a multi-word load instruction retail uses to fetch the args:
+- 0x9aa14 (0x3c): retail `add r1,r1,#4; push; ldm r1,{r4,r5,r6}; bl; ...; sxtb r3,r6; sxtb r2,r5; sxtb r1,r4` then `H(*(mgr+12->+28)->* + 0x14cd0, ...)`. A plain `struct {int x,y,z;}` copy of `b+1` gives the exact body but each field is read as `ldrb` (armcc folds the narrowing into the load; 0/15 only because of the prologue shift). `volatile struct` copy / `volatile int*` give three separate `ldr`s, never `ldm`. Mixed plain-struct-read + volatile narrowing read not found (the narrowing cannot be separated from the load without a store to a volatile).
+- 0x9ad24 (0x5c, `ldm {r4-r8}` of 5 args): same.
+- 0x923f0 (0x38, `ldrd r0,[r1,#4]; and r5,r0,#255; and r4,r1,#255`): plain `long long v = *(long long*)(b+4); (int)v&255, (int)(v>>32)&255` gets two `ldrb` (folds); `volatile long long` gets `add r0,r1,#4; ldrd r2,[r0]` hoisted before the push (the ldrd imm form is not used for volatile) -- 0/14.
+- 0xa0290 (0x2c): retail `ldr r3,[r4,#4]!` (pre-index writeback) then `ldr r0,[r0,#20]`, then `ldr r1,[r4,#4]`. `volatile int *p = b; x = *++p; y = p[1];` gives 8/11: no writeback, and `ldr r1,[r4,#8]` precedes the `ldr r0,[r0,#20]`; non-volatile first read folds to `ldrh`.
+- 0x5e098 / 0x5e030 (0x38): `ldm r4,{r1,r2}` + `and r1,r1,#255` (callee gets args[1]&255, args[2]); not retried beyond the earlier note (volatile struct -> two ldr).
+- 0x5aa34 (0x24): `ldm r1,{r0,r5}; and r4,r0,#255`, same.
+- Lead: needs a construct that makes armcc form `ldm`/`ldrd` for a pair of adjacent loads while keeping the narrowing at the use (e.g. a struct-by-value parameter / inline-asm barrier); none found.
+
+## DllBattle event-trigger predicates -- the prologue-move-order residue (round b; ~45 functions across 0xa5000-0xb8000, plus 0xa7cd0 / 0xa7188 / 0xc1244)
+
+- Scan: 226 non-matched `bl 0x6b91c` callers in 0xad000-0xb8000 alone; the c-only / (d,c) shapes matched (see the batch tables). Everything that must save TWO args across the 0x6b91c call (b+c or c+d; `push {r4,r5,r6,lr}`) fails on the SAME two words and nothing else: retail moves the LOWER arg register first (`mov r5,r1; mov r4,r2` / `mov r4,r2; mov r5,r3`), armcc always emits the higher one first. The register assignment itself is already right.
+- 0xad000-0xb8000: c AND d saved — 0xb67b0 13/15, 0xb6e80 17/19, 0xb47dc 14/16, 0xb6ecc 14/16, 0xb57f8 18/20, 0xb73c8 19/21; b AND c saved — 0xb76c8 14/16 (`if (g(3)==c && h(b)) post(83,1)`), same family 0xb0e94, 0xb0b4c, 0xae96c, 0xb1314 and ~20 more.
+- 0xa5000-0xad000: ~25 functions — 0xa60c8 / 0xa67b4 / 0xa6924 / 0xa6a64 / 0xa6d98 / 0xa7130 / 0xa7788 / 0xa8530 (store-struct-then-0x67b48 family, 0x69f7c alloc), 0xa64bc / 0xa629c / 0xa6b90 / 0xa80a8 / 0xaa608 / 0xab074 (0x544a0 lookup + u16@12 compare), 0xa6504, 0xa79d4, 0xa71f4 (r4=c vs r0=b ordering), 0xa85cc / 0xabb48 / 0xacbc8 / 0xacc94 (c,d), 0xa7e18 (a,c). 0xaa608 also compiles `v==380||v==381` to `mvnne r1,#380` where retail has `subne #256; subsne #125` (a different range-test source shape).
+- Tried on 0xb67b0: local copies of c/d in either order, a struct pointer, nested ifs, unsigned params, an int return, hoisting the d load before the g call (changes the code). None change the move order.
+- 0xa5d60 (and siblings 0xa6c74, 0xa6ce8, 0xa7344, 0xa7aa0 at 0x54; 0xa7e18 at 0x70): `if (query(3)==c && query(58)==K) post(37, h(*(u16*)(a+56), 3))` stays 8/21 — retail saves `mov r4,r0; mov r5,r2` (a first, then c) and later reuses r5 for the literal 3 (`mov r5,#3; ldrh r0,[r0,#56]; mov r1,r5`); armcc puts c in r4 and a in r5. Tried a static helper, a local `k = 3`, a struct, a helper returning the u16.
+- Lead for next time: the retail source probably had a different arg-forwarding shape (an inlined helper taking (b,c) / (c,d) in order), or the odd `mov r5,#3` implies a source-level variable holding 3 allocated into c's dead register — not found.
+- Not attempted (bigger bodies): 0xadce8 (ldrh+cmp `?:` literal-pool pick), 0xb5574, 0xb79c0, 0xb67ec / 0xb68c4 style d-writers, the loop at 0xb6438, the VFP float-scaling pair 0xa7230 / 0xa7598.
+
+## DllBattle pool-pad candidates that did NOT match (round b)
+
+Scan method: a word-level scan of DllBattle .text for `zero word right after a terminator, followed by a
+pc-loaded pool word` gave 111 start candidates; the short ones with the trace prefix
+(`k=..; if (c->v != k) c->v = k;`) were tried. 8 landed in `poolpad/` (see poolpad-1..7 and 0x71208 notes).
+Useful finding: the same `int k` prefix gets k->r2/old->r0 in some bodies and the retail k->r0/old->r2 in
+others; no source-level spelling was found that flips it (int/unsigned/old-local/`k != c->v` all tried).
+
+- 0x3981c (0x58): `if (f1(o,0)) { f2(o,0,0); f3(o->p190+0x280); return 1;} return 0` with the trace on arg2 (c=r1).
+  Everything matches except the head allocation (retail `ldr r0,=k; ldr r2,[r1,#108]; cmp r2,r0`, ours k=r2/old=r0).
+  Same register flip blocks 0x3cb48 and 0x724bc (same body with an `if (o->b6b8 == 255) return 1` front).
+- 0x3badc (0x40) / 0x3f274 (0x40): `f1(p->q65c, 3); f2(p->q65c, 2, 1)` tail call; armcc emits `mov r2,#1; mov r1,#2`,
+  retail `mov r1,#2; mov r2,#1` (tried int/uchar arg types, C++ member call, local copies).
+- 0x3cbb4 (0x78): body matches (vcall slot 4, f1(0)/f2 pairs) but r5/r6 swapped (retail zero=r6, p+0x230=r5);
+  naming the zero as a local `z` flips it but then reorders the head (`mov r3,#0` / ip use).
+- 0x3ea10, 0x3f34c, 0x410f4: use `ip` as the trace pointer (in_ip); not attempted.
+- 0x73dec / 0x74c08: inlined dead-code accessor chain (`cmp r0,#0` after `mov r0,#1`); not attempted.
+- DllField: the same pad-word scan only yields mid-function pools (0x9ac4, 0x10a84, ...) or big functions
+  (>= 0xb0 bytes); no new short candidates besides the three already in poolpad/.
+
+## DllBattle 0x50-0xa0 tier -- unmatched (round b)
+
+Candidate re-derivation: 777 push..pop-bounded functions of 0x50-0xa0 bytes not in matched/ or attempted.md (207 below file offset 0x30000). The large clusters are (a) ~330 "battle event trigger" predicates (`bl 0x6b91c` query(N) == c ...; tail-call `b 0x4ce84`/`0x658d4`) at 0xa5000-0xca000 and (b) ~60 script-command state handlers (`switch (*state)` 0/1/2/3, `ldr r1,[r2]; and r4,r1,#255; cmp #24` slot lookups).
+
+- **Event triggers that save BOTH b (r1) and c (r2)** (0xa7cd0 0x64, 0xa7188 0x70, 0xc1244 0x68, 0xa6504 ...): body is 23/25 or 8/28 correct but retail emits the prologue moves `mov r5,r1 ; mov r4,r2` (b before c; in 0xa7cd0 `r5=r3, r6=r1, r4=r2`) while armcc here emits c before b (`r4=r2 ; r5=r1`). Allocation (b->r5/r6, c->r4) is identical, only the move order differs. Tried: operand order of the compare, early-return form, nested ifs, local copies of b/c/d, param type changes (unsigned/void*/const/extra arg). No natural form found. Siblings that save only c, or only (d,c), match fine (0xc489c, 0xc3a64, 0xc349c, 0xc32e4, 0xac16c, 0xb8b84 saved).
+- **Two-case state handlers** 0xc020 (0x54), 0x86b0 (0x58), 0x8f84/0x7814-style: `cmp r1,#0; beq A; cmp r1,#1; bne end; b B` -- 20/21 with `switch (*p) { case 0: A; break; case 1: if (g()) return 1; break; } return 0;` but armcc emits `beq B` for the second dispatch (retail `bne end; b B`). if/else-if and default/return forms are worse. Unknown source form.
+- **0x2d67c (0x60)** dtor: 18/24, retail loads `o->q@360` into r1 before `mov r4,r0` and puts the pool vtable in r0; every ordering form (plain, `q` local, `vt` local) swaps r0/r1.
+- **0x2ad20 (0x74)** 13/29: right body (`if (n<=i) err; p=o+i*14; hp = hp>=amt ? hp-amt : 0; if (p[290]) { p[280]=hp; f(h,i) }`, no `and` with if/else form) but retail has idx in r6/amt in r5 and the slot pointer in r0; armcc swaps r5/r6 and uses r3.
+- **0x2dcc4 / 0x2dd2c (0x68)** `{u8 buf[]; flag[]; u16 h[]; u8 a[]; n; max}` append (`if (n<max) {...; n++} else err(0,0,0)`): 16-17/26, register assignment (retail n in r4, zero in ip, array bases r5/r1 hoisted) differs.
+- **0x53dc (0x5c)**, **0x9888 / 0x8ab4 / 0xfec8 / 0xe940 / 0x7814 / 0xcb44** script handlers: retail `ldr r1,[r2]; and r4,r1,#255` (word load then and); armcc folds to `ldrb` -- same already-documented residue (see the 0xf420/0xca9c entry); 0x9888's `ldm r2,{r1,r5}` pair load is the extra tell.
+- **0x2bb58 (0x60)**: retail hoists `mov r5,#0; mvn r6,#0; ldr r7,=msg` before the call and pushes r4-r8 (inlined multi-assert shape); simple form is 21 words vs 24.
+- Functions containing relaxation nops (0x8f84, 0xd3d0, 0x2baf0, 0x2b808, 0xbe48 ...) skipped as relaxed-only territory.
+
+## DllField GetMgr (`0x16c0`) callers, file offsets 0x98000-0xa6000 -- residues (round b)
+
+NEW LEVER (fixes the whole "arg-load width" residue class in `attempted.md`, e.g. 0x93d10 / 0x948f0 / 0x93b30 / 0x94d18 / 0x9aeb8):
+declare the script-command args pointer `volatile int *a` (or read the field through `*(volatile int *)`). armcc then keeps a full
+`ldr` and emits the separate `uxth` / `sxth` / `and #255` that retail has, instead of folding the narrowing into `ldrh`/`ldrb`.
+Tagged `Style: trick(volatile-load)`. 0x9aeb8 (`& 15` ldrh) matched via `*(volatile unsigned short *)(p + 4) & 15`. The other
+handlers listed in that attempted.md entry (outside 0x98000-0xa6000) should be retried with it.
+
+Not matched (left for later):
+- 0x9e550 / 0x9e74c / 0x9e3bc (0x44): `H(base, a[2]&255, a[1]!=0)` etc. Body right (volatile-load); only the callee-saved r4/r5 assignment is swapped
+  (retail first-computed flag -> r5, ours r4). Declaration/compute-order variants tried (4); same swap class as 0x9ddc8 and 0x9d970.
+- 0x9d970 (0x64): virtual call slot 13 on `F590(8)`'s result; body right, r5/r6 swapped (obj/sub-object).
+- 0x9ddc8 (0x50): retail pushes `{r3-r7}` (two spare callee-saved regs) -- ours `{r3-r5}`; size/prologue mismatch.
+- 0x9de9c, 0x99810 family (0x99930, 0x99ea0, 0x9accc, 0x99ef8): retail has `mov r0,rN; ldr r0,[r0,#off]` redundant moves (inline-member-on-this shape); plain C folds them. Not tried in C++.
+- 0xa0b14 (0x64): stack-struct init + 3 calls; right body, retail schedules `mov r2,#37` after the pointer-chain loads and keeps the chain temp in r0 (ours r1).
+- 0x9aa14 / 0x9ad24 (`ldm r1,{r4,r5,r6}` of 3-5 args then `sxtb`): folds to per-arg `ldrb`; volatile struct gives plain `ldr`s, never `ldm`.
+- 0xa0290 (`ldr r3,[r4,#4]!` writeback + two uxth): volatile gives `ldr`s without the pre-index writeback (5 diffs).
+- 0x9e844 (0x38): `r = H(..); if (r<0 || r>3) r = 0; return r;` retail keeps two signed compares + branches; armcc folds to unsigned `cmp #3; movhi/movcs` for every phrasing.
+- 0x98c6c / 0x993dc / 0x99868 / 0x9a7cc / 0x9ff88 / 0xa0c74 and others whose disassembly shows `nop {0}`: relaxed-only (branch-relaxation nops), not matchable under the strict verifier.
+- ldrd-pair handlers (0x9e074, 0x9e518, 0x9e790, 0x9eefc, 0xa0030, 0xa1238, 0xa1334, 0xa137c, 0x9966c): `ldrd` of two adjacent args -- known ldrd residue.
+- 0x9a618 (pool-register), 0x9d8f4 (zero-register), 0x98158/0x9844c/0x986c0/0x9870c (not looked at): untouched this round.
+
+## DllBattle script-command handlers 0x7a444 / 0x84af0 / 0x7ade8 / 0x8711c / 0x88130 / 0x83888 / 0x85080 / 0x7b5c4 (round b, push 0x14-0x80 scan of 0x60000-0x90000)
+
+Family: `fn(ctx, obj[, args])` handlers that read script arguments through the
+three read veneers (0x504 int, 0x1ab4 vec3/word, 0x1acc float) with `rd(a, &v, 1)`.
+15 of this family matched (see matched/DllBattle/0x89aac ... 0x853a0). Useful
+recipes found: the pointer-table-by-script-index heads need a redundant `O *q = o;`
+copy (and `int x = v;` before the member load) to get retail's r4/r5 assignment
+and `[sp]`-before-member load order (trick(redundant-local)); a block-scoped
+`float z = 0.0f;` makes armcc load the zero pool constant first.
+
+Not matched:
+- 0x7a444 (0x30) `rd; fnB(b, v != 0)` and 0x84af0 (0x38) `fnB(b, v != 0, v != 0)`: retail
+  does `ldr r0,[sp]; cmp r0,#0; movne r1,#1; moveq r1,#0; mov r0,r4; bl` (flag computed in r0/r1
+  BEFORE `mov r0,r4`, both movne/moveq); ours loads into r1, emits `mov r0,r4` early and only
+  `movne r1,#1`. Tried `!!v`, `?:`, if/else, `(unsigned char)`, C++ bool param, local `f`: all 5/12.
+- 0x7ade8 (0x48): `rd; rd; if (b->c1858) fnC(b->p296)`; retail has `mov r1,r4` before the `cmp`
+  and `ldrne r0,[r1,#296]` (conditional ldr+bl, no branch). 1-arg form is 12/18 (missing the mov r1,r4);
+  2-arg `fnC(p, b)` forces a branch (12/18 too).
+- 0x8711c (0x78): vec3 initialised from pool {0.2f,-0.45f,-0.55f} via `vstmia r0,{s0-s2}` with r0=sp
+  (retail `mov r5,r0` first). Brace init / member stores / inline setter all give an `ldm/stm` copy from
+  the pool instead (0-1/30). Tail (mode==1 && flag -> negate z -> setter) is the matched 0x82cb4 shape.
+- 0x88130 (0x70): same as matched 0x853a0 but each iteration re-checks `k < o->n[i]` and null-checks the
+  object. Best 22/28: retail keeps row pointer in r6 / count in r5, ours r5/r6 swapped; tried q=o copy,
+  row struct pointer, if/continue/ternary forms.
+- 0x83888 / 0x85080 (0x84): two vec3 reads, then per object in the row copy them to +284/+296 (+260/+272).
+  retail uses two separate dest pointers (`add r6,r2,#284; add r2,r2,#296; stm; ...; stm`) and the count in r1;
+  ours uses `stmia r1!`. 20/33 best (explicit `&x->a` locals); struct copy and per-field forms worse.
+- 0x7b5c4 (0x40): relaxation nop before a tail `bl` (known nop residue).
+
+## DllField GetMgr (0x16c0) callers 0x90000-0x98000 -- residues — **mostly RESOLVED 2026-10-16 (round b)** by the volatile-read lever (22 of these matched; leftovers: `0x90c00`, `0x92424`, and the `ldm`/`ldrd`/writeback group — see the entries above) (round b)
+
+Matched this round: see pending/matched-DllField-0x9*.md (29 functions).
+
+Stuck (all one instruction off unless noted):
+- ldrb/ldrh narrowing family (retail `ldr r,[a,#4]` + `and #255` / `uxth` / `sxtb` at use; armcc narrows the load to ldrb/ldrh whatever the cast form -- &255, (unsigned char), (signed char), &0xffff, int local first): 0x9515c, 0x923f0, 0x93d10, 0x948f0, 0x928f0, 0x93b30, 0x94d18, 0x97ee4, 0x916a8, 0x922bc, 0x947ec, 0x93cac, 0x92d34, 0x91330, 0x90b24, 0x92424, 0x97a74, 0x95df0, 0x928ac, 0x94894, 0x9484c, 0x90c00 (every other word matches).
+- Large-offset byte access (0x1539c via `add #0x15000; add #0x39c; ldrb/strb [r0]` -- armcc folds 0x39c into the ldrb imm for every C form tried, incl. nested structs): 0x93cec, 0x93d10, 0x92e28/0x94cb8 (0x1539d, literal-reg form, 7/9 words only).
+- Bitset set/clear (0x93468 `|=`, 0x955cc `&=~`): 14/17, only the shift-amount/constant registers swap (r2<->r3); tried 6 spellings (%8, &7 temp, unsigned char m, reordered |).
+- 0x9056c: r4/r5 swapped (self and mgr roles); 0x94580: retail does `ldr r0,[..#344]; mov r6,r0` before the a[1] load (5/21 words).
+- Struct-on-stack out-params 0x9713c / 0x971e4: 21/27, retail loads `[m+72]+252` into r2 first then `mov r0,sp; ldr r1,[r2,#124]`, ours folds into r0; the D() arg setup (`add r2`/`add r1` before `mov r0,sp`) is also reversed.
+- 0x97250: load ordering (m=[p+12] first, then a=[p+28]) not reproduced (15/23).
+- nop-window family (`bl 0x200` + `nop {0}`; relaxed-only): 0x925f0, 0x94ec0, 0x94f04, 0x94f48, 0x959bc, 0x968e4, 0x93d90, 0x94f8c, 0x925a0, 0x93058, 0x969fc, 0x94e68, 0x915f4.
+- Not tried: 0x926b4, 0x927b0, 0x94c58, 0x920dc/0x95a00/0x95c88/0x905c8 (operator-new constructors), 0x95fa4, 0x97acc, 0x9461c.
+
+## DllField GetMgr (0x16c0) callers 0x50000-0x70000 -- residues (round b)
+
+Cracked this round: `uxth`/`and #255` narrowing of a loaded word is produced by reading the argument through a
+`volatile int *` (`unsigned short x = b[1];` -> `ldr r0,[r1,#4]; uxth r4,r0`; plain access gives `ldrh`/`ldrb`).
+Style: trick(volatile). See the matched-DllField-0x59270 family. `b[1] & 255` also needs the volatile read AND the load
+placed after the GetMgr call when retail does `mov r4,r1; bl; ldr r1,[r4,#4]` (0x5e068). Plain `b[1], b[2]` gives the
+retail `add r4,r4,#4; ldm r4,{r1,r2}` (0x5c580).
+
+Not matched:
+- `ldrd r0,[r1,#4]` + two uxth/and (0x589fc, 0x58af4, 0x5ab58, 0x5a9e8, 0x5e808, 0x5ef18 struct-by-stack): best 1/11. `unsigned long long v` loads
+  give `ldrh,ldrh` (or `add r0,r1,#4; ldrd r2,[r0]` with a volatile long long: wrong pair and extra add); `__packed` long long /
+  struct, `struct{unsigned a,b;}` copy (volatile or not) never emit `ldrd r0,[r1,#4]`.
+- 0x5e098 / 0x5e030 (`ldm r4,{r1,r2}` then `and r1,r1,#255`): armcc folds the `&255` into `ldrb`; volatile struct copy gives two ldr.
+  Best 5/14 (non-volatile) / 11/14 (volatile struct, ldr,ldr instead of ldm).
+- 0x588b0: retail `uxth r1,r4` sits AFTER the 4-load chain; armcc hoists it before (8/12, also with the chain in a local).
+- 0x5cfc8 (sxth, same scheduling: `mov r1,r4` after the chain; 8/11).
+- 0x5aa34 (`ldm r1,{r0,r5}; and r4,r0,#255`; 5/9: struct copy gives ldrb+ldr).
+- 0x5bb78: `r = (r != -1)` always compiles to `adds r0,r0,#1; movne r0,#1` instead of retail `cmn r0,#1; moveq r0,#0; movne r0,#1`
+  (12/16; tried ?:, early return, if/else).
+- Not tried: 0x5bdf4.. (18-28-word bodies), jump-table dispatchers, vldr getters, 0x5c938/0x5d204 (bounds check + error call 0x200).
+
+## DllField 0x50-0xa0 tier sweep, round b -- shapes NOT matched
+
+Scan recipe: bound functions at `push {..lr}` and in-module `bl` targets, size 0x50-0xa0, exclude matched/ and
+the GetMgr callers / other agents' ranges, drop any body with a post-link `nop` word (relax-only class, e.g. the
+0x11fa0 / 0x11ff0 / 0x12ccc / 0x12d1c destructors that contain `nop` before `bl`).
+
+Useful new lever: the `ordering-local` form (`O *a = s->a; void *vt = VT; s->vt = vt;`) cracks the
+"member load before vtable pool-load" dtor shape (DllField 0x3954c + 4 siblings matched). Switch with
+`case 16: case 56:` reproduces a three-compare `cmp #16 / #22 / #56` chain (an `||` chain gives `cmpne`).
+An `unsigned` loop counter fixes `bcc` vs `blt`.
+
+- DllField@0x14fa0 (0x50), 0xe7168 (this-0x74 variant, 0x50), 0x12040 (0x5c, +0x80/+0x89): `if (chk(a, 0x60, 0) == 0) return 1; if (this->o && !this->b) o->vt[2](o); return 0;`
+  Best 2/20: armcc emits `mov r3,r1` BEFORE the push and passes r3 as arg 0; retail does `mov r4,r0; mov r0,r1` after the push (a is forwarded straight). Tried int / void* arg, C and C++.
+- DllField@0x394f4 / 0x396d0 / 0x3a644 / 0x3a908 / 0x3cd5c (0x58, tail-calling `b 0x1c8` dtor variants): retail stores the vtable via the ORIGINAL r0 (`str r2,[r0]` after `mov r4,r0`), loads the member into r1 and calls through r2 (`ldr r0,[r1]; ldr r2,[r0,#4]; mov r0,r1; blx r2`). The ordering-local form that solved the non-tail sibling gives r4-based stores (4/22).
+- DllField@0x47fec (0x5c): `if (cur != v) { switch (h->mode) { 1: h->o1->vt[18](o1); 2: h->o2->vt[11](o2); } cur = v; }` (h = this+0x1f8, cur at +0x218). Callee-saved swap: retail keeps this in r5 / v in r4 (and loads the mode into r2 before computing h into r0); armcc picks r4/r5 the other way and loads mode into r0. 7/23.
+- DllField@0x7ee64 (0x5c): `t = this->tbl; hi = t[idx].b; if (t[idx].a & 0xff) err(0,0,0); go(this->base + hi*64, d, 0, c)` (tail call). Only the callee-saved assignment (r6=c first, r7=d later) and the `ldrh [r0, r2]` with r2 = 2 + idx*4 addressing differ. 3/23.
+- DllField@0x4f214 (0x54): `c = chk(b); set(p, c ? 32 : 33); go(this, b, 1, 1, (signed char)(c ? 11 : 8)); return 1`. Retail keeps an `sxtb` of the value (r5) before the stack-arg store; armcc folds the cast away because it sees the constants. Interleaving of the conditional moves is already identical (11/21).
+- DllField@0xe1bf0 / 0xe1f8c (0x50, script-command handlers, constant 2 / 3): retail pushes r4-r8 and keeps the constant in r7 (`mov r7,#2` early), non-tail final call; plain code gives a 4-register push and a tail call. Same class as the arg-load-width script handlers in attempted.md.
+
+## DllBattle 0x30000-0x60000 `push` sweep, round b -- unmatched leftovers
+
+Round matches: 0x520e4, 0x4c7d0, 0x4c0f8, 0x52774, 0x527b8, 0x4d184, 0x544a0 (see matched-*.md). Candidate list was re-derived by bounding push..pop/bx lr over the .text window (0x14-0x80 bytes), minus matched/attempted.
+
+- 0x3e920 (0x40): trace-style prefix `k=0x97d; if (G.v != k) G.v = k;` (global struct +108) then `fnC(o->p400, b, 0); o->p400->w1096 = c`. Code words match modulo registers: retail loads &G into r2 AFTER `mov r5,r2` and keeps r3 for the old value; armcc hoists `ldr r3,[pc]` above the push-saved moves and uses r3 as the address (10/16 best, `struct T *t = &G; int k=..` form). Pool order also differs (retail: &G first, K second).
+- 0x3bdd8 / 0x3e7a4 / 0x3981c / 0x3b534 (all start at 4 mod 8): same trace prefix on an ARG pointer (`c->v` at +108 = arg3 or arg2). Code words match 9/12 but ONLY the literal pool differs: retail has a 0 pad word before the constant (function at 4 mod 8, pool 8-aligned); standalone compile has none. Same verifier limitation as the 0x71a2c note in attempted.md -- would match if the verifier tolerated pool-alignment padding.
+- 0x551d4 (0x38): `if (fnA(*o,2)) return 0; return fnB(o,13) != 0;` 12/14; only diff is `mov r0,r4; mov r1,#13` (retail) vs `mov r1,#13; mov r0,r4` (armcc). Tried if/ternary/r-var forms and a C++ member call.
+- 0x397b8 (0x44): vcall slot 25 (this,0) then slot 32 (this,r); return r==175?1:r==102?2:0. Retail keeps this in r0 and uses r1 as the vtable-load scratch (`ldr r1,[r0]; mov r4,r0; ldr r2,[r1,#100]; mov r1,#0; blx r2`); armcc always loads the vtable into r0 and needs `mov r0,r4` (2/17; prototyped casts, unprototyped `int (**vt)()`, C++ virtuals all give the same shape).
+- 0x4bfd0 (0x30): `if (i>=7) fnA(0,0,0); return o->v[i]` (+28) 10/12; callee-saved swap r4/r5 (`mov r5,r0; mov r4,r1` retail vs reverse) -- the known 0x4cf8c class.
+- 0x4b394 (0x54): 10-slot 3-byte record table at +0x120c; assert i<10, assert rec.a!=0, return rec.c. 15/21 with `p = o+0x120c` local; only r4/r5 swapped (retail: index r4, base r5).
+- 0x4b3f8 (0x60): `r = fnX(o+0x120c, c); l = o->p3520; if (l->n < 10) { l->a[n]=a; l->c[n]=c(+21); l->r[n]=r(+11); l->n++ }` 6/24; retail keeps the call result in r0 and loads `l` into r3, armcc copies r0 to ip and uses r0 for l; also r4/r5/r6 assignment differs.
+- 0x4e808 (0x4c): big-endian u16 reader {size,pos,data@8}: assert pos < size-1; v = *(u16*)(d+pos); pos += 2; return rev16(v). NEW: armcc has no `__rev16` intrinsic (emits a call) but `((v & 0xff) << 8) | (v >> 8)` on an `unsigned short v` compiles to a real `rev16 r0,r0`; `__rev(x)` is the word rev. Best 13/19 (pointer-local form): retail loads size first (`ldr r1,[r0]` before `mov r4,r0`) and uses `add r2,r0,#2 ; ldrh r0,[r1] ; str r2` ordering; armcc does `add r0,r0,#2 ; str ; ldrh`.
+- 0x4c438 (nop-relaxation `bl; b; nop`), 0x52db0 (jump table + relaxation nops), 0x5c9b8/0x4cbe4/0x5c95c (VFP float math) not attempted.
+
+## DllField@0xc2824 / 0xcd2dc (and deleting variants 0xc27ec / 0xcd2a4) -- dtor member-load-order residue
+
+Module: DllField
+Offset: 0xc2824 (siblings 0xcd2dc plain; 0xc27ec, 0xcd2a4 deleting variants)
+Size: 0x34 / 0x38
+Match: 8/13 best
+One-line: dtor: vptr = pool addr; free member [+20] via import if non-null, zero it, return this.
+Style: n/a
+Note: retail order is ldr r1,[pool]; ldr r0,[r0,#20]; str r1,[r4]; cmp; ... zero via r1. Tried extern char VT[] (8/13: vptr store before member load), member-read-first local (7/13: pool ldr after member ldr, str after cmp). Known member-load-order destructor residue; also zeroing via r1 not r0.
+
 ## C++ inline-member sweep (2026-10-16, `armcc-r5-cpp1`) -- the DllField@0xb1bb8 mechanism applied to the other branch-vs-conditional-execution / scheduling failures
 
 2026-10-16 C++ inline-member sweep (the DllField@0xb1bb8 mechanism). One NEW match came out of it:
@@ -22,7 +268,7 @@ DllField@0x2948c (matched-DllField-0x2948c.md; trick(cpp-inline-member)). The me
 "write the pointee-side logic as an inline member called on the loaded pointer", but only that one flipped.
 Everything below stayed stuck; what was tried, so nobody repeats it:
 
-- DllField 0xb6844 / 0xb76c8 (secondary-base dtor pair): with a volatile-stored first vptr (or a plain store)
+- DllField 0xb6844 / 0xb76c8 (secondary-base dtor pair) — **RESOLVED 2026-10-16 as POOL-PAD** (`poolpad/`, see README 'Tool addition: --pool-pad'): with a volatile-stored first vptr (or a plain store)
   plus `Reset()` member the tail is exact; best 19/22 (plain `o->vt = v`, stores [56],[0],[80]) -- only the head
   `add r2,r1,#48` (retail keeps v+48 in r2 and v+32 in r0; ours puts v+48 in r0) and the pool `ldr` displacement
   differ. NEW FINDING: the pool displacement is NOT a code diff we can fix -- retail's function starts at 4 mod 8
@@ -75,9 +321,9 @@ Everything below stayed stuck; what was tried, so nobody repeats it:
 - `0xbe3e8` / `0xb4e84` (identical bytes bar branch targets): `push {r4,lr}; mov r4,r0; r0=this[0x24]; r2=1; bl fa (r1 = incoming 2nd arg); movs r1,r0; beq ret; mov r0,r4; pop {r4,lr}; b fb; ret: pop {r4,pc}`.
   Best C `void Fn(char*s,int a){int r=fa(*(void**)(s+36),a,1); if(r) fb(s,r);}` gives 6/11: armcc emits `cmp r0,#0` + later `mov r1,r0` instead of the retail `movs r1,r0` before the branch. Tried: int/pointer result, reusing the param (`a = fa(..)`), `if ((r = fa()))`, non-void `return fb(s,r)` / `return r`. None change it. Lead: some construct that makes armcc hoist the `mov r1,r0` above the test (the movs form) -- maybe the result is stored to a second live variable, or the true signature has fb taking more args.
 - `0xb0334` (0x44): same `movs r5,r0` shape (pushes {r4-r6}, so something extra is live): `r=fa(this[0x560]); if(r){o=this[0x5a4]->[0x24]; if(o) tail vt[1](o, r, 0);}`. My C compiles to `push {r4,lr}` + `movs r1,r0` (8/17).
-- `0xb6844` / `0xb76c8` (0x58 incl. pool word): secondary-base dtor: `this[56]=v+32; this[0]=v; this[80]=v+48; fa(this[92], this+80); this[0]=VT; if(this[32]) fb(this, this+32); return fc(this+8)-8`. The tail (17/22 after the `q`/`t` locals making the `addne r1,r0,#32; blne` form) matches, but the head allocates `v+48` into r0 where retail uses r2 (and keeps r0 = v+32 live), and the pool offset differs by one word. Stores must appear [56],[0],[80]; locals for v+32/v+48 swap the order wrongly.
+- `0xb6844` / `0xb76c8` (0x58 incl. pool word) — **RESOLVED 2026-10-16 as POOL-PAD** (`poolpad/`, see README 'Tool addition: --pool-pad') (head fixed by declaring `char *b = v + 0x30;` before `char *a = v + 0x20;`): secondary-base dtor: `this[56]=v+32; this[0]=v; this[80]=v+48; fa(this[92], this+80); this[0]=VT; if(this[32]) fb(this, this+32); return fc(this+8)-8`. The tail (17/22 after the `q`/`t` locals making the `addne r1,r0,#32; blne` form) matches, but the head allocates `v+48` into r0 where retail uses r2 (and keeps r0 = v+32 live), and the pool offset differs by one word. Stores must appear [56],[0],[80]; locals for v+32/v+48 swap the order wrongly.
 
-## DllField script-command handlers whose only miss is the arg-load width (0x93d10, 0x948f0, 0x93b30, 0x94d18, 0x9aeb8) -- 2026-10-16
+## DllField script-command handlers whose only miss is the arg-load width — **mostly RESOLVED 2026-10-16 (round b)** by the volatile-read lever (22 of these matched; leftovers: `0x90c00`, `0x92424`, and the `ldm`/`ldrd`/writeback group — see the entries above) (0x93d10, 0x948f0, 0x93b30, 0x94d18, 0x9aeb8) -- 2026-10-16
 
 Handlers `int Fn(int self, int *args)` reading `args[1]` and narrowing it. Retail does a full `ldr rX,[r1,#4]` then `uxth`/`sxtb`/`strb`;
 armcc always folds the narrowing into the load (`ldrh`/`ldrb`), for every form tried (`unsigned short i = a[1]`, `int v=a[1]; short i=v`,
@@ -92,7 +338,7 @@ Also stuck: 0x98bc0 (0x2c, uxth scheduled before `mov r3,#0`), 0x9d8f4 (0x2c, ze
 ## DllBattle@0x76398 (0x3c), 0x71a2c (0x2c), 0x7198c (0x40), 0x73524 (0x40), 0x77338 / 0x77428 family
 
 - 0x76398: bounded array push (`if (s->n >= 6) f394(0,0,0); s->a[s->n] = v; s->n++`, struct {u32 a[6]; u8 n}). Best 13/15 with `i = s->n; s->n = i+1; s->a[i] = v;`; only diff: retail `add r1,r0,#1; strb r1`, ours `add r2,r0,#1; strb r2` (register-allocation class).
-- 0x71a2c: `k = 0x12c6; if (c->v != k) c->v = k; return f394b8(a, k, c) != 0;` (c = arg3, +0x6c) matches all 8 code words; the only diff is the literal pool — retail has a 0 pad word then the constant (function starts at 4 mod 8, pool 8-aligned), our standalone compile has no pad (10 vs 11 words). Would be a match if the verifier tolerated pool-alignment padding.
+- 0x71a2c — **RESOLVED 2026-10-16 as POOL-PAD** (`poolpad/`, see README 'Tool addition: --pool-pad'): `k = 0x12c6; if (c->v != k) c->v = k; return f394b8(a, k, c) != 0;` (c = arg3, +0x6c) matches all 8 code words; the only diff is the literal pool — retail has a 0 pad word then the constant (function starts at 4 mod 8, pool 8-aligned), our standalone compile has no pad (10 vs 11 words). Would be a match if the verifier tolerated pool-alignment padding.
 - 0x7198c / 0x73524: `&&` predicate chains (`p && f74420(p,13) && !(p->a&7) && !(p->b&7)`); armcc emits conditional execution (`ldrbeq/tsteq/moveq`) and narrows `&7` loads to `ldrb`; retail uses plain `ldr` + `bne/beq` branches (branch-vs-conditional-execution class; best 8/16, 4/16).
 - 0x77338 / 0x77360 / 0x77398 / 0x773ec / 0x77428 family (`f5dc68(this,*k)` then `f707d4(this->+8, r)` ...): retail does `mov r1,r0` then `ldr r0,[r4,#8]`; armcc emits `ldr r2,[r4,#8]` before the mov (scheduling class; the same cluster as 0x78a24). Best 4/10; 0x77428 also starts with `mov r2,r1`.
 

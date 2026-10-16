@@ -3,7 +3,7 @@
 <rect x="0" y="0" width="1280" height="2418" fill="#121419"/>
 <text x="24" y="38" font-size="19" fill="#e8eaed" text-anchor="start" font-weight="bold">Pokémon X/Y recomp + decomp progress</text>
 <text x="24" y="55" font-size="10.5" fill="#98a1ac" text-anchor="start">overview — tier composition per module, sorted by function count</text>
-<text x="1256" y="38" font-size="12.5" fill="#98a1ac" text-anchor="end">134 modules · 70,217 functions · covered 98.3% · decompiled 54.0% · named 0.8% · verified 1.3%</text>
+<text x="1256" y="38" font-size="12.5" fill="#98a1ac" text-anchor="end">134 modules · 70,252 functions · covered 98.3% · decompiled 53.6% · named 0.8% · verified 1.8%</text>
 <rect x="24" y="60" width="1232" height="1" fill="#272c35" shape-rendering="crispEdges"/>
 <text x="24" y="81" font-size="11.5" fill="#e8eaed" text-anchor="start">Main</text>
 <rect x="234" y="72" width="322.92" height="10" fill="#454b57" shape-rendering="crispEdges"/>
@@ -23,42 +23,42 @@ recomp-covered 96.7%
 imports from: DllBag, DllBattle, DllBattleHouseConnect, DllBattleMatch +74 more</title>
 </rect>
 <text x="24" y="98" font-size="11.5" fill="#e8eaed" text-anchor="start">DllField</text>
-<rect x="234" y="89" width="335.76" height="10" fill="#454b57" shape-rendering="crispEdges"/>
-<rect x="569.76" y="89" width="413.19" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
-<rect x="982.95" y="89" width="0.17" height="10" fill="#58b368" shape-rendering="crispEdges"/>
-<rect x="983.12" y="89" width="22.88" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
+<rect x="234" y="89" width="330.69" height="10" fill="#454b57" shape-rendering="crispEdges"/>
+<rect x="564.69" y="89" width="402.62" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
+<rect x="967.31" y="89" width="0.17" height="10" fill="#58b368" shape-rendering="crispEdges"/>
+<rect x="967.47" y="89" width="38.53" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
 <rect x="234" y="89" width="772" height="10" fill="#00000000" stroke="#272c35" stroke-width="1" shape-rendering="crispEdges"/>
-<text x="1256" y="98" font-size="10.5" fill="#98a1ac" text-anchor="end"><title>DllField — 9,312 functions
-raw 4,050 · decompiled 4,984 · named 2 · verified 276
-raw 4,050 · decompiled 4,984 · named 2 · verified 276
-recomp-covered 99.1%
-armcc: 0 relaxed · 9 attempted (no match yet)
-imports from: DllFieldEventPlayer, DllFieldEventPokeRideAction, DllFieldEventSkatePipe, DllFieldEventSlopeSlip +26 more</title>9,312 fns · covered 99.1% · decompiled 53.5%</text>
+<text x="1256" y="98" font-size="10.5" fill="#98a1ac" text-anchor="end"><title>DllField — 9,338 functions
+raw 4,000 · decompiled 4,870 · named 2 · verified 466
+raw 4,000 · decompiled 4,870 · named 2 · verified 466
+recomp-covered 98.8%
+armcc: 0 relaxed · 18 attempted (no match yet)
+imports from: DllFieldEventPlayer, DllFieldEventPokeRideAction, DllFieldEventSkatePipe, DllFieldEventSlopeSlip +26 more</title>9,338 fns · covered 98.8% · decompiled 52.2%</text>
 <rect x="24" y="89" width="1232" height="15" fill="#00000000" shape-rendering="crispEdges" data-module="DllField">
-  <title>DllField — 9,312 functions
-raw 4,050 · decompiled 4,984 · named 2 · verified 276
-raw 4,050 · decompiled 4,984 · named 2 · verified 276
-recomp-covered 99.1%
-armcc: 0 relaxed · 9 attempted (no match yet)
+  <title>DllField — 9,338 functions
+raw 4,000 · decompiled 4,870 · named 2 · verified 466
+raw 4,000 · decompiled 4,870 · named 2 · verified 466
+recomp-covered 98.8%
+armcc: 0 relaxed · 18 attempted (no match yet)
 imports from: DllFieldEventPlayer, DllFieldEventPokeRideAction, DllFieldEventSkatePipe, DllFieldEventSlopeSlip +26 more</title>
 </rect>
 <text x="24" y="115" font-size="11.5" fill="#e8eaed" text-anchor="start">DllBattle</text>
-<rect x="234" y="106" width="406.87" height="10" fill="#454b57" shape-rendering="crispEdges"/>
-<rect x="640.87" y="106" width="340.73" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
-<rect x="981.59" y="106" width="0.24" height="10" fill="#58b368" shape-rendering="crispEdges"/>
-<rect x="981.83" y="106" width="24.17" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
+<rect x="234" y="106" width="400.78" height="10" fill="#454b57" shape-rendering="crispEdges"/>
+<rect x="634.78" y="106" width="324.84" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
+<rect x="959.61" y="106" width="0.24" height="10" fill="#58b368" shape-rendering="crispEdges"/>
+<rect x="959.85" y="106" width="46.15" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
 <rect x="234" y="106" width="772" height="10" fill="#00000000" stroke="#272c35" stroke-width="1" shape-rendering="crispEdges"/>
-<text x="1256" y="115" font-size="10.5" fill="#98a1ac" text-anchor="end"><title>DllBattle — 6,548 functions
-raw 3,451 · decompiled 2,890 · named 2 · verified 205
-raw 3,451 · decompiled 2,890 · named 2 · verified 205
-recomp-covered 98.7%
+<text x="1256" y="115" font-size="10.5" fill="#98a1ac" text-anchor="end"><title>DllBattle — 6,557 functions
+raw 3,404 · decompiled 2,759 · named 2 · verified 392
+raw 3,404 · decompiled 2,759 · named 2 · verified 392
+recomp-covered 98.5%
 armcc: 1 relaxed · 15 attempted (no match yet)
-imports from: DllBackGround, Main</title>6,548 fns · covered 98.7% · decompiled 44.1%</text>
+imports from: DllBackGround, Main</title>6,557 fns · covered 98.5% · decompiled 42.1%</text>
 <rect x="24" y="106" width="1232" height="15" fill="#00000000" shape-rendering="crispEdges" data-module="DllBattle">
-  <title>DllBattle — 6,548 functions
-raw 3,451 · decompiled 2,890 · named 2 · verified 205
-raw 3,451 · decompiled 2,890 · named 2 · verified 205
-recomp-covered 98.7%
+  <title>DllBattle — 6,557 functions
+raw 3,404 · decompiled 2,759 · named 2 · verified 392
+raw 3,404 · decompiled 2,759 · named 2 · verified 392
+recomp-covered 98.5%
 armcc: 1 relaxed · 15 attempted (no match yet)
 imports from: DllBackGround, Main</title>
 </rect>
@@ -2364,16 +2364,16 @@ raw 5 · decompiled 0 · named 1 · verified 0
 recomp-covered 100.0%</title>
 </rect>
 <rect x="24" y="2382" width="11" height="11" fill="#454b57" shape-rendering="crispEdges"/>
-<text x="40" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">Raw 30,853</text>
+<text x="40" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">Raw 30,756</text>
 <rect x="120.9" y="2382" width="11" height="11" fill="#2fa39e" shape-rendering="crispEdges"/>
-<text x="136.9" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">Decompiled 37,909</text>
+<text x="136.9" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">Decompiled 37,664</text>
 <rect x="260.43" y="2382" width="11" height="11" fill="#58b368" shape-rendering="crispEdges"/>
 <text x="276.43" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">Named 569</text>
 <rect x="351.24" y="2382" width="11" height="11" fill="#eec84a" shape-rendering="crispEdges"/>
-<text x="367.24" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">Verified 886</text>
-<rect x="460.32" y="2382" width="11" height="11" fill="#1a1d24" stroke="#e05252" stroke-width="1.4" shape-rendering="crispEdges"/>
-<text x="476.32" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">relaxed 1</text>
-<rect x="551.13" y="2382" width="11" height="11" fill="#1a1d24" stroke="#8f7ff0" stroke-width="1.4" shape-rendering="crispEdges"/>
-<text x="567.13" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">attempted 67</text>
+<text x="367.24" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">Verified 1,263</text>
+<rect x="472.5" y="2382" width="11" height="11" fill="#1a1d24" stroke="#e05252" stroke-width="1.4" shape-rendering="crispEdges"/>
+<text x="488.5" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">relaxed 1</text>
+<rect x="563.31" y="2382" width="11" height="11" fill="#1a1d24" stroke="#8f7ff0" stroke-width="1.4" shape-rendering="crispEdges"/>
+<text x="579.31" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">attempted 76</text>
 <text x="1256" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="end">color = highest stage reached</text>
 </svg>

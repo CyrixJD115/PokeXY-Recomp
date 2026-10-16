@@ -1,0 +1,29 @@
+/*
+ * DllBattle @ 0x43aec, size 0x54 -- trace-prefix store of constant 0x83f into c->v (+0x6c, c = arg3), then on
+ * p = o->p190: calls virtual slot 4 (vtable+16) of p->q88 with arg 0, nulls p->q88, clears byte p+0x93, calls f1(),
+ * and tail-calls f2(p->r74, 1).
+ * POOL-PAD match (all 19 code words identical, same single pool constant): retail starts at 4 mod 8, so one 0
+ * alignment word precedes the pool constant and the ldr displacement is 4 larger than a standalone compile's.
+ * Style: natural
+ * Verify:
+ *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllBattle 0x43aec 0x54 xy-decomp/armcc-matching/poolpad/DllBattle/0x43aec.c --pool-pad
+ */
+typedef struct C { char pad[0x6c]; int v; } C;
+typedef struct Q { void (**vt)(struct Q *, int); } Q;
+typedef struct P { char pad[0x74]; void *r; char pad2[0x10]; Q *q; char pad3[7]; unsigned char b; } P;
+typedef struct O { char pad[0x190]; P *p; } O;
+extern void f1(void);
+extern void f2(void *, int);
+void fn(O *o, int unused, C *c) {
+    int k = 0x83f;
+    P *p;
+    Q *q;
+    if (c->v != k) c->v = k;
+    p = o->p;
+    q = p->q;
+    q->vt[4](q, 0);
+    p->q = 0;
+    p->b = 0;
+    f1();
+    f2(p->r, 1);
+}
