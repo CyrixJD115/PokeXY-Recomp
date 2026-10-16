@@ -3,7 +3,7 @@
 // Reads the u16 at b[1] (retail does a full-word ldr + uxth), asks the manager
 // (0x16c0 -> +12 -> +72) through helper 0x865cc, then tests Q(helper_result, id);
 // on nonzero tail-calls a follow-up with Q's result.
-// Style: trick(volatile) -- b is read through a volatile int pointer only so armcc emits ldr+uxth instead of ldrh.
+// Style: trick(volatile) -- b is read through a volatile pointer only so armcc keeps the full-word ldr followed by the uxth narrowing (retail) instead of folding it into ldrh; verified: the plain-pointer form does not match.
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField 0x5d698 0x38 \

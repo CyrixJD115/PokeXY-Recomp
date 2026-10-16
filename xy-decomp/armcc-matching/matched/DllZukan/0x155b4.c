@@ -1,5 +1,6 @@
 /* DllZukan function @ CRO file offset 0x155b4, size 0xc -- MATCHED (masked, 3/3).
  * Setter: this->ptr(+4)->byte[242] = v.
+ * Style: natural
  *
  * Verify: XY_ROMFS=.Data/Raw_Extracted/romfs python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllZukan 0x155b4 0xc xy-decomp/armcc-matching/matched/DllZukan/0x155b4.c
  */

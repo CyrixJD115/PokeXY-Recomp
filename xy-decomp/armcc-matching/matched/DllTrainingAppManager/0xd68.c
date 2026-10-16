@@ -6,6 +6,7 @@
  * offset) — the named export here confirms what that one could only guess
  * at: this is a `bool`-typed flag setter on a shared base/mixin class, not
  * an arbitrary byte field.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllTrainingAppManager 0xd68 0x8 \

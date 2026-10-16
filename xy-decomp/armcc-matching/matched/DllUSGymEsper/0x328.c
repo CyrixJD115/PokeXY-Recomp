@@ -8,6 +8,7 @@
  * false path, hence a lone `movne` with no matching `moveq`.
  *
  * Match: 5/5 masked words.
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

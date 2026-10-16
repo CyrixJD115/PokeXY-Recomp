@@ -9,7 +9,6 @@
 
 extern char *GetMgr(void);
 extern int F(int, int);
-extern int G(int, int, int);
 int Fn(int a, volatile int *b) {
     int x = b[1];
     F(*(int *)*(char **)(*(char **)(GetMgr() + 12) + 28) + 0xee8, (unsigned char)x);

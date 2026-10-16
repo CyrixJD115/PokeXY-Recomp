@@ -1,4 +1,5 @@
 /* DllPssRuleSelect @0x318, size 0x8 — MASKED MATCH 2/2.
+ * Style: natural
  *
  * Trivial virtual-override stub: `return 1`, ignores `this`. Sits right
  * after the module's import-veneer table (0x180-0x317, 51 entries): an

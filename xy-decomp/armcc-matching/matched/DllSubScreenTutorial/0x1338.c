@@ -5,6 +5,7 @@
  * known-bad scheduling order per the toolchain's residue-class notes --
  * skipped on sight, not attempted) and right before a real
  * push {r4,r5,r6,lr} function at 0x1340.
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

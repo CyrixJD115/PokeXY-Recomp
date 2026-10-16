@@ -7,6 +7,7 @@
 // boolean call result isn't reused; the false branch re-materializes a
 // literal instead). This is the module's first real function, right
 // after the import-veneer table (0x180-0x567).
+// Style: natural
 //
 // Verify:
 //   XY_ROMFS=.Data/Source_Extracted/cro python3 \

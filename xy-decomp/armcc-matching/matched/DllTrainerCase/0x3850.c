@@ -5,6 +5,7 @@
  * destructor-stage helpers (0x37e4 matched, 0x381c skipped — member-
  * load-before-vtable-load ordering), same recurring tail-of-cluster
  * shape documented in every other mined Dll module.
+ * Style: natural
  *
  * Verify: XY_ROMFS=.Data/Raw_Extracted/romfs python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllTrainerCase 0x3850 0x8 xy-decomp/armcc-matching/matched/DllTrainerCase/0x3850.c
  */

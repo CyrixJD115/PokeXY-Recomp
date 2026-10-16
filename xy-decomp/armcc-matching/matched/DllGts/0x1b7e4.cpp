@@ -1,4 +1,5 @@
 // DllGts @0x1b7e4 (size 0x8) — masked match 2/2.
+// Style: natural
 //
 // Named export `_ZN9xy_system2bg6System13SetIsCallDrawEb` demangles to
 // `xy_system::bg::System::SetIsCallDraw(bool)` — a trivial boolean-field

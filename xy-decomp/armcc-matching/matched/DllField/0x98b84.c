@@ -1,7 +1,7 @@
 // DllField@0x98b84, size 0x38, 14/14 masked match.
 // Script-command handler: sets byte args[1] on object mgr->+12->+64 via helper, then returns whether a second helper on it is nonzero.
 // Shared-accessor (GetMgr, callee 0x16c0) caller family; see pending/matched-DllField-0x98b84.md.
-// Style: trick(volatile-load) -- args is volatile int* so the narrowing and #255 happens after an ldr (not folded into ldrb); m/v locals only fix load order
+// Style: trick(volatile) -- a is read through a volatile pointer only so armcc keeps the full-word ldr followed by the and #255 narrowing (retail) instead of folding it into ldrb; verified: the plain-pointer form does not match. The m/v/t locals only fix retail's load order (compact form verified not to match).
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField 0x98b84 0x38 \

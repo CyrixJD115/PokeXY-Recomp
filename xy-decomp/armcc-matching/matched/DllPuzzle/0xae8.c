@@ -1,4 +1,5 @@
 /* DllPuzzle function @ CRO file offset 0xae8, size 0x1c.
+ * Style: natural
  *
  * FIRST MATCHED FUNCTION in DllPuzzle, a new module. Compiled with
  * armcc 5.04u5, --cpu=MPCore --arm --apcs=/interwork -O2 -Otime:

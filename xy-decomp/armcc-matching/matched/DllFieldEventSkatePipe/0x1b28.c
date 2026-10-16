@@ -9,6 +9,7 @@
  * accessor at 0x1b34 (`ldr r1,[r1,#28]; add r1,r1,#288; str r1,[r0,#36];
  * bx lr`) — both unclaimed, flagged here for a future agent.
  *
+ * Style: natural -- trivial stub/setter (weak evidence: any function of this shape compiles identically)
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *       DllFieldEventSkatePipe 0x1b28 0x8 \

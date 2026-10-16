@@ -5,6 +5,7 @@
  * so the match only proves the real body is at most this short, not that
  * it's empty. One of the alternating `return 1`/bare-`bx lr` leaf stubs in
  * the 0x7ec-0x837 cluster right after the import-veneer table.
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllWazaOboe \

@@ -4,6 +4,7 @@
  * POOL-PAD match (all 8 code words identical, same single pool constant): retail starts at 4 mod 8, so
  * its literal pool sits after one 0 alignment word and the pc-relative ldr displacement is 4 larger than
  * a standalone compile's. Not a plain MASKED MATCH -- see README "Pool-pad tier".
+ * Style: natural -- (`k` is also the value passed on to the callee, so the local is ordinary; the literal-inlined form does not match)
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllBattle 0x71a2c 0x2c xy-decomp/armcc-matching/poolpad/DllBattle/0x71a2c.c --pool-pad
  */

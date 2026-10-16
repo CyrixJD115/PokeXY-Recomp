@@ -1,5 +1,5 @@
 /* DllEshop function @ CRO file offset 0x1b10, size 0x2c — MATCHED (masked, 11/11).
- * Style: trick(static-helper) -- static one-use helper only to reproduce retail's register reuse
+ * Style: trick(static-helper) -- static one-use helper only to reproduce retail's register reuse (audit 2026-10-16: inline `o->f58 = 1;` fails to match)
  * Calls an import with (2,0,8,0), sets byte flag this+0x58 = 1, returns 22
  * (a state-machine step result). Non-obvious: writing the store inline
  * picks r1 for the constant; going through a static setter taking `int v`

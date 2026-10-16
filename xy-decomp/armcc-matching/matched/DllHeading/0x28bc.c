@@ -8,6 +8,7 @@
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllHeading 0x28bc 0xc xy-decomp/armcc-matching/matched/DllHeading/0x28bc.c
+ * Style: natural
  */
 
 void reset_flag(void *this)

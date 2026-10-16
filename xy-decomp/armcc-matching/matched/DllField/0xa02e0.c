@@ -1,7 +1,7 @@
 // DllField@0xa02e0, size 0x40, 16/16 masked match.
 // Member function: asks helper H1(mgr->+24, u16 field this->+68->+148); if true returns (H2() == 0), else 1.
 // Shared-accessor (GetMgr, callee 0x16c0) caller family; see pending/matched-DllField-0xa02e0.md.
-// Style: trick(volatile-load) -- the int field is read through volatile so armcc keeps ldr+uxth instead of ldrh; q/m locals only fix load order
+// Style: trick(volatile) -- the int field is read through volatile so armcc keeps ldr+uxth instead of ldrh; q/m locals only fix load order
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField 0xa02e0 0x40 \

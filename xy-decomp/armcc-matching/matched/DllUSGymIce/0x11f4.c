@@ -11,6 +11,7 @@
  * followed immediately by a new function whose first two instructions
  * are `add r1,r1,#4` then `push {r4,lr}` (register setup before the
  * prologue push — no spill needed before that point).
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllUSGymIce 0x11f4 0x4 xy-decomp/armcc-matching/matched/DllUSGymIce/0x11f4.c

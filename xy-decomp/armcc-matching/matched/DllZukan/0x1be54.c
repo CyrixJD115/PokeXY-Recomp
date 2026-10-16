@@ -5,6 +5,7 @@
  * (0x1be54 +0x28, 0x1be5c +0xc, 0x1be64 +0x8) right after a
  * `pop {r4,pc}` epilogue at 0x1be50; followed by an array-indexed
  * getter (`add r0,r0,r1,lsl#2; ldr r0,[r0,#56]; bx lr`) at 0x1be6c.
+ * Style: natural
  *
  * Verify: XY_ROMFS=.Data/Raw_Extracted/romfs python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllZukan 0x1be54 0x8 xy-decomp/armcc-matching/matched/DllZukan/0x1be54.c
  */

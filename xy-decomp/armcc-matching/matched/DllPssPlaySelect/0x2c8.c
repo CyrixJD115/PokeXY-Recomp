@@ -1,4 +1,5 @@
 /* DllPssPlaySelect function @ CRO file offset 0x2c8, size 0x8 — MATCHED (masked, 2/2).
+ * Style: natural
  * Trivial virtual-override stub: returns 1 (true), ignores `this`.
  *
  * Sits in the recurring tail-of-import-veneer-table leaf-stub cluster seen

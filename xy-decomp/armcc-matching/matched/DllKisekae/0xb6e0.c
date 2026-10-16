@@ -1,4 +1,5 @@
 /* DllKisekae function @ CRO file offset 0xb6e0, size 0x8 — MASKED MATCH (2/2).
+ * Style: natural
  * Trivial virtual-override stub: returns 1 (true), ignores `this`.
  *
  * First function matched in this module. Sits in the classic recurring

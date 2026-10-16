@@ -5,7 +5,7 @@
  * POOL-PAD match (21/23 words, 22 after dropping the retail alignment pad word): retail starts at 4 mod 8,
  * so one all-zero word precedes the (relocated, zero) pool constant and the ldr displacement is 4 larger.
  * Not a plain MASKED MATCH -- see README "Pool-pad tier".
- * Style: trick(declaration-order) -- `char *b = v + 0x30;` must be declared BEFORE `char *a = v + 0x20;`
+ * Style: trick(declaration-order) -- `char *b = v + 0x30;` must be declared BEFORE `char *a = v + 0x20;`; the named locals themselves are also needed (inlined `v + 0x20`/`v + 0x30` stores and the a-before-b order both fail, checked 2026-10-16)
  *   to make armcc keep v+0x30 in r2 and v+0x20 in r0 (other orders: 16-19/23, head wrong).
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField 0xb76c8 0x5c xy-decomp/armcc-matching/poolpad/DllField/0xb76c8.cpp --pool-pad

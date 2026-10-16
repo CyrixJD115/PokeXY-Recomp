@@ -3,6 +3,7 @@
  *
  * Second of the run of three consecutive 2-word prologue-less getters
  * (0x1be54 +0x28, 0x1be5c +0xc, 0x1be64 +0x8).
+ * Style: natural
  *
  * Verify: XY_ROMFS=.Data/Raw_Extracted/romfs python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllZukan 0x1be5c 0x8 xy-decomp/armcc-matching/matched/DllZukan/0x1be5c.c
  */

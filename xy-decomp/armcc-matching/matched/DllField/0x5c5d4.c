@@ -1,7 +1,7 @@
 // DllField@0x5c5d4, size 0x1c, masked match (all words).
 // Script handler: u8 arg b[1] forwarded with the manager pointer to a helper (tail call).
 // Shared-accessor family (callee 0x16c0 = GetMgr).
-// Style: trick(volatile) -- b is read through a volatile pointer only so armcc emits ldr+narrow (uxth/and) instead of ldrh/ldrb.
+// Style: trick(volatile) -- b is read through a volatile pointer only so armcc keeps the full-word ldr followed by the and #255 narrowing (retail) instead of folding it into ldrb; verified: the plain-pointer form does not match.
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField 0x5c5d4 0x1c \

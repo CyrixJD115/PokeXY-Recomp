@@ -8,6 +8,7 @@
  * shared base class's method compiled into every Dll that links it, not
  * a per-module coincidence.
  *
+ * Style: natural -- trivial stub/setter (weak evidence: any function of this shape compiles identically)
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllFieldDemo 0x1edc 0x8 \
  *     xy-decomp/armcc-matching/matched/DllFieldDemo/0x1edc.c

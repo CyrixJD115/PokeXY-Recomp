@@ -1,4 +1,5 @@
 /* DllSparring function @ CRO file offset 0x10178, size 0x8 — MATCHED (masked, 2/2).
+ * Style: natural
  * Trivial virtual-override stub: returns the literal 8, ignores `this`.
  *
  * First module mined for DllSparring. `.text` starts at file offset

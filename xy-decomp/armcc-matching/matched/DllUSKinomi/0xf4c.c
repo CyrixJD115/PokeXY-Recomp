@@ -6,6 +6,7 @@
  * `0xf54.c`/`0xf5c.c` in this directory). Sits right after two bare
  * `bx lr` no-op stubs (0xf44/0xf48) and a thin forwarder (0xf40) —
  * see `0xf40.c` for the full cluster layout.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllUSKinomi 0xf4c 0x8 xy-decomp/armcc-matching/matched/DllUSKinomi/0xf4c.c

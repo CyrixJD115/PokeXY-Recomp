@@ -1,5 +1,6 @@
 /*
  * DllBattle @ 0x2c60, size 0x30 -- if (this->+0x24) call its vtbl slot 1 (delete); free this->+0x20 via import; return 1.
+ * Style: natural
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllBattle 0x2c60 0x30 xy-decomp/armcc-matching/matched/DllBattle/0x2c60.c
  */

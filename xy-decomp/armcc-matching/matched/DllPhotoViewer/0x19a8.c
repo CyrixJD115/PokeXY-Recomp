@@ -1,4 +1,5 @@
 /* DllPhotoViewer function @ CRO file offset 0x19a8, size 0x8 — MATCHED (masked, 2/2).
+ * Style: natural
  * Byte setter: this->+0xd9 = arg (strb r1,[r0,#217]; bx lr).
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

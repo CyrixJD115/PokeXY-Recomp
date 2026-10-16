@@ -9,6 +9,7 @@
  * recurring tail-of-import-veneer-table leaf-stub cluster shape
  * documented for every other Dll module mined so far (DllBox@0x9e8,
  * DllFieldEventSlopeSlip@0x268, ...).
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllBag 0xc80 0x8 xy-decomp/armcc-matching/matched/DllBag/0xc80.c

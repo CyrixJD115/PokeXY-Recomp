@@ -1,4 +1,5 @@
 /*
+ * Style: natural
  * DllStatus @ 0xbf8 (size 0x8) -- masked match 2/2.
  * Trivial virtual-override stub: returns 1, ignores this.
  *

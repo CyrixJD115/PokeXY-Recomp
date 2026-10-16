@@ -8,6 +8,7 @@
  * DllStrInput@0x666c before the export name was known). A thirty-eighth
  * module confirming this shared base/mixin-class method recurs verbatim
  * across unrelated Dll modules.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllColosseum 0x46fc 0x8 \

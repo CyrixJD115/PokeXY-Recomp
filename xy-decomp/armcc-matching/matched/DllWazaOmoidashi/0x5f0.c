@@ -10,6 +10,7 @@
  * Sits right after the import-veneer table (0x180-0x5ec), immediately
  * before the module's first real function (a constructor-shaped
  * dispatcher at 0x5f4).
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

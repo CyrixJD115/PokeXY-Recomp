@@ -5,6 +5,7 @@
  * stubs at 0x24c/0x254/0x25c (only 0x24c claimed here), two more bare
  * `bx lr` stubs at 0x264/0x268, then the module's first real function
  * (a constructor-shaped routine with a loop) at 0x26c.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllUSR13 0x24c 0x8 xy-decomp/armcc-matching/matched/DllUSR13/0x24c.c

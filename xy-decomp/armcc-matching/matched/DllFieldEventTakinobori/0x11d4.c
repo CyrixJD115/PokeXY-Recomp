@@ -6,6 +6,7 @@
  * (0x11cc/0x11d0, feeding the preceding dispatcher's two `ldr pc,[pc,#N]`
  * loads) and right before the twin `return 1` stub at 0x11dc.
  *
+ * Style: natural -- trivial stub/setter (weak evidence: any function of this shape compiles identically)
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *       DllFieldEventTakinobori 0x11d4 0x8 \

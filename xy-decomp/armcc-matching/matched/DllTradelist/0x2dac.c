@@ -4,6 +4,7 @@
  *
  * Right after a small prologue'd helper ending at 0x2da8 (strb/mov/bx lr),
  * right before a larger push{r3,r4,r5,lr} dispatcher at 0x2dc4.
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllTradelist \

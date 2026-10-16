@@ -3,7 +3,7 @@
  * calls f1(o->p190 + 0x280, 0xdf9) and returns 1.
  * POOL-PAD match (all 10 code words identical, same single pool constant): retail starts at 4 mod 8, so one 0
  * alignment word precedes the pool constant and the ldr displacement is 4 larger than a standalone compile's.
- * Style: natural
+ * Style: natural -- (`k` is also the value passed on to the callee, so the local is ordinary; the literal-inlined form does not match)
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllBattle 0x3bdd8 0x30 xy-decomp/armcc-matching/poolpad/DllBattle/0x3bdd8.c --pool-pad
  */

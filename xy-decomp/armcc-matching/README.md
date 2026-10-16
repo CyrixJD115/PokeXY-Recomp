@@ -1718,48 +1718,34 @@ A masked match proves the *bytes*; it doesn't say whether the C is how the
 original authors wrote it. Following `pokebw2`'s "natural C only" rule, each
 matched file may carry a `Style:` line in its header comment:
 
-- **no tag (or `Style: natural`)** — plain C a human would write.
-- **`Style: trick(<kind>) -- <why>`** — compiles to the retail bytes, but the C
-  contains a construct that exists only to appease armcc. Fine as a
-  placeholder; rewrite (or re-derive the real source construct) before this
-  becomes readable decomp or feeds the native port.
+- **`Style: natural`** — plain C/C++ a Game Freak programmer could plausibly have written. (RE placeholders such as `pad[]` structs, `(char*)p + N` casts, `extern` callees and `extern char VT[]` vtables are fine.)
+- **`Style: trick(<kind>) -- <why>`** — compiles to the retail bytes, but the C contains a construct that exists only to appease armcc. Fine as a placeholder; rewrite (or re-derive the real source construct) before this becomes readable decomp or feeds the native port. Two kinds can be joined with `+` (e.g. `wider-callee-return+redundant-local`).
 
-Kinds (find them all with
-`grep -rl 'Style: trick' xy-decomp/armcc-matching/matched`):
+**Every file now carries an explicit `Style:` line** (audited 2026-10-16: 1274 files incl. `poolpad/` and `relaxed/`; 1030 natural, 244 trick). New matches must set the tag (see `pending/README.md`).
+
+Kinds (counts computed from the files; find them with `grep -rl 'Style: trick(<kind>)' xy-decomp/armcc-matching`):
 
 | kind | what it is | files tagged |
 |---|---|---|
-| `volatile-strd` | `volatile` on a 64-bit global only to get `strd` | 10 (globals-init family, incl. DllSalon@0xdd0) |
-| `volatile` | arguments read through a `volatile int *` only so armcc keeps a full-word `ldr` followed by `uxth` / `and #255` (retail) instead of folding the narrowing into `ldrh` / `ldrb` — the GetMgr `uxth` id-check family | ~14 DllField GetMgr callers (e.g. 0x593cc, 0x59b04, 0x5c5d4) |
-| `volatile-load` | `volatile` field only to keep armcc from narrowing/dropping a load | DllUSGymIce@0x278, DllSequence@0x10a80 |
-| `redundant-local` | named literal/temp local only to steer armcc's constant-register choice | DllKisekae@0xb6f0, DllBattle@0x39c0, DllGts@0x8850, DllUSGymEsper@0x480, DllPoke3Select@0x63c, DllWazaOmoidashi@0x924, DllField@0x10c34, 0x10c54, DllBattle@0x2b9dc, 0x75050, 0x74ff8, 0x750a4 |
-| `split-expression` | one expression split across statements only to stop armcc fusing a load (`ldrsh`) | DllTitle@0xd534 |
-| `extra-arg` | unused pass-through int arg(s) to shift register allocation (1 arg -> vtable in r2, 2 -> r3) | DllTownmap@0xb10, 0x3554, 0x35f4, 0xd68, DllBattle@0x7a780 |
-| `static-helper` | one-use static helper to pin an argument register / reproduce r0 reuse | DllEshop@0x1b10, DllHologramMail@0xe970 |
-| `void-ptr-passthrough` | callee declared `void*`, result offset `(char*)fn(p) - N`, to avoid a spare `mov r4,r0` | DllPuzzle@0x1e90, 0x4ba0, DllSalon@0x790, DllHeading@0x868, 0x16f4, 0x8ac, 0x1738 |
-| `pointer-walk` | sequential pointer-cursor moves only to reproduce retail's immediate splits / pre-indexed stores | DllSequence@0x1140, DllNumberInput@0x18fc |
-| `live-r1-passthrough` | return type widened (`long long` built from `this` and the incoming 2nd arg) only to keep r1 live so a shared zero lands in r2 — least natural form; true signature unknown | DllField@0xae58, 0xe3fc, 0xe380 |
-| `volatile-store` | the vptr store goes through a `volatile` pointer purely to pin a register copy (`mov r4,r0`) ahead of the store — used with the C++ inline-member `Reset()` form (needs a `.cpp` file; the verifier switches to C++ mode from the suffix) | DllField@0xb1bb8 and its 23 byte-identical sites |
-| `wider-callee-return` | callee declared `long long` and the caller returns `(int)` of it, only to stop armcc tail-calling (r0 is the low word, the cast costs no code) | DllField@0xe1c4c, 0xe1fe8 |
-| `cpp-inline-member` | pointee-side logic written as an inline C++ member called on the loaded pointer (needs a `.cpp` file) | DllField@0x2948c |
-| `ordering-local` | locals (`vt = VT`, hoisted member loads) only to fix load / pool-load order | the `vt`-local destructor family (15: DllBattleHouseConnect@0x2fc, DllCommendation@0xc94, DllEshop@0x554, DllFatalErrorProc@0x284, DllFriendEntry@0x4c4, DllGameClearSave@0xd6c, DllGameSync@0x5e0, DllLiveCup@0x764, DllRandomTrade@0x8b4, DllStaffRoll@0x2c44, DllSubScreenTutorial@0x12cc, DllTrainerCase@0x37e4, DllTrialDownload@0x728, DllTrialHouseResult@0x2648, DllTradelist@0xc04) + DllGts@0x5be0, 0x53e4, 0x5ba8, 0x5bc4, 0x5ad4, DllSalon@0xd5c, DllBag@0x13848, DllPuzzle@0xbf80, DllTownmap@0x31d4, DllPhotoViewer@0x193c, DllStatus@0xa304, DllKisekae@0xb674, 0xb6ac |
+| `volatile` | arguments (the script-command args pointer) read through a `volatile int *` only so armcc keeps a full-word `ldr` followed by `uxth` / `and #255` / `sxtb` (retail) instead of folding the narrowing into `ldrh` / `ldrb` | **62** files — DllField@0x9d534, DllField@0x5d698, DllField@0x92d34, DllField@0xa0c34, DllField@0x94d18, DllField@0x5b758 … |
+| `volatile-strd` | `volatile` on a 64-bit global only to get `strd` | **10** files — DllUSGymFighting@0x11dc, DllTestNagihashi@0x180, DllTestKosaka@0x180, DllTestIchiraku@0x180, DllUSGymIce@0x1974, DllFieldDebug@0x180 … |
+| `volatile-load` | a `volatile` FIELD read only to keep armcc from narrowing or dropping a load | **3** files — DllSequence@0x10a80, DllUSGymIce@0x278, DllField@0x9aeb8 |
+| `volatile-store` | the vptr store goes through a `volatile` pointer purely to pin a register copy (`mov r4,r0`) ahead of the store — used with the C++ inline-member `Reset()` form (needs a `.cpp` file; the verifier switches to C++ mode from the suffix) | **49** files — DllField@0xb1a90, DllField@0xbc5a4, DllField@0xc25e0, DllField@0xb5a7c, DllField@0xb2e04, DllField@0xb8148 … |
+| `redundant-local` | named literal / temp / pointer local only to steer armcc's constant-register or load order (retail holds the value in a callee-saved register or hoists it) | **56** files — DllGts@0x8850, DllBattle@0xa6df0, DllBattle@0xa68e4, DllBattle@0x7bae0, DllBattle@0xa6610, DllBattle@0xa6494 … |
+| `ordering-local` | locals (`vt = VT`, hoisted member loads) only to fix load / pool-load order | **32** files — DllLiveCup@0x764, DllKisekae@0xb674, DllGts@0x53e4, DllGts@0x5be0, DllGts@0x5ad4, DllGts@0x5bc4 … |
+| `extra-arg` | unused pass-through int arg(s) to shift register allocation (1 arg -> vtable in r2, 2 -> r3) | **4** files — DllTownmap@0x3554, DllTownmap@0xb10, DllTownmap@0x35f4, DllTownmap@0xd68 |
+| `static-helper` | one-use static helper to pin an argument register / reproduce r0 reuse | **3** files — DllBattle@0xb8b84, DllEshop@0x1b10, DllHologramMail@0xe970 |
+| `void-ptr-passthrough` | callee declared `void*`, result offset `(char*)fn(p) - N`, to avoid a spare `mov r4,r0` (C++ secondary-base this-adjusting thunks) | **13** files — DllHeading@0x8c58, DllHeading@0x1738, DllHeading@0x1cec, DllHeading@0x8ac, DllHeading@0x8c9c, DllHeading@0x16f4 … |
+| `pointer-walk` | sequential pointer-cursor moves only to reproduce retail's immediate splits / pre-indexed stores | **2** files — DllSequence@0x1140, DllNumberInput@0x18fc |
+| `live-r1-passthrough` | return type widened (`long long` built from `this` and the incoming 2nd arg) only to keep r1 live so a shared zero lands in r2 — least natural form; true signature unknown | **3** files — DllField@0xe3fc, DllField@0xe380, DllField@0xae58 |
+| `wider-callee-return` | callee declared `long long` and the caller returns `(int)` of it, only to stop armcc tail-calling (r0 is the low word, the cast costs no code) | **2** files — DllField@0xe1fe8, DllField@0xe1c4c |
+| `cpp-inline-member` | pointee-side logic written as an inline C++ member called on the loaded pointer (needs a `.cpp` file) | **1** files — DllField@0x2948c |
+| `split-expression` | one expression split across statements only to stop armcc fusing a load (`ldrsh`) | **1** files — DllTitle@0xd534 |
+| `assign-as-return` | `return this[32] = 0;` with a `char` return so armcc shares one `mov r0,#0` | **3** files — DllField@0x2aee0, DllField@0x343d0, DllField@0x2aa40 |
+| `declaration-order` | local declaration order (`char *b = v + 0x30;` before `char *a = v + 0x20;`) decides which register holds which address | **2** files — DllField@0xb6844, DllField@0xb76c8 |
 
-**Audit (2026-10-15):** all 377 matched files were screened — a script flagged
-`volatile` / static functions / armcc extensions / literal-assigned locals /
-`(void)` casts / 3+ args, a comment scan flagged "non-obvious / phrasing /
-named local / helper / swap / fold ..." language, and every flagged body was
-read. Result: **46 files tagged**; the remaining 331 are natural C (plain
-setters/getters/stubs, `(void)this;` unused-parameter silencing, plain
-dtors with a member-load local, `if (r) return 0; return 1;` predicates,
-literal call arguments). The audit is heuristic: a trick that leaves no
-textual trace (e.g. a field type or struct layout chosen only to steer
-codegen) would not be caught, so `natural` is "no trick found", not a proof.
-Judgement call: the `vt`-local destructor family is tagged `ordering-local`
-because the extra local exists only to order the pool load; the plain
-`void *p = o->buf; o->vptr = VT; if (p) ...` form is natural and untagged.
-Tiny stubs (`bx lr`, return-const, one-field setters) are natural but weak
-evidence — any function of that shape compiles identically. New matches must
-set the tag (see `pending/README.md`).
+**Audit (2026-10-16):** eight auditors read every matched file and checked (A) that its `Style:` tag was correct and (B) that the code is plain C/C++ — no inline assembly, intrinsics (`__nop`, `__rev`, …), `#pragma`, `register`, compiler attributes or `goto` was found anywhere. For every trick-tagged file a no-trick variant was compiled and run through the verifier; if the plain form still matched, the trick was removed (about 9 removals: e.g. DllBattlePartySelect@0x1684, DllKisekae@0xb6f0, DllPoke3Select@0x63c, DllField 0x3954c-family `vt` locals, DllBattle@0x7a780 whose leading param is real), otherwise the tag/why-text was made accurate. About 335 files that had no tag got an explicit `Style: natural`; ~12 files that looked natural were really tricks (DllField 0xa6ff0 / 0xa714c / 0x2aa40-family / the 0xce874 state steps / the six poolpad trace-store files). Stale Verify paths, copy-pasted headers and unused `extern`s (~55 files) were cleaned. The unmasked intra-function branch immediates of slice 1 were also compared (all clean — no masked match hides a different branch shape).
+Caveats: (1) tiny stubs (`bx lr`, return-const, one-field setters) are natural but weak evidence — any function of that shape compiles identically; (2) **borderline natural files** — about 30 script handlers that read `int v = a[1];` into a local before the `GetMgr()` call, and six top-of-function ordering locals (DllBag@0xe484 / 0x7330 / 0xc508 / 0x10334, DllBattle@0x4c374 / 0xc074, DllField@0x59c98 / 0x59db8 / 0x59e0c / 0x59e3c / 0x5bd84 / 0x5aa14) fail when written plainly; they were kept `natural` following the precedent that a member-load local is natural — under a stricter reading they become `ordering-local`; (3) `extra-arg` may be over-strict where the retail wrapper really forwards r1 (the true signature is unknown); (4) the `int k = C; if (c->v != k) c->v = k;` trace-store idiom in 8 `poolpad/` files would be natural if the original is a trace macro with a temporary.
 
 **Relaxed matches are not matches.** A function that only passes with
 `--relax-nops` (nop words dropped from both sides, pool offsets masked) is

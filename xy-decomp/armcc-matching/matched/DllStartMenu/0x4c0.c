@@ -1,4 +1,5 @@
 /* DllStartMenu @ 0x4c0, size 0x38 — masked match 14/14.
+ * Style: natural
  *
  * One-line: if a check function returns 0, returns 2; else if this->f16==3
  * calls an import veneer on this->f24 with arg 1, then returns this->f16.

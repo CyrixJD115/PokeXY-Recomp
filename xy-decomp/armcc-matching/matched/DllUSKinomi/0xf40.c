@@ -16,6 +16,7 @@
  * with no other statements needs no stack frame, so armcc 5.04u5 at
  * -O2 -Otime folds it straight into a bare `b` instead of `bl`+
  * `pop {..,pc}`.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllUSKinomi 0xf40 0x4 xy-decomp/armcc-matching/matched/DllUSKinomi/0xf40.c

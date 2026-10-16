@@ -1,6 +1,7 @@
 /* DllBox function @ CRO file offset 0x1f46c, size 0x10 — MATCHED (masked, 4/4).
  * Call-through-then-tail-call wrapper: calls one import veneer (bl), then
  * tail-branches into a second import veneer (b) instead of returning.
+ * Style: natural
  *
  * Flagged by find_candidates.py from Ghidra's decompiled C
  * (`FUN_001009e0(); FUN_00100258(); return;`) as a two-fixed-no-arg-calls

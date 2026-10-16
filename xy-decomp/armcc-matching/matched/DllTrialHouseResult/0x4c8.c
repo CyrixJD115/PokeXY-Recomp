@@ -3,6 +3,7 @@
 // (likely a validity/ready check), returns `this+28` if the call result
 // is non-zero, else returns the constant 2 (probably a "not ready"
 // status code).
+// Style: natural
 //
 // Verify: XY_ROMFS=.Data/Raw_Extracted/romfs python3 \
 //   xy-decomp/armcc-matching/tools/fingerprint_fn.py DllTrialHouseResult \

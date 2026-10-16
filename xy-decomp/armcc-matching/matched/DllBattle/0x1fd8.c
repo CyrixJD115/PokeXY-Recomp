@@ -5,6 +5,7 @@
  * (0xb90) and returns it offset by a fixed +48 bytes -- same idiom as
  * the sibling accessor at 0x1fc4, but through one pointer indirection
  * instead of a direct `this`-offset.
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllBattle \
@@ -12,6 +13,5 @@
  */
 
 void *fn(void *o) {
-    void *p = *(void **)((char *)o + 2960);
-    return (char *)p + 48;
+    return *(char **)((char *)o + 2960) + 48;
 }

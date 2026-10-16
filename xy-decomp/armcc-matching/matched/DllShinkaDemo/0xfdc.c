@@ -1,4 +1,5 @@
 /* DllShinkaDemo @ 0xfdc, size 0x8 -- masked match 2/2.
+ * Style: natural
  *
  * Trivial signed-byte field getter: returns the signed byte at
  * this+0x82, no other side effects.

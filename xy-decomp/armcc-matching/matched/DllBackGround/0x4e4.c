@@ -7,6 +7,7 @@
  * cmp/cmpne/beq pair (first two equalities) falling through to a second
  * cmp/movne/bne (third equality) sharing the same `mov r0,#1 / bx lr` tail
  * for both the first-pair hit and the straight-through third-equality hit.
+ * Style: natural
  *
  * Verify: XY_ROMFS=.Data/Raw_Extracted/romfs python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllBackGround 0x4e4 0x24 xy-decomp/armcc-matching/matched/DllBackGround/0x4e4.c
  */

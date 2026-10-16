@@ -6,6 +6,7 @@
  * no explicit epilogue after the tail branch). The push/pop of r4 is
  * AAPCS stack-alignment padding, not a real register save (same
  * pattern already documented for DllDialogCommon@0x6c4).
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField \

@@ -1,4 +1,5 @@
 /*
+ * Style: natural
  * DllGts @ 0x43f4 size 0x10: clear field 0x5c ret 0x34
  *
  * Verify:

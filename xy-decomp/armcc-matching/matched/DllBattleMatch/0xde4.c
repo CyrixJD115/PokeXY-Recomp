@@ -1,4 +1,5 @@
 /* DllBattleMatch @0xde4, size 0x4 -- 1/1 masked match.
+ * Style: natural
  *
  * Thin tail-call forwarder: entire body is a single `b <import veneer>`
  * instruction, same idiom as the already-matched `0xd90` in this module

@@ -1,4 +1,5 @@
 /* DllPuzzle @ 0x1438 size 0x38 MATCHED (masked 13/13 (+pool word)): dtor stage: install vtable, call base cleanup, free via obj->p4->f14 chain, return this.
+ * Style: natural
  * 
  * Verify: XY_ROMFS=.Data/Raw_Extracted/romfs python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllPuzzle 0x1438 0x38 xy-decomp/armcc-matching/matched/DllPuzzle/0x1438.c
  */

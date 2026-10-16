@@ -1,4 +1,5 @@
 /* DllPokeList function @ CRO file offset 0x8dc, size 0x8 — MATCHED (masked, 2/2).
+ * Style: natural
  * Trivial virtual-override stub: returns 1 (true), ignores `this`.
  *
  * Right after the import-veneer table (0x180-0x8db): a run of near-

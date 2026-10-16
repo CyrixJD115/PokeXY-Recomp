@@ -6,6 +6,7 @@
  * same tail-of-import-veneer-table leaf-stub cluster shape documented for
  * every other mined Dll module.
  *
+ * Style: natural -- trivial stub/setter (weak evidence: any function of this shape compiles identically)
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllFieldEventPlayer 0x624 0x8 xy-decomp/armcc-matching/matched/DllFieldEventPlayer/0x624.c
  */

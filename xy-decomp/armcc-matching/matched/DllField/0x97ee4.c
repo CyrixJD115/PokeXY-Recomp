@@ -1,7 +1,7 @@
 // DllField@0x97ee4, size 0x30, 12/12 masked match.
 // Script handler: returns H(*(mgr->+12->+28) + 0x15fa8, args[1]&255) >> 16.
 // Shared-accessor (GetMgr, callee 0x16c0) script-command handler family.
-// Style: trick(volatile-load) -- args pointer read through volatile so armcc keeps the full-word ldr + separate uxth/sxtb/and (retail) instead of folding into ldrh/ldrb
+// Style: trick(volatile) -- b is read through a volatile pointer only so armcc keeps the full-word ldr followed by the and #255 narrowing (retail) instead of folding it into ldrb; verified: the plain-pointer form does not match.
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField 0x97ee4 0x30 \

@@ -1,4 +1,5 @@
 /*
+ * Style: natural
  * DllGts @ 0x9898, size 0x1c, masked match 7/7.
  * If this->obj@0x20 non-null, tail-calls its vtable slot 0x24 (slot 9) with obj as this.
  * Verify:

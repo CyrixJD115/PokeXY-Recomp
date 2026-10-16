@@ -7,6 +7,7 @@
  * function at 0x288c8 is the sibling "hardcoded-zero" variant of this
  * same setter (see 0x288c8.c in this module) — the real argument is
  * discarded there and 0 is stored instead.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllField 0x288c0 0x8 xy-decomp/armcc-matching/matched/DllField/0x288c0.c

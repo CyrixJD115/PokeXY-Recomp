@@ -5,6 +5,7 @@
 // .text; the next function (0x54de4, same shape but with a different
 // veneer and argument (field0, 0, 8)) looks like an equally easy
 // follow-up for a future agent.
+// Style: natural
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField 0x54dc4 0x18 \

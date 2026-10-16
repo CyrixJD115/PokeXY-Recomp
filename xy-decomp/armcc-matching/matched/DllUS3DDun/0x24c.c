@@ -4,6 +4,7 @@
  * veneer table (0x180-0x247) and before the first real function at 0x274
  * -- same shape already documented across every other Dll module mined
  * so far (default virtual-method overrides on a shared base class).
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllUS3DDun 0x24c 0x8 xy-decomp/armcc-matching/matched/DllUS3DDun/0x24c.c

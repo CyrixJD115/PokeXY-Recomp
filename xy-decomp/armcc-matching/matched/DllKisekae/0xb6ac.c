@@ -3,7 +3,7 @@
  * vtable pointer, frees the member if non-null (masked call) and zeroes it,
  * returns `this`. Member load precedes the vtable pool load here (the
  * opposite of 0xb674).
- * Style: trick(ordering-local) -- hoisted `m = o->m` only to put the member load before the vtable pool load.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllKisekae 0xb6ac 0x34 xy-decomp/armcc-matching/matched/DllKisekae/0xb6ac.c

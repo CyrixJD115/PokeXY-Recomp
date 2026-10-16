@@ -1,4 +1,5 @@
 /* DllNumberInput function @ CRO file offset 0x18dc, size 0x20 — MATCHED (masked, 8/8). Copies a field from the second argument into a sub-object, calls a veneer with it, stashes the result, returns 1.
+ * Style: natural
  *
  * `this->n24` (member at +0x24) is a pointer to a small node object with
  * fields at +4 and +8; `v->f14` (member at +0x14 of the second argument)

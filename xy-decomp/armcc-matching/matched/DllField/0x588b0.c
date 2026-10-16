@@ -1,7 +1,7 @@
 // DllField@0x588b0, size 0x30, 12/12 masked match.
 // Script handler: H(mgr->+12->+72->+240->+2740 + 420, (u16)args[1]); returns 0. Two volatile chain loads pin the late uxth.
 // Shared-accessor (GetMgr, callee 0x16c0) script-command handler family.
-// Style: trick(volatile-load) -- volatile arg read (full ldr; uxth at use) plus volatile last two chain loads so armcc keeps uxth after the chain like retail
+// Style: trick(volatile) -- volatile arg read (full ldr; uxth at use) AND volatile last two chain loads; dropping the chain volatiles fails (verified), so armcc needs them to keep the late uxth after the chain like retail
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField 0x588b0 0x30 \

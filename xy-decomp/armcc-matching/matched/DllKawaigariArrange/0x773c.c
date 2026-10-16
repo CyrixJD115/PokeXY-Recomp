@@ -1,4 +1,5 @@
 /* DllKawaigariArrange @ 0x773c, size 0x8 — masked match 2/2.
+ * Style: natural
  *
  * Trivial virtual-override stub: ignores `this`, returns 1 (boolean
  * true). Sits between two real functions: the previous function's own

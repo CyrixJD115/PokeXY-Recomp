@@ -9,8 +9,6 @@
 
 extern char *GetMgr(void);
 extern void Helper(int, int, int);
-extern char *GetMgr(void);
-extern void Helper(int, int, int);
 int Fn(int self, int *a) {
     int x = a[1];
     int y = a[2];

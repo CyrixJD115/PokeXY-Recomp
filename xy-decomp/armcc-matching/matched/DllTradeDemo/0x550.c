@@ -8,6 +8,7 @@
 // residue notes (the "obvious" boolean call result isn't reused; the
 // false branch re-materializes a literal instead). Module's first real
 // function, right after the import-veneer table (0x180-0x54f).
+// Style: natural
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

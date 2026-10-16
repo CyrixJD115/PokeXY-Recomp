@@ -1,4 +1,5 @@
 /* DllPssFavorite @0x430, size 0x8 — MASKED MATCH 2/2.
+ * Style: natural
  *
  * Trivial virtual-override stub: `return 1`, no arguments used.
  * Part of the recurring tail-of-import-veneer-table leaf-stub cluster

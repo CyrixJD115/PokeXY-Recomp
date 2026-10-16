@@ -6,6 +6,7 @@
  * `bx lr` single-word stubs (weak-evidence class) at 0xb48/0xb4c/0xb58/
  * 0xb5c/0xb60/0xb64 (only this one claimed), then a real constructor at
  * 0xb70.
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllTradelist \

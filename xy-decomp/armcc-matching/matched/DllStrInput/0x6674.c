@@ -1,4 +1,5 @@
 /* DllStrInput function @ CRO file offset 0x6674, size 0x14 — MATCHED (masked, 5/5). Boolean getter: `return this->p28->flag16 != 0;`.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllStrInput 0x6674 0x14 xy-decomp/armcc-matching/matched/DllStrInput/0x6674.c

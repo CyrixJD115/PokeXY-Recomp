@@ -9,7 +9,6 @@
 
 extern char *GetMgr(void);
 extern int Tail(char *);
-extern void Sink(char *);
 int Fn(void) {
     char *p = GetMgr();
     return Tail(*(char **)(*(char **)(*(char **)(p + 12) + 28) + 0) + 101552);

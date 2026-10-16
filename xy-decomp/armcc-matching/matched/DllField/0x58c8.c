@@ -4,6 +4,7 @@
 // Sits right after DllField's large import-veneer table (0x180-0x5767) and
 // a handful of small veneer-calling wrappers/float helpers (0x5740-0x58c4);
 // the next function starts immediately after at 0x58d4.
+// Style: natural
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField 0x58c8 0xc \

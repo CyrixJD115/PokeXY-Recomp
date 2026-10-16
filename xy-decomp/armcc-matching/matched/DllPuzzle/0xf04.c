@@ -1,4 +1,5 @@
 /* DllPuzzle @ 0xf04 size 0x2c MATCHED (masked 11/11): conditional bool: mode==1 && fn(obj) -> 1 else 0.
+ * Style: natural
  * if(a) {if(r) return 1;} return 0 shape
  * Verify: XY_ROMFS=.Data/Raw_Extracted/romfs python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllPuzzle 0xf04 0x2c xy-decomp/armcc-matching/matched/DllPuzzle/0xf04.c
  */

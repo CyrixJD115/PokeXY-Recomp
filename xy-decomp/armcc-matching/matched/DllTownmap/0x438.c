@@ -8,6 +8,7 @@
  * then the conditional-accessor function at 0x46c (already matched).
  * Same recurring tail-of-import-veneer-table leaf-stub cluster shape
  * documented for every other Dll module mined so far.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllTownmap 0x438 0x8 xy-decomp/armcc-matching/matched/DllTownmap/0x438.c

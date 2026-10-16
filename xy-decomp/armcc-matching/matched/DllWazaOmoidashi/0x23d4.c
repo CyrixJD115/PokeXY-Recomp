@@ -6,6 +6,7 @@
  * Mid-module, right after a dispatcher's tail `b` at 0x23d0; immediately
  * followed by a bare `bx lr` single-word stub at 0x23dc (weak-evidence
  * class, untried) and a twin `return 1` stub at 0x23e0 (untried).
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

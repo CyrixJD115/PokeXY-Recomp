@@ -2,6 +2,7 @@
  * Conditional accessor, same idiom as DllEggDemo@0x568 / DllBoxSearch@0x5b8:
  * veneer call gates between a member load (+68) and a re-materialized
  * constant 2.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllBox 0xc80 0x1c xy-decomp/armcc-matching/matched/DllBox/0xc80.c

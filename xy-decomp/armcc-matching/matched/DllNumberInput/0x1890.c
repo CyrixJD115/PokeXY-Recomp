@@ -1,4 +1,5 @@
 /* DllNumberInput function @ CRO file offset 0x1890, size 0x4c — MATCHED (masked, 19/19). Notification dispatcher: calls a handler's veneer twice (flag 0 then tail-call flag 1), two early-outs sharing one epilogue.
+ * Style: natural
  *
  * Reverse-engineering note: the two early-return paths (null handle, and
  * handle already notified) share a SINGLE `pop {r4, pc}` epilogue with no

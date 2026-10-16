@@ -1,4 +1,5 @@
 /* DllPromotion function @ CRO file offset 0xc78, size 0x8 — MATCHED (masked, 2/2).
+ * Style: natural
  * Trivial virtual-override stub: returns 1 (true), ignores `this`.
  *
  * Sits right at the tail of the import-veneer table (0x180-0xc27): a

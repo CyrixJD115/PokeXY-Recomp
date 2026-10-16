@@ -3,6 +3,7 @@
  *
  * Trivial virtual-override stub, `return 0`, ignores `this`. Same
  * recurring shape mined in nearly every other Dll module's stub cluster.
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllBattle \

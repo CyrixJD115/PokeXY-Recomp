@@ -4,6 +4,7 @@
  * (one ending at 0x928, a second ending at 0x94c, both sharing the same
  * tail shape -- not attempted) and right before a real
  * push {r4,r5,lr} function at 0x95c.
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

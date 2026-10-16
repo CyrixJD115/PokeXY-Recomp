@@ -4,6 +4,7 @@
  * DllPssConfig@0x1c20 (identical bytes: `strb r1, [r0, #217]; bx lr`) — a
  * shared base/mixin-class method reused verbatim across unrelated modules,
  * this being the thirty-ninth module touched by the swarm.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllCaptureRegister 0x27b0 0x8 \

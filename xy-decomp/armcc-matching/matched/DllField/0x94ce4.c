@@ -1,7 +1,7 @@
 // DllField@0x94ce4, size 0x34, 13/13 masked match.
 // Fn(self): fetches the manager; if self->+72 is non-null calls V(self72->+404); then W2(mgr->+28, 1); returns 1.
 // Script-command handler / manager-accessor family (callee 0x16c0 = shared manager accessor).
-// Style: trick(redundant-local) -- extra local q = o ? o->+404 : o steers armcc to keep self in r4 and mgr in r5 (retail order); without it regalloc swaps r4/r5.
+// Style: trick(redundant-local) -- extra local q = o ? o->+404 : o steers armcc (verified: the plain `if (o) V(o->+404)` form does not match) to keep self in r4 and mgr in r5 (retail order); without it regalloc swaps r4/r5.
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField 0x94ce4 0x34 \

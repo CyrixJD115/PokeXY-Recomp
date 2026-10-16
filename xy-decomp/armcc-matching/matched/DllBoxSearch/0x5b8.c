@@ -7,6 +7,7 @@
 // instead).
 // This is the module's first real function, right after the import-veneer
 // table (0x180-0x5b7).
+// Style: natural
 //
 // Verify:
 //   XY_ROMFS=.Data/Raw_Extracted/romfs python3 \

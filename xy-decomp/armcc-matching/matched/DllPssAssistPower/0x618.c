@@ -1,4 +1,5 @@
 /*
+ * Style: natural
  * DllPssAssistPower @ 0x618, size 0x8 — masked match 2/2.
  *
  * Trivial virtual-override stub, `return 1`, ignores `this`. Sits right

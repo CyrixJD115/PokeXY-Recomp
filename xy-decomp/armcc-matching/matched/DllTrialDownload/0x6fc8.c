@@ -5,6 +5,7 @@
  * result, so no stack frame is needed). A near-identical twin follows
  * immediately at 0x6fd0, forwarding the same literal 6 into a different
  * import.
+ * Style: natural
  *
  * Verify: XY_ROMFS=.Data/Raw_Extracted/romfs python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllTrialDownload 0x6fc8 0x8 xy-decomp/armcc-matching/matched/DllTrialDownload/0x6fc8.c
  */

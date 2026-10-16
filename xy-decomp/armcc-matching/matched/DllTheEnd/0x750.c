@@ -9,6 +9,7 @@
  * immediately precedes it, and the next function (ldr r0,[r0,#36]; ...)
  * starts immediately after at 0x758 — exactly the 0x8-byte isolated shape
  * seen at DllNumberInput@0x1888 and the other `return 1` stubs.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllTheEnd 0x750 0x8 xy-decomp/armcc-matching/matched/DllTheEnd/0x750.c

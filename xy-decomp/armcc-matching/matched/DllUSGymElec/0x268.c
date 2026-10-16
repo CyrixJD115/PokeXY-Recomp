@@ -9,6 +9,7 @@
 // with an early-out comparison) at 0x288. Same recurring cluster shape
 // documented for DllUSGymRock/DllUSGymGrass/DllUSGymFairy/DllUSGymInsect
 // etc. in README.md.
+// Style: natural
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

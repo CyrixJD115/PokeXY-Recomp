@@ -8,9 +8,6 @@
 //       xy-decomp/armcc-matching/matched/DllField/0x5d910.c
 
 extern char *GetMgr(void);
-extern int F(int, int);
-extern int K3(int, int, int);
-extern int G(int, int, int);
 extern int R(int, int, int);
 extern void Z(void);
 int Fn(int a, int *b) {

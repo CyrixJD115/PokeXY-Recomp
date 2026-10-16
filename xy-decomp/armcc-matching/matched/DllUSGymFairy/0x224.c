@@ -6,6 +6,7 @@
 // trivial-stub-cluster shape documented in attempted.md/README.md for every
 // other Dll module mined so far (DllUSDynamo@0x1b4, DllUS3DDun@0x24c,
 // DllUSBadgeCheckGate@0x228, DllSalon@0xdc8, DllCommWait@0xcd8, ...).
+// Style: natural
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

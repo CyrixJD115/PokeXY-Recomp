@@ -3,6 +3,7 @@
  * veneers on it, stores results, and stores (*(f->[28])) + 0x13650. Returns 1.
  * Note: load arg->f into a pointer-typed local ONCE and reuse it; two
  * separate (int) reads give a wrong register schedule.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllBox 0x1dde8 0x48 xy-decomp/armcc-matching/matched/DllBox/0x1dde8.c

@@ -1,4 +1,5 @@
 /* DllPssMainMenu function @ CRO file offset 0x428, size 0x8 — MATCHED (masked, 2/2).
+ * Style: natural
  * Trivial virtual-override stub: returns 1 (true), ignores `this`.
  *
  * First function mined from DllPssMainMenu (the Pokemon-Global-Link /

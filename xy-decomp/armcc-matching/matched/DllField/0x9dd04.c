@@ -8,7 +8,6 @@
 //       xy-decomp/armcc-matching/matched/DllField/0x9dd04.c
 
 extern char *GetMgr(void);
-extern void Sink(char *);
 extern void Sink2(char *, int);
 int Fn(int self, int *a) {
     int x = a[1];

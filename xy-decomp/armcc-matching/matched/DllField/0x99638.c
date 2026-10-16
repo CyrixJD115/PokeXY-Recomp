@@ -1,7 +1,7 @@
 // DllField@0x99638, size 0x34, 13/13 masked match.
 // Script-command handler: calls sibling helper on mgr->+12->+28->*->+0x129a8 with sign-extended s16 args[1]; returns 0.
 // Shared-accessor (GetMgr, callee 0x16c0) caller family; see pending/matched-DllField-0x99638.md.
-// Style: trick(volatile-load) -- args is volatile int* so armcc keeps ldr+sxth instead of ldrsh
+// Style: trick(volatile) -- a is read through a volatile pointer only so armcc keeps the full-word ldr followed by the sxth narrowing (retail) instead of folding it into ldrsh; verified: the plain-pointer form does not match.
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField 0x99638 0x34 \

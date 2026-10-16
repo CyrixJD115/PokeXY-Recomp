@@ -1,5 +1,6 @@
 /* DllTownmap function @ CRO file offset 0x2dc0, size 0x14 — MATCHED (masked, 5/5).
  * Forwarder: tail-calls fn(this->[0x5c], 0, 0x104, x) (arg shuffle, no frame).
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllTownmap 0x2dc0 0x14 xy-decomp/armcc-matching/matched/DllTownmap/0x2dc0.c

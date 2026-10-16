@@ -12,6 +12,7 @@
  * right after a prior function's `pop {r4,r5,r6,r7,r8,pc}` epilogue at
  * 0xad0, and a separate lone `bx lr` stub follows at 0xaec (not part of
  * this function).
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

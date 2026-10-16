@@ -1,4 +1,5 @@
 /*
+ * Style: natural
  * DllGts @ 0x119b4, size 0x44, masked match (full words). 3 calls on this->f24 (args 0x81,1,f50 / 6 / 1), clear byte 0x41, return 0x1a.
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

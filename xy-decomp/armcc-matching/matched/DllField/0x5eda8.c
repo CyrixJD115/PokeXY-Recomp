@@ -9,7 +9,6 @@
 
 extern char *GetMgr(void);
 extern int F(int, int);
-extern int G(int, int, int);
 int Fn(int a, int *b) {
     int x = b[1];
     return F(*(int *)(*(char **)(*(char **)(GetMgr() + 12) + 28) + 36), x);

@@ -6,6 +6,7 @@
  * the same shape, see 0x10f18.c in this module) starts immediately after
  * at 0x10f18. Same recurring trivial-stub idiom documented across every
  * other Dll module mined so far.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllField 0x10f10 0x8 xy-decomp/armcc-matching/matched/DllField/0x10f10.c

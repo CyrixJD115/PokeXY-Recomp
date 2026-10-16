@@ -10,6 +10,7 @@
  * these are not a templated-constant family, the call ORDER itself
  * differs per specimen, so each must be read from its own disassembly,
  * not assumed from a sibling.
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField \

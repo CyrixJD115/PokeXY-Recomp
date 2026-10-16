@@ -5,6 +5,7 @@
  * `mov r0,#0; bx lr` stubs at 0x24c/0x254/0x25c (only 0x24c claimed here),
  * another bare `bx lr` at 0x264, then the module's first real function
  * (a constructor) at 0x268.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllUSPokecen 0x24c 0x8 xy-decomp/armcc-matching/matched/DllUSPokecen/0x24c.c

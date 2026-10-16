@@ -1,7 +1,7 @@
 // DllField@0x948f0, size 0x2c, 11/11 masked match.
 // Script handler: returns field +20 of the 28-byte table entry u16(args[1]) in mgr->+12->+28->+396.
 // Shared-accessor (GetMgr, callee 0x16c0) script-command handler family.
-// Style: trick(volatile-load) -- args pointer read through volatile so armcc keeps the full-word ldr + separate uxth/sxtb/and (retail) instead of folding into ldrh/ldrb
+// Style: trick(volatile) -- b is read through a volatile pointer only so armcc keeps the full-word ldr followed by the uxth narrowing (retail) instead of folding it into ldrh; verified: the plain-pointer form does not match.
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField 0x948f0 0x2c \

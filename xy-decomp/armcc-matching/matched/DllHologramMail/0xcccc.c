@@ -1,4 +1,5 @@
 /* DllHologramMail function @ CRO file offset 0xcccc, size 0x24 — MATCHED (masked, 9/9).
+ * Style: natural
  * Field-copy-and-call helper: loads `this+20` (a pointer), dereferences it at
  * +136 to get a second object, calls a local helper (file offset 0x776c, an
  * un-inlined local function reached via `bl`, target masked) with that

@@ -10,6 +10,5 @@ struct S { char pad[4]; unsigned v; };
 
 int in_range(struct S *s)
 {
-    unsigned x = s->v - 6;
-    return x <= 3;
+    return s->v - 6 <= 3;
 }

@@ -1,4 +1,5 @@
 /* DllHologramMail function @ CRO file offset 0xd424, size 0x24 — MATCHED (masked, 9/9).
+ * Style: natural
  * Loads `this+36` (a pointer), dereferences it at +4 to get an owned
  * object, calls an import veneer (file offset 0xd10, target masked) with
  * the function's own 3rd argument (the second real parameter after

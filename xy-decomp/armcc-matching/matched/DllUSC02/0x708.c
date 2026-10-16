@@ -9,6 +9,7 @@
  * mined so far (default virtual-method overrides on a shared base class),
  * this time sitting mid-module rather than right after the import-veneer
  * table or at the tail.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllUSC02 0x708 0x8 xy-decomp/armcc-matching/matched/DllUSC02/0x708.c

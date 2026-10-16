@@ -4,7 +4,7 @@
  * clear byte p+0x93, call f1(0), tail-call f2(p->r74, 1). Sibling of 0x43aec/0x4400c.
  * POOL-PAD match (all 22 code words identical, same single pool constant): retail starts at 4 mod 8, so one 0
  * alignment word precedes the pool constant and the ldr displacement is 4 larger than a standalone compile's.
- * Style: natural
+ * Style: trick(redundant-local) -- the constant is held in a named local `k` (`int k = 0x703; if (c->v != k) c->v = k;`); the literal-twice form `if (c->v != 0x703) c->v = 0x703;` does not match (checked 2026-10-16). Plausibly a trace macro's temp, true source unknown
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllBattle 0x43fa8 0x60 xy-decomp/armcc-matching/poolpad/DllBattle/0x43fa8.c --pool-pad
  */

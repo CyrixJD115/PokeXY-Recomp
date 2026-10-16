@@ -7,6 +7,7 @@
  * folds the call straight into a bare `b` instead of `bl`+`pop {..,pc}`.
  * Sits right after the preceding function's own literal-pool word (0x101c)
  * and right before a bare `bx lr` leaf (0x1024, matched separately).
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllWazaOboe \

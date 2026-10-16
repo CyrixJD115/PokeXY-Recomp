@@ -8,6 +8,7 @@
  * DllDialogCommon@0x6c4.
  *
  * Verify: XY_ROMFS=.Data/Raw_Extracted/romfs python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllStaffRoll 0x2304 0x10 xy-decomp/armcc-matching/matched/DllStaffRoll/0x2304.c
+ * Style: natural
  */
 
 extern long local318(void *this);

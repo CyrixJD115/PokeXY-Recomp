@@ -5,6 +5,7 @@
  * frees a member at +0 if non-null, zeroes it; another starting right
  * after this stub at 0x1b08, same idiom on a member at +0x1c). Same
  * recurring stub shape as 0x3e0 and 0x1a60 in this module.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllVSDemo 0x1b00 0x8 xy-decomp/armcc-matching/matched/DllVSDemo/0x1b00.c

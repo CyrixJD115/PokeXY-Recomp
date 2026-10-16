@@ -1,4 +1,5 @@
 /* DllDialogCommon function @ CRO file offset 0x6c4, size 0x24 — MATCHED (masked, 9/9). Virtual call slot 2 on member +0x24, return 1. r4 push is AAPCS stack-alignment padding.
+ * Style: natural
  *
  * Verify: python3 tools/fingerprint_fn.py DllDialogCommon 0x6c4 0x24 test/fingerprint/dialog_common_0x6c4.c
  */

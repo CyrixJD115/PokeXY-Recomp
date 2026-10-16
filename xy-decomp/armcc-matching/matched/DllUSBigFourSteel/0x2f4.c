@@ -6,6 +6,7 @@
  *
  * Match: 6/6 masked words (one leaf-stub `bx lr` precedes it at 0x2d4-0x2f0,
  * a separate lone `bx lr` stub follows at 0x30c -- not part of this function).
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

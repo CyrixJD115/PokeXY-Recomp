@@ -6,6 +6,7 @@
  * field-type template, different literal constants -- confirms this is
  * a per-field-id instance of a shared helper shape rather than a
  * one-off.
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField \

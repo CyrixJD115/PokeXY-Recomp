@@ -1,5 +1,6 @@
 /* DllBox function @ CRO file offset 0x9e8, size 0x8 — MATCHED (masked, 2/2).
  * Trivial virtual-override stub: returns 1 (true), ignores `this`.
+ * Style: natural
  *
  * Right after the import-veneer table (0x180-0x9e7): three identical
  * `return 1` stubs at 0x9e8/0x9f0/0x9f8 (only 0x9e8 claimed here), then

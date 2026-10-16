@@ -1,4 +1,5 @@
 /*
+ * Style: natural
  * DllGts @ 0x4174, size 0xc, masked match 3/3.
  * Setter: this->byte@0x44 = 1.
  * Verify:

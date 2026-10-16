@@ -6,6 +6,7 @@
  * Sits between two real call-dispatcher functions mid-module (previous
  * function ends with a tail `b` at 0x18b0, next real function starts at
  * 0x18bc).
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

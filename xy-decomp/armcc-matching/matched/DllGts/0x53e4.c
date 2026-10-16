@@ -1,5 +1,5 @@
 /*
- * Style: trick(ordering-local) -- local(s) (e.g. `vt = VT`, hoisted member loads) only to fix load/pool-load order
+ * Style: trick(ordering-local) -- locals (`t`, `f30`) hoisting the two member loads in source order only to reproduce the pre-indexed `ldr r2,[r0,#16]!` scheduling (single-expression form misses 3 words)
  * DllGts @ 0x53e4, size 0x1c (NOT 0x24 — see note), masked match 7/7.
  *
  * Third sibling of `0x5ba8`/`0x5bc4`: identical double-pointer-deref

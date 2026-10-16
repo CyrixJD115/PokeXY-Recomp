@@ -1,4 +1,5 @@
 /*
+ * Style: natural
  * DllStatus @ 0xbe0 (size 0x4) -- masked match 1/1.
  * Trivial virtual-override no-op stub (lone bx lr; weak evidence).
  *

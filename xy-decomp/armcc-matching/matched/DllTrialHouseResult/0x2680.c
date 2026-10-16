@@ -8,6 +8,7 @@
 // local (`void *m = a1->member;`) before the vtable assignment and the
 // `if`, same shape as the already-matched DllDialogCommon@0xcdc
 // destructor.
+// Style: natural
 //
 // Verify: XY_ROMFS=.Data/Raw_Extracted/romfs python3 \
 //   xy-decomp/armcc-matching/tools/fingerprint_fn.py DllTrialHouseResult \

@@ -5,6 +5,7 @@
 // above it in .text -- same two fields, opposite copy direction and
 // hardcoded flag value (0 vs 1).
 //
+// Style: trick(ordering-local) -- the copied word is loaded into a local before the flag store so the order is ldr, strb, str; the plain `flag = c; dst = src;` and `dst = src; flag = c;` forms both fail (tested)
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField 0xa714c 0x14 \
 //       xy-decomp/armcc-matching/matched/DllField/0xa714c.c

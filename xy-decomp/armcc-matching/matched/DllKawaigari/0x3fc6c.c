@@ -1,4 +1,5 @@
 /* DllKawaigari function @ CRO file offset 0x3fc6c, size 0x30 — MATCHED (masked, 12/12).
+ * Style: natural
  * No-arg helper: conditionally flags a nested global pointer chain, then
  * unconditionally sets a second global byte flag; always returns 1.
  *

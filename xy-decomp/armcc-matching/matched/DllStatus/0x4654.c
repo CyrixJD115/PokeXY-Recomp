@@ -1,4 +1,5 @@
 /*
+ * Style: natural
  * DllStatus @ 0x4654 (size 0x30) -- masked match 12/12.
  * Loads u32 at ctx(arg3)+0x1dc, then calls two import veneers with
  * (this->p58, v, 0) and (this->p58, v, 1); the second is a tail call (`b`).

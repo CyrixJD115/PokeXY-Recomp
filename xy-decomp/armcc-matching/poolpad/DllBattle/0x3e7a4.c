@@ -3,7 +3,7 @@
  * returns (f1(o->p190->q4f4, 0) != 0).
  * POOL-PAD match (all 12 code words identical, same single pool constant): retail starts at 4 mod 8, so one 0
  * alignment word precedes the pool constant and the ldr displacement is 4 larger than a standalone compile's.
- * Style: natural
+ * Style: trick(redundant-local) -- the constant is held in a named local `k` (`int k = 0x14ab; if (c->v != k) c->v = k;`); the literal-twice form `if (c->v != 0x14ab) c->v = 0x14ab;` does not match (checked 2026-10-16). Plausibly a trace macro's temp, true source unknown
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllBattle 0x3e7a4 0x38 xy-decomp/armcc-matching/poolpad/DllBattle/0x3e7a4.c --pool-pad
  */

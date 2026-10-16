@@ -15,6 +15,7 @@
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllSparringMenu 0x5b58 0x34 \
  *     xy-decomp/armcc-matching/matched/DllSparringMenu/0x5b58.c
+ * Style: natural
  */
 typedef struct S {
     unsigned char pad[0x8c];

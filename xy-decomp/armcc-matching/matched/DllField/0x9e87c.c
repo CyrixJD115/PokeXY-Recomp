@@ -8,7 +8,6 @@
 //       xy-decomp/armcc-matching/matched/DllField/0x9e87c.c
 
 extern char *GetMgr(void);
-extern void Sink(char *);
 int Fn(void) {
     char *p = GetMgr();
     return *(signed char *)(*(char **)(*(char **)(p + 12) + 100) + 2761);

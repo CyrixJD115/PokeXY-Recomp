@@ -1,4 +1,5 @@
 /* DllSequence function @ CRO file offset 0x1135c, size 0x8 — MATCHED (masked, 2/2).
+ * Style: natural
  * Trivial virtual-override stub: returns 1 (true), ignores `this`.
  *
  * Sits inside a run of near-identical 1-2 word leaf stubs at 0x1134c-

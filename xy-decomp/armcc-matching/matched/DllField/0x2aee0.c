@@ -4,7 +4,8 @@
 // retail reuses the single 'mov r0,#0' for both the store and the return).
 // Same body at DllField 0x2aa40, 0x2aee0, 0x343d0.
 //
-// Style: natural
+// Style: trick(assign-as-return) -- the `char` return value exists only so `return this[32] = 0;` lets armcc reuse the one
+// `mov r0,#0` for store and return; a void body or `this[32]=0; return 0;` both give a spare `mov r1,#0` (verified).
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField 0x2aee0 0x1c \

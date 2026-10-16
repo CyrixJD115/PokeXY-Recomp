@@ -6,6 +6,7 @@
  * weak-evidence stubs interleaved, and a `return 1` at 0x37cc) right
  * before the module's first proven destructor at 0x37e4. Same recurring
  * shape documented in every other mined Dll module.
+ * Style: natural
  *
  * Verify: XY_ROMFS=.Data/Raw_Extracted/romfs python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllTrainerCase 0x37a4 0x8 xy-decomp/armcc-matching/matched/DllTrainerCase/0x37a4.c
  */

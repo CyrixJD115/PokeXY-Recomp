@@ -1,6 +1,7 @@
 /* DllBox function @ CRO file offset 0x1dd60, size 0x88 -- MATCHED (masked, 34/34).
  * Teardown: this->in->p; if non-null and q->c != 1, virtual call (vtable slot 9)
  * on q->o, three f8c8 calls + one f8d0, then tail-call f8d8(p->x) if p->x non-null.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllBox 0x1dd60 0x88 xy-decomp/armcc-matching/matched/DllBox/0x1dd60.c

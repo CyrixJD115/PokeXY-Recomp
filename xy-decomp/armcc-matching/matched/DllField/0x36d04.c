@@ -4,6 +4,7 @@
  * Identical idiom and byte shape to DllField@0x34238 (same module,
  * same literal instruction words): FunA(); FunB(); with the second
  * call tail-called via `b`.
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField \

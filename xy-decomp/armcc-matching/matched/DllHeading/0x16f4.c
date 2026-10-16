@@ -6,7 +6,6 @@
  */
 typedef struct Q { unsigned char pad[0x18]; void *h; } Q;
 typedef struct X { void *vptr; unsigned char sub[0x8]; Q *q; int fa; int fb; } X;
-extern void *VT[];
 extern void fn1e0(void *h, int a);
 extern void fn1e8(void *h, int a);
 extern void *fn1f0(void *s);

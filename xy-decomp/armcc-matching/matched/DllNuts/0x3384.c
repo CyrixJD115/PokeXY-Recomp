@@ -1,4 +1,5 @@
 /*
+ * Style: natural
  * DllNuts @ 0x3384, size 0xc, match 3/3 (masked).
  *
  * Trivial field setter: unconditionally zeroes a byte flag at `this+156`

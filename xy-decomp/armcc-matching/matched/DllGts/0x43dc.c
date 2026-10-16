@@ -1,4 +1,5 @@
 /*
+ * Style: natural
  * DllGts @ 0x43dc size 0xc: setter byte@0xe0=1
  *
  * Verify:
