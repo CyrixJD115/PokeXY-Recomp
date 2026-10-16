@@ -1545,6 +1545,124 @@ module-disassembly cost across several matches instead of one.
   tail-call forwarder at `0x1fcc`, and a large VFP vector/matrix
   function at `0x1d8c`-`0x1f74`.
 
+**2026-10-16 round c — small-shape sweep (46 functions, 10 existing modules).** No new modules: every module without a `matched/` directory is the single `nnroControlObject_` 5-case dispatcher (`attempted.md`), so the round worked unmatched small functions (setters, `return true` stubs, two-call thunks, vtable tail-calls) in already-mined modules. All `Style: natural`; tiny stubs are weak evidence (see Caveats under Match style).
+
+- `matched/DllBattle/` — 2 functions:
+
+  | Offset | Size | Match | Style | Note |
+  |---|---|---|---|---|
+  | `0x4aeec` | `0xc` | 3/3 | natural | Setter: zeroes the 32-bit field at this+0xc. |
+  | `0x4c700` | `0xc` | 3/3 | natural | Setter: stores byte 6 at this+0x10. |
+
+- `matched/DllBoxSearch/` — 2 functions:
+
+  | Offset | Size | Match | Style | Note |
+  |---|---|---|---|---|
+  | `0x5264` | `0x14` | 5/5 | natural | virtual: if (arg==1) this->f88=2; return 0 |
+  | `0x5370` | `0x18` | 6/6 | natural | secondary-base thunk twin of 0x5264 (this-132 then same body) |
+
+- `matched/DllCaptureRegister/` — 1 functions:
+
+  | Offset | Size | Match | Style | Note |
+  |---|---|---|---|---|
+  | `0x24b4` | `0x2c` | 11/11 | natural | calls one import veneer twice with (obj+0x5c, obj+0x58) fields, flag 1 then 0 (tail call) |
+
+- `matched/DllCommWait/` — 1 functions:
+
+  | Offset | Size | Match | Style | Note |
+  |---|---|---|---|---|
+  | `0x8fc` | `0x20` | 8/8 | natural | virtual: o=this->a->b; if (o) tail-call o->vtbl[9](o) |
+
+- `matched/DllCommendation/` — 5 functions:
+
+  | Offset | Size | Match | Style | Note |
+  |---|---|---|---|---|
+  | `0x808` | `0x24` | 9/9 | natural | Calls an import with arg; on nonzero sets byte flag at +0x88 and returns 0, else returns 1. |
+  | `0xc68` | `0x8` | 2/2 | natural | Virtual stub: return true. |
+  | `0xc70` | `0x8` | 2/2 | natural | Virtual stub: return true. |
+  | `0xc78` | `0x8` | 2/2 | natural | Virtual stub: return true. |
+  | `0xc80` | `0x4` | 1/1 | natural | No-op void stub (weak evidence). |
+
+- `matched/DllDendouDemo/` — 1 functions:
+
+  | Offset | Size | Match | Style | Note |
+  |---|---|---|---|---|
+  | `0x34c4` | `0x1c` | 7/7 | natural | o=this->a->b (+0x28); if (o) tail-call import with *o |
+
+- `matched/DllGift/` — 1 functions:
+
+  | Offset | Size | Match | Style | Note |
+  |---|---|---|---|---|
+  | `0x9120` | `0x10` | 4/4 | natural | two-call void thunk (call A; tail-call B) |
+
+- `matched/DllGts/` — 1 functions:
+
+  | Offset | Size | Match | Style | Note |
+  |---|---|---|---|---|
+  | `0x1798` | `0x10` | 4/4 | natural | two-call void thunk (call A; tail-call B) |
+
+- `matched/DllHologramMail/` — 2 functions:
+
+  | Offset | Size | Match | Style | Note |
+  |---|---|---|---|---|
+  | `0x3b90` | `0x10` | 4/4 | natural | two-call void thunk (a(); b(); tail-call folded) |
+  | `0x4e00` | `0x10` | 4/4 | natural | two-call void thunk (a(); b(); tail-call folded) |
+
+- `matched/DllIntro/` — 4 functions:
+
+  | Offset | Size | Match | Style | Note |
+  |---|---|---|---|---|
+  | `0x858` | `0x10` | 4/4 | natural | two-call void thunk (call A; tail-call B) |
+  | `0x1638` | `0x10` | 4/4 | natural | two-call void thunk (call A; tail-call B) |
+  | `0x6dd0` | `0x10` | 4/4 | natural | two-call void thunk (a(); b(); tail-call folded) |
+  | `0x6ea0` | `0x10` | 4/4 | natural | two-call void thunk (a(); b(); tail-call folded) |
+
+- `matched/DllKawaigari/` — 1 functions:
+
+  | Offset | Size | Match | Style | Note |
+  |---|---|---|---|---|
+  | `0x13910` | `0x8` | 2/2 | natural | Stub returning constant 0x840 (leading nop at 0x1390c is padding). |
+
+- `matched/DllPokeList/` — 7 functions:
+
+  | Offset | Size | Match | Style | Note |
+  |---|---|---|---|---|
+  | `0x3b44` | `0x10` | 4/4 | natural | two-call void thunk (call A; tail-call B) |
+  | `0xf6ec` | `0x10` | 4/4 | natural | two-call void thunk (a(); b(); tail-call folded) |
+  | `0x10124` | `0x2c` | 11/11 | natural | getter, true if field +0x44 is zero and field +0x48 is even or zero (tst #1; cmpne #0) write (b & 1) == 0 before b == 0 or armcc emits cmp/tstne instead of tst/cmpne. Identical sibling shape at 0x10228 (not done). |
+  | `0x10158` | `0x2c` | 11/11 | natural | getter, true if field +0x48 is zero and field +0x4c is even or zero (tst #1; cmpne #0) write (b & 1) == 0 before b == 0 or armcc emits cmp/tstne instead of tst/cmpne. Identical sibling shape at 0x10228 (not done). |
+  | `0x1018c` | `0x2c` | 11/11 | natural | getter, true if field +0x40 is zero and field +0x44 is even or zero (tst #1; cmpne #0) write (b & 1) == 0 before b == 0 or armcc emits cmp/tstne instead of tst/cmpne. Identical sibling shape at 0x10228 (not done). |
+  | `0x101c0` | `0x2c` | 11/11 | natural | getter, true if field +0x40 is zero and field +0x44 is even or zero (tst #1; cmpne #0) write (b & 1) == 0 before b == 0 or armcc emits cmp/tstne instead of tst/cmpne. Identical sibling shape at 0x10228 (not done). |
+  | `0x101f4` | `0x2c` | 11/11 | natural | getter, true if field +0x40 is zero and field +0x44 is even or zero (tst #1; cmpne #0) write (b & 1) == 0 before b == 0 or armcc emits cmp/tstne instead of tst/cmpne. Identical sibling shape at 0x10228 (not done). |
+
+- `matched/DllSequence/` — 8 functions:
+
+  | Offset | Size | Match | Style | Note |
+  |---|---|---|---|---|
+  | `0x1338` | `0x30` | 12/12 | natural | calls veneer on this+0x2c, tail-calls same on this+0x30 |
+  | `0x4c38` | `0x30` | 12/12 | natural | same shape as 0x1338, different veneer |
+  | `0x6cc4` | `0x30` | 12/12 | natural | same shape, second field this+0x50 |
+  | `0xa16c` | `0x30` | 12/12 | natural | same shape as 0x1338, different veneer |
+  | `0xb664` | `0x34` | 13/13 | natural | veneer on this+0x2c, tail-call veneer(ctx,this+0x30,0x11,1) |
+  | `0xf228` | `0x34` | 13/13 | natural | byte-identical twin of 0xb664 (two veneer calls on this+0x2c / this+0x30) |
+  | `0xf378` | `0x38` | 14/14 | natural | store -1 at this+0x34 then two 3-arg veneer calls on this+0x2c / this+0x30 second call is a 3-arg veneer (mov r2,#1), not the 4-arg fnD of 0xb664. |
+  | `0xf8f4` | `0x34` | 13/13 | natural | byte-identical twin of 0xb664 (two veneer calls on this+0x2c / this+0x30) |
+
+- `matched/DllZukan/` — 10 functions:
+
+  | Offset | Size | Match | Style | Note |
+  |---|---|---|---|---|
+  | `0xfa4` | `0x8` | 2/2 | natural | virtual-override stub, return 1 |
+  | `0xfbc` | `0x8` | 2/2 | natural | virtual-override stub, return 1 |
+  | `0x1f14` | `0x1c` | 7/7 | natural | If member at +0xe0 is non-null, tail-call its vtable slot 2 (byte +8) forwarding one extra arg. the retail uses r2 as the vtable temp, which only happens when r1 (a second incoming arg) is live and forwarded; a one-arg signature compiles to r1 and mismatches. Arg type guessed int. |
+  | `0x24f8` | `0x8` | 2/2 | natural | virtual-override stub, return 1 |
+  | `0x2500` | `0x10` | 4/4 | natural | Tail-calls vtable slot 9 (byte +0x24) of the member at +0x44 (no null check). |
+  | `0x2510` | `0x8` | 2/2 | natural | Virtual-override stub returning 1. |
+  | `0x5708` | `0x8` | 2/2 | natural | virtual-override stub, return 1 |
+  | `0x5a3c` | `0x10` | 4/4 | natural | Tail-calls vtable slot 9 (byte +0x24) of the member at +0x3c (no null check). |
+  | `0x6f7c` | `0x1c` | 7/7 | natural | If member at +0xc8 is non-null, tail-call its vtable slot 1 (byte +4) forwarding one extra arg. same r2-temp / forwarded-r1 signature trick as 0x1f14. |
+  | `0x9298` | `0x8` | 2/2 | natural | virtual-override stub, return 1 |
+
 **2026-10-15: first deepening round — targeting single-match modules by
 size.** With almost every CRO now touched at least once, the orchestrator
 started picking the next round's targets differently: instead of an

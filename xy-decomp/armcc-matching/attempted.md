@@ -1177,3 +1177,7 @@ compiled branchless via xor/or rather than cmp/cmp/and.
   the first half of `0x10cf0` (size 0x34, a two-call compound function
   whose first half is this exact idiom at field offset +24 instead of
   +36 — also not independently attempted for the same reason).
+
+## DllCommendation@0x7dc (size 0x2c) — stuck at 2/11 (2026-10-16 round c)
+
+Like the matched `0x808`, but the import call takes (r0=arg2, r1=0x30, r2=0). Retail does `mov r0,r1` first then the constants; armcc emits `mov r3,r1` + an extra `mov r0,r3` in every C shape tried (void*/int/uchar arg types, local consts, reordered/extra args). Lead: unknown; maybe the arg is a re-loaded member or a wrapper inline.

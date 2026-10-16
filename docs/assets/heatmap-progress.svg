@@ -3,7 +3,7 @@
 <rect x="0" y="0" width="1280" height="2418" fill="#121419"/>
 <text x="24" y="38" font-size="19" fill="#e8eaed" text-anchor="start" font-weight="bold">Pokémon X/Y recomp + decomp progress</text>
 <text x="24" y="55" font-size="10.5" fill="#98a1ac" text-anchor="start">overview — tier composition per module, sorted by function count</text>
-<text x="1256" y="38" font-size="12.5" fill="#98a1ac" text-anchor="end">134 modules · 70,252 functions · covered 98.3% · decompiled 53.6% · named 0.8% · verified 1.8%</text>
+<text x="1256" y="38" font-size="12.5" fill="#98a1ac" text-anchor="end">134 modules · 70,253 functions · covered 98.3% · decompiled 53.6% · named 0.8% · verified 1.9%</text>
 <rect x="24" y="60" width="1232" height="1" fill="#272c35" shape-rendering="crispEdges"/>
 <text x="24" y="81" font-size="11.5" fill="#e8eaed" text-anchor="start">Main</text>
 <rect x="234" y="72" width="322.92" height="10" fill="#454b57" shape-rendering="crispEdges"/>
@@ -44,20 +44,20 @@ imports from: DllFieldEventPlayer, DllFieldEventPokeRideAction, DllFieldEventSka
 </rect>
 <text x="24" y="115" font-size="11.5" fill="#e8eaed" text-anchor="start">DllBattle</text>
 <rect x="234" y="106" width="400.78" height="10" fill="#454b57" shape-rendering="crispEdges"/>
-<rect x="634.78" y="106" width="324.84" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
-<rect x="959.61" y="106" width="0.24" height="10" fill="#58b368" shape-rendering="crispEdges"/>
-<rect x="959.85" y="106" width="46.15" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
+<rect x="634.78" y="106" width="324.6" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
+<rect x="959.38" y="106" width="0.24" height="10" fill="#58b368" shape-rendering="crispEdges"/>
+<rect x="959.61" y="106" width="46.39" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
 <rect x="234" y="106" width="772" height="10" fill="#00000000" stroke="#272c35" stroke-width="1" shape-rendering="crispEdges"/>
 <text x="1256" y="115" font-size="10.5" fill="#98a1ac" text-anchor="end"><title>DllBattle — 6,557 functions
-raw 3,404 · decompiled 2,759 · named 2 · verified 392
-raw 3,404 · decompiled 2,759 · named 2 · verified 392
+raw 3,404 · decompiled 2,757 · named 2 · verified 394
+raw 3,404 · decompiled 2,757 · named 2 · verified 394
 recomp-covered 98.5%
 armcc: 1 relaxed · 15 attempted (no match yet)
-imports from: DllBackGround, Main</title>6,557 fns · covered 98.5% · decompiled 42.1%</text>
+imports from: DllBackGround, Main</title>6,557 fns · covered 98.5% · decompiled 42.0%</text>
 <rect x="24" y="106" width="1232" height="15" fill="#00000000" shape-rendering="crispEdges" data-module="DllBattle">
   <title>DllBattle — 6,557 functions
-raw 3,404 · decompiled 2,759 · named 2 · verified 392
-raw 3,404 · decompiled 2,759 · named 2 · verified 392
+raw 3,404 · decompiled 2,757 · named 2 · verified 394
+raw 3,404 · decompiled 2,757 · named 2 · verified 394
 recomp-covered 98.5%
 armcc: 1 relaxed · 15 attempted (no match yet)
 imports from: DllBackGround, Main</title>
@@ -82,78 +82,78 @@ imports from: Main</title>
 </rect>
 <text x="24" y="149" font-size="11.5" fill="#e8eaed" text-anchor="start">DllSequence</text>
 <rect x="234" y="140" width="453.17" height="10" fill="#454b57" shape-rendering="crispEdges"/>
-<rect x="687.17" y="140" width="314.5" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
-<rect x="1001.67" y="140" width="0.62" height="10" fill="#58b368" shape-rendering="crispEdges"/>
-<rect x="1002.29" y="140" width="3.71" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
+<rect x="687.17" y="140" width="309.54" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
+<rect x="996.71" y="140" width="0.62" height="10" fill="#58b368" shape-rendering="crispEdges"/>
+<rect x="997.33" y="140" width="8.67" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
 <rect x="234" y="140" width="772" height="10" fill="#00000000" stroke="#272c35" stroke-width="1" shape-rendering="crispEdges"/>
 <text x="1256" y="149" font-size="10.5" fill="#98a1ac" text-anchor="end"><title>DllSequence — 1,247 functions
-raw 732 · decompiled 508 · named 1 · verified 6
-raw 732 · decompiled 508 · named 1 · verified 6
+raw 732 · decompiled 500 · named 1 · verified 14
+raw 732 · decompiled 500 · named 1 · verified 14
 recomp-covered 99.8%
-imports from: Main</title>1,247 fns · covered 99.8% · decompiled 40.7%</text>
+imports from: Main</title>1,247 fns · covered 99.8% · decompiled 40.1%</text>
 <rect x="24" y="140" width="1232" height="15" fill="#00000000" shape-rendering="crispEdges" data-module="DllSequence">
   <title>DllSequence — 1,247 functions
-raw 732 · decompiled 508 · named 1 · verified 6
-raw 732 · decompiled 508 · named 1 · verified 6
+raw 732 · decompiled 500 · named 1 · verified 14
+raw 732 · decompiled 500 · named 1 · verified 14
 recomp-covered 99.8%
 imports from: Main</title>
 </rect>
 <text x="24" y="166" font-size="11.5" fill="#e8eaed" text-anchor="start">DllGts</text>
 <rect x="234" y="157" width="334.78" height="10" fill="#454b57" shape-rendering="crispEdges"/>
-<rect x="568.78" y="157" width="414.11" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
-<rect x="982.89" y="157" width="0.62" height="10" fill="#58b368" shape-rendering="crispEdges"/>
-<rect x="983.51" y="157" width="22.49" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
+<rect x="568.78" y="157" width="413.48" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
+<rect x="982.27" y="157" width="0.62" height="10" fill="#58b368" shape-rendering="crispEdges"/>
+<rect x="982.89" y="157" width="23.11" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
 <rect x="234" y="157" width="772" height="10" fill="#00000000" stroke="#272c35" stroke-width="1" shape-rendering="crispEdges"/>
 <text x="1256" y="166" font-size="10.5" fill="#98a1ac" text-anchor="end"><title>DllGts — 1,236 functions
-raw 536 · decompiled 663 · named 1 · verified 36
-raw 536 · decompiled 663 · named 1 · verified 36
+raw 536 · decompiled 662 · named 1 · verified 37
+raw 536 · decompiled 662 · named 1 · verified 37
 recomp-covered 99.8%
 armcc: 0 relaxed · 3 attempted (no match yet)
 imports from: Main</title>1,236 fns · covered 99.8% · decompiled 53.6%</text>
 <rect x="24" y="157" width="1232" height="15" fill="#00000000" shape-rendering="crispEdges" data-module="DllGts">
   <title>DllGts — 1,236 functions
-raw 536 · decompiled 663 · named 1 · verified 36
-raw 536 · decompiled 663 · named 1 · verified 36
+raw 536 · decompiled 662 · named 1 · verified 37
+raw 536 · decompiled 662 · named 1 · verified 37
 recomp-covered 99.8%
 armcc: 0 relaxed · 3 attempted (no match yet)
 imports from: Main</title>
 </rect>
 <text x="24" y="183" font-size="11.5" fill="#e8eaed" text-anchor="start">DllZukan</text>
-<rect x="234" y="174" width="305.65" height="10" fill="#454b57" shape-rendering="crispEdges"/>
-<rect x="539.65" y="174" width="449.34" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
-<rect x="988.98" y="174" width="1.26" height="10" fill="#58b368" shape-rendering="crispEdges"/>
-<rect x="990.24" y="174" width="15.76" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
+<rect x="234" y="174" width="299.35" height="10" fill="#454b57" shape-rendering="crispEdges"/>
+<rect x="533.35" y="174" width="449.34" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
+<rect x="982.68" y="174" width="1.26" height="10" fill="#58b368" shape-rendering="crispEdges"/>
+<rect x="983.94" y="174" width="22.06" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
 <rect x="234" y="174" width="772" height="10" fill="#00000000" stroke="#272c35" stroke-width="1" shape-rendering="crispEdges"/>
 <text x="1256" y="183" font-size="10.5" fill="#98a1ac" text-anchor="end"><title>DllZukan — 1,225 functions
-raw 485 · decompiled 713 · named 2 · verified 25
-raw 485 · decompiled 713 · named 2 · verified 25
+raw 475 · decompiled 713 · named 2 · verified 35
+raw 475 · decompiled 713 · named 2 · verified 35
 recomp-covered 99.5%
 armcc: 0 relaxed · 2 attempted (no match yet)
 imports from: DllBackGround, DllTownmap, Main</title>1,225 fns · covered 99.5% · decompiled 58.2%</text>
 <rect x="24" y="174" width="1232" height="15" fill="#00000000" shape-rendering="crispEdges" data-module="DllZukan">
   <title>DllZukan — 1,225 functions
-raw 485 · decompiled 713 · named 2 · verified 25
-raw 485 · decompiled 713 · named 2 · verified 25
+raw 475 · decompiled 713 · named 2 · verified 35
+raw 475 · decompiled 713 · named 2 · verified 35
 recomp-covered 99.5%
 armcc: 0 relaxed · 2 attempted (no match yet)
 imports from: DllBackGround, DllTownmap, Main</title>
 </rect>
 <text x="24" y="200" font-size="11.5" fill="#e8eaed" text-anchor="start">DllHologramMail</text>
 <rect x="234" y="191" width="380.17" height="10" fill="#454b57" shape-rendering="crispEdges"/>
-<rect x="614.17" y="191" width="386.73" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
-<rect x="1000.9" y="191" width="1.46" height="10" fill="#58b368" shape-rendering="crispEdges"/>
-<rect x="1002.36" y="191" width="3.64" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
+<rect x="614.17" y="191" width="385.27" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
+<rect x="999.45" y="191" width="1.46" height="10" fill="#58b368" shape-rendering="crispEdges"/>
+<rect x="1000.9" y="191" width="5.1" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
 <rect x="234" y="191" width="772" height="10" fill="#00000000" stroke="#272c35" stroke-width="1" shape-rendering="crispEdges"/>
 <text x="1256" y="200" font-size="10.5" fill="#98a1ac" text-anchor="end"><title>DllHologramMail — 1,060 functions
-raw 522 · decompiled 531 · named 2 · verified 5
-raw 522 · decompiled 531 · named 2 · verified 5
+raw 522 · decompiled 529 · named 2 · verified 7
+raw 522 · decompiled 529 · named 2 · verified 7
 recomp-covered 99.4%
 armcc: 0 relaxed · 1 attempted (no match yet)
-imports from: DllBackGround, Main</title>1,060 fns · covered 99.4% · decompiled 50.1%</text>
+imports from: DllBackGround, Main</title>1,060 fns · covered 99.4% · decompiled 49.9%</text>
 <rect x="24" y="191" width="1232" height="15" fill="#00000000" shape-rendering="crispEdges" data-module="DllHologramMail">
   <title>DllHologramMail — 1,060 functions
-raw 522 · decompiled 531 · named 2 · verified 5
-raw 522 · decompiled 531 · named 2 · verified 5
+raw 522 · decompiled 529 · named 2 · verified 7
+raw 522 · decompiled 529 · named 2 · verified 7
 recomp-covered 99.4%
 armcc: 0 relaxed · 1 attempted (no match yet)
 imports from: DllBackGround, Main</title>
@@ -179,21 +179,21 @@ armcc: 0 relaxed · 2 attempted (no match yet)
 imports from: Main</title>
 </rect>
 <text x="24" y="234" font-size="11.5" fill="#e8eaed" text-anchor="start">DllKawaigari</text>
-<rect x="234" y="225" width="333.27" height="10" fill="#454b57" shape-rendering="crispEdges"/>
-<rect x="567.27" y="225" width="436.2" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
-<rect x="1003.47" y="225" width="1.69" height="10" fill="#58b368" shape-rendering="crispEdges"/>
-<rect x="1005.16" y="225" width="0.84" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
+<rect x="234" y="225" width="332.9" height="10" fill="#454b57" shape-rendering="crispEdges"/>
+<rect x="566.9" y="225" width="435.72" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
+<rect x="1002.63" y="225" width="1.69" height="10" fill="#58b368" shape-rendering="crispEdges"/>
+<rect x="1004.31" y="225" width="1.69" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
 <rect x="234" y="225" width="772" height="10" fill="#00000000" stroke="#272c35" stroke-width="1" shape-rendering="crispEdges"/>
-<text x="1256" y="234" font-size="10.5" fill="#98a1ac" text-anchor="end"><title>DllKawaigari — 915 functions
-raw 395 · decompiled 517 · named 2 · verified 1
-raw 395 · decompiled 517 · named 2 · verified 1
-recomp-covered 99.6%
-imports from: Main</title>915 fns · covered 99.6% · decompiled 56.5%</text>
+<text x="1256" y="234" font-size="10.5" fill="#98a1ac" text-anchor="end"><title>DllKawaigari — 916 functions
+raw 395 · decompiled 517 · named 2 · verified 2
+raw 395 · decompiled 517 · named 2 · verified 2
+recomp-covered 99.5%
+imports from: Main</title>916 fns · covered 99.5% · decompiled 56.4%</text>
 <rect x="24" y="225" width="1232" height="15" fill="#00000000" shape-rendering="crispEdges" data-module="DllKawaigari">
-  <title>DllKawaigari — 915 functions
-raw 395 · decompiled 517 · named 2 · verified 1
-raw 395 · decompiled 517 · named 2 · verified 1
-recomp-covered 99.6%
+  <title>DllKawaigari — 916 functions
+raw 395 · decompiled 517 · named 2 · verified 2
+raw 395 · decompiled 517 · named 2 · verified 2
+recomp-covered 99.5%
 imports from: Main</title>
 </rect>
 <text x="24" y="251" font-size="11.5" fill="#e8eaed" text-anchor="start">DllBag</text>
@@ -235,21 +235,21 @@ recomp-covered 98.0%
 imports from: Main</title>
 </rect>
 <text x="24" y="285" font-size="11.5" fill="#e8eaed" text-anchor="start">DllPokeList</text>
-<rect x="234" y="276" width="375.31" height="10" fill="#454b57" shape-rendering="crispEdges"/>
-<rect x="609.31" y="276" width="383.62" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
-<rect x="992.94" y="276" width="2.38" height="10" fill="#58b368" shape-rendering="crispEdges"/>
-<rect x="995.31" y="276" width="10.69" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
+<rect x="234" y="276" width="369.37" height="10" fill="#454b57" shape-rendering="crispEdges"/>
+<rect x="603.37" y="276" width="381.25" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
+<rect x="984.62" y="276" width="2.38" height="10" fill="#58b368" shape-rendering="crispEdges"/>
+<rect x="987" y="276" width="19" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
 <rect x="234" y="276" width="772" height="10" fill="#00000000" stroke="#272c35" stroke-width="1" shape-rendering="crispEdges"/>
 <text x="1256" y="285" font-size="10.5" fill="#98a1ac" text-anchor="end"><title>DllPokeList — 650 functions
-raw 316 · decompiled 323 · named 2 · verified 9
-raw 316 · decompiled 323 · named 2 · verified 9
+raw 311 · decompiled 321 · named 2 · verified 16
+raw 311 · decompiled 321 · named 2 · verified 16
 recomp-covered 99.5%
 armcc: 0 relaxed · 1 attempted (no match yet)
-imports from: Main</title>650 fns · covered 99.5% · decompiled 49.7%</text>
+imports from: Main</title>650 fns · covered 99.5% · decompiled 49.4%</text>
 <rect x="24" y="276" width="1232" height="15" fill="#00000000" shape-rendering="crispEdges" data-module="DllPokeList">
   <title>DllPokeList — 650 functions
-raw 316 · decompiled 323 · named 2 · verified 9
-raw 316 · decompiled 323 · named 2 · verified 9
+raw 311 · decompiled 321 · named 2 · verified 16
+raw 311 · decompiled 321 · named 2 · verified 16
 recomp-covered 99.5%
 armcc: 0 relaxed · 1 attempted (no match yet)
 imports from: Main</title>
@@ -370,19 +370,19 @@ imports from: DllBackGround, Main</title>
 </rect>
 <text x="24" y="404" font-size="11.5" fill="#e8eaed" text-anchor="start">DllGift</text>
 <rect x="234" y="395" width="261.07" height="10" fill="#454b57" shape-rendering="crispEdges"/>
-<rect x="495.07" y="395" width="506.12" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
-<rect x="1001.2" y="395" width="3.2" height="10" fill="#58b368" shape-rendering="crispEdges"/>
-<rect x="1004.4" y="395" width="1.6" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
+<rect x="495.07" y="395" width="504.52" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
+<rect x="999.59" y="395" width="3.2" height="10" fill="#58b368" shape-rendering="crispEdges"/>
+<rect x="1002.8" y="395" width="3.2" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
 <rect x="234" y="395" width="772" height="10" fill="#00000000" stroke="#272c35" stroke-width="1" shape-rendering="crispEdges"/>
 <text x="1256" y="404" font-size="10.5" fill="#98a1ac" text-anchor="end"><title>DllGift — 482 functions
-raw 163 · decompiled 316 · named 2 · verified 1
-raw 163 · decompiled 316 · named 2 · verified 1
+raw 163 · decompiled 315 · named 2 · verified 2
+raw 163 · decompiled 315 · named 2 · verified 2
 recomp-covered 99.8%
-imports from: Main</title>482 fns · covered 99.8% · decompiled 65.6%</text>
+imports from: Main</title>482 fns · covered 99.8% · decompiled 65.4%</text>
 <rect x="24" y="395" width="1232" height="15" fill="#00000000" shape-rendering="crispEdges" data-module="DllGift">
   <title>DllGift — 482 functions
-raw 163 · decompiled 316 · named 2 · verified 1
-raw 163 · decompiled 316 · named 2 · verified 1
+raw 163 · decompiled 315 · named 2 · verified 2
+raw 163 · decompiled 315 · named 2 · verified 2
 recomp-covered 99.8%
 imports from: Main</title>
 </rect>
@@ -408,19 +408,19 @@ imports from: Main</title>
 </rect>
 <text x="24" y="438" font-size="11.5" fill="#e8eaed" text-anchor="start">DllIntro</text>
 <rect x="234" y="429" width="488.88" height="10" fill="#454b57" shape-rendering="crispEdges"/>
-<rect x="722.88" y="429" width="278.18" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
-<rect x="1001.06" y="429" width="1.65" height="10" fill="#58b368" shape-rendering="crispEdges"/>
-<rect x="1002.71" y="429" width="3.29" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
+<rect x="722.88" y="429" width="271.6" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
+<rect x="994.48" y="429" width="1.65" height="10" fill="#58b368" shape-rendering="crispEdges"/>
+<rect x="996.12" y="429" width="9.88" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
 <rect x="234" y="429" width="772" height="10" fill="#00000000" stroke="#272c35" stroke-width="1" shape-rendering="crispEdges"/>
 <text x="1256" y="438" font-size="10.5" fill="#98a1ac" text-anchor="end"><title>DllIntro — 469 functions
-raw 297 · decompiled 169 · named 1 · verified 2
-raw 297 · decompiled 169 · named 1 · verified 2
+raw 297 · decompiled 165 · named 1 · verified 6
+raw 297 · decompiled 165 · named 1 · verified 6
 recomp-covered 99.6%
-imports from: Main</title>469 fns · covered 99.6% · decompiled 36.0%</text>
+imports from: Main</title>469 fns · covered 99.6% · decompiled 35.2%</text>
 <rect x="24" y="429" width="1232" height="15" fill="#00000000" shape-rendering="crispEdges" data-module="DllIntro">
   <title>DllIntro — 469 functions
-raw 297 · decompiled 169 · named 1 · verified 2
-raw 297 · decompiled 169 · named 1 · verified 2
+raw 297 · decompiled 165 · named 1 · verified 6
+raw 297 · decompiled 165 · named 1 · verified 6
 recomp-covered 99.6%
 imports from: Main</title>
 </rect>
@@ -555,20 +555,20 @@ recomp-covered 99.3%
 imports from: Main</title>
 </rect>
 <text x="24" y="574" font-size="11.5" fill="#e8eaed" text-anchor="start">DllBoxSearch</text>
-<rect x="234" y="565" width="399.99" height="10" fill="#454b57" shape-rendering="crispEdges"/>
-<rect x="633.99" y="565" width="366.42" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
-<rect x="1000.41" y="565" width="2.8" height="10" fill="#58b368" shape-rendering="crispEdges"/>
-<rect x="1003.2" y="565" width="2.8" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
+<rect x="234" y="565" width="394.39" height="10" fill="#454b57" shape-rendering="crispEdges"/>
+<rect x="628.39" y="565" width="366.42" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
+<rect x="994.81" y="565" width="2.8" height="10" fill="#58b368" shape-rendering="crispEdges"/>
+<rect x="997.61" y="565" width="8.39" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
 <rect x="234" y="565" width="772" height="10" fill="#00000000" stroke="#272c35" stroke-width="1" shape-rendering="crispEdges"/>
 <text x="1256" y="574" font-size="10.5" fill="#98a1ac" text-anchor="end"><title>DllBoxSearch — 276 functions
-raw 143 · decompiled 131 · named 1 · verified 1
-raw 143 · decompiled 131 · named 1 · verified 1
+raw 141 · decompiled 131 · named 1 · verified 3
+raw 141 · decompiled 131 · named 1 · verified 3
 recomp-covered 98.9%
 imports from: Main</title>276 fns · covered 98.9% · decompiled 47.5%</text>
 <rect x="24" y="565" width="1232" height="15" fill="#00000000" shape-rendering="crispEdges" data-module="DllBoxSearch">
   <title>DllBoxSearch — 276 functions
-raw 143 · decompiled 131 · named 1 · verified 1
-raw 143 · decompiled 131 · named 1 · verified 1
+raw 141 · decompiled 131 · named 1 · verified 3
+raw 141 · decompiled 131 · named 1 · verified 3
 recomp-covered 98.9%
 imports from: Main</title>
 </rect>
@@ -592,19 +592,19 @@ imports from: Main</title>
 </rect>
 <text x="24" y="608" font-size="11.5" fill="#e8eaed" text-anchor="start">DllCaptureRegister</text>
 <rect x="234" y="599" width="503.36" height="10" fill="#454b57" shape-rendering="crispEdges"/>
-<rect x="737.36" y="599" width="262.99" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
-<rect x="1000.34" y="599" width="2.83" height="10" fill="#58b368" shape-rendering="crispEdges"/>
-<rect x="1003.17" y="599" width="2.83" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
+<rect x="737.36" y="599" width="260.16" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
+<rect x="997.52" y="599" width="2.83" height="10" fill="#58b368" shape-rendering="crispEdges"/>
+<rect x="1000.34" y="599" width="5.66" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
 <rect x="234" y="599" width="772" height="10" fill="#00000000" stroke="#272c35" stroke-width="1" shape-rendering="crispEdges"/>
 <text x="1256" y="608" font-size="10.5" fill="#98a1ac" text-anchor="end"><title>DllCaptureRegister — 273 functions
-raw 178 · decompiled 93 · named 1 · verified 1
-raw 178 · decompiled 93 · named 1 · verified 1
+raw 178 · decompiled 92 · named 1 · verified 2
+raw 178 · decompiled 92 · named 1 · verified 2
 recomp-covered 100.0%
-imports from: DllBattle, DllZukan, Main</title>273 fns · covered 100.0% · decompiled 34.1%</text>
+imports from: DllBattle, DllZukan, Main</title>273 fns · covered 100.0% · decompiled 33.7%</text>
 <rect x="24" y="599" width="1232" height="15" fill="#00000000" shape-rendering="crispEdges" data-module="DllCaptureRegister">
   <title>DllCaptureRegister — 273 functions
-raw 178 · decompiled 93 · named 1 · verified 1
-raw 178 · decompiled 93 · named 1 · verified 1
+raw 178 · decompiled 92 · named 1 · verified 2
+raw 178 · decompiled 92 · named 1 · verified 2
 recomp-covered 100.0%
 imports from: DllBattle, DllZukan, Main</title>
 </rect>
@@ -735,20 +735,20 @@ recomp-covered 99.2%
 imports from: Main</title>
 </rect>
 <text x="24" y="744" font-size="11.5" fill="#e8eaed" text-anchor="start">DllDendouDemo</text>
-<rect x="234" y="735" width="143.77" height="10" fill="#454b57" shape-rendering="crispEdges"/>
-<rect x="377.77" y="735" width="621.98" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
-<rect x="999.75" y="735" width="3.13" height="10" fill="#58b368" shape-rendering="crispEdges"/>
-<rect x="1002.87" y="735" width="3.13" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
+<rect x="234" y="735" width="140.65" height="10" fill="#454b57" shape-rendering="crispEdges"/>
+<rect x="374.65" y="735" width="621.98" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
+<rect x="996.62" y="735" width="3.13" height="10" fill="#58b368" shape-rendering="crispEdges"/>
+<rect x="999.75" y="735" width="6.25" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
 <rect x="234" y="735" width="772" height="10" fill="#00000000" stroke="#272c35" stroke-width="1" shape-rendering="crispEdges"/>
 <text x="1256" y="744" font-size="10.5" fill="#98a1ac" text-anchor="end"><title>DllDendouDemo — 247 functions
-raw 46 · decompiled 199 · named 1 · verified 1
-raw 46 · decompiled 199 · named 1 · verified 1
+raw 45 · decompiled 199 · named 1 · verified 2
+raw 45 · decompiled 199 · named 1 · verified 2
 recomp-covered 99.6%
 imports from: Main</title>247 fns · covered 99.6% · decompiled 80.6%</text>
 <rect x="24" y="735" width="1232" height="15" fill="#00000000" shape-rendering="crispEdges" data-module="DllDendouDemo">
   <title>DllDendouDemo — 247 functions
-raw 46 · decompiled 199 · named 1 · verified 1
-raw 46 · decompiled 199 · named 1 · verified 1
+raw 45 · decompiled 199 · named 1 · verified 2
+raw 45 · decompiled 199 · named 1 · verified 2
 recomp-covered 99.6%
 imports from: Main</title>
 </rect>
@@ -1503,21 +1503,23 @@ recomp-covered 100.0%
 imports from: DllField, Main</title>
 </rect>
 <text x="24" y="1458" font-size="11.5" fill="#e8eaed" text-anchor="start">DllCommendation</text>
-<rect x="234" y="1449" width="465.06" height="10" fill="#454b57" shape-rendering="crispEdges"/>
-<rect x="699.06" y="1449" width="288.34" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
-<rect x="987.4" y="1449" width="9.3" height="10" fill="#58b368" shape-rendering="crispEdges"/>
-<rect x="996.7" y="1449" width="9.3" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
+<rect x="234" y="1449" width="427.86" height="10" fill="#454b57" shape-rendering="crispEdges"/>
+<rect x="661.86" y="1449" width="279.04" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
+<rect x="940.89" y="1449" width="9.3" height="10" fill="#58b368" shape-rendering="crispEdges"/>
+<rect x="950.19" y="1449" width="55.81" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
 <rect x="234" y="1449" width="772" height="10" fill="#00000000" stroke="#272c35" stroke-width="1" shape-rendering="crispEdges"/>
 <text x="1256" y="1458" font-size="10.5" fill="#98a1ac" text-anchor="end"><title>DllCommendation — 83 functions
-raw 50 · decompiled 31 · named 1 · verified 1
-raw 50 · decompiled 31 · named 1 · verified 1
+raw 46 · decompiled 30 · named 1 · verified 6
+raw 46 · decompiled 30 · named 1 · verified 6
 recomp-covered 100.0%
-imports from: Main</title>83 fns · covered 100.0% · decompiled 37.3%</text>
+armcc: 0 relaxed · 1 attempted (no match yet)
+imports from: Main</title>83 fns · covered 100.0% · decompiled 36.1%</text>
 <rect x="24" y="1449" width="1232" height="15" fill="#00000000" shape-rendering="crispEdges" data-module="DllCommendation">
   <title>DllCommendation — 83 functions
-raw 50 · decompiled 31 · named 1 · verified 1
-raw 50 · decompiled 31 · named 1 · verified 1
+raw 46 · decompiled 30 · named 1 · verified 6
+raw 46 · decompiled 30 · named 1 · verified 6
 recomp-covered 100.0%
+armcc: 0 relaxed · 1 attempted (no match yet)
 imports from: Main</title>
 </rect>
 <text x="24" y="1475" font-size="11.5" fill="#e8eaed" text-anchor="start">DllTrainingAppManager</text>
@@ -1665,21 +1667,21 @@ recomp-covered 100.0%
 imports from: DllField, Main</title>
 </rect>
 <text x="24" y="1611" font-size="11.5" fill="#e8eaed" text-anchor="start">DllCommWait</text>
-<rect x="234" y="1602" width="329.24" height="10" fill="#454b57" shape-rendering="crispEdges"/>
-<rect x="563.24" y="1602" width="420.06" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
-<rect x="983.29" y="1602" width="11.35" height="10" fill="#58b368" shape-rendering="crispEdges"/>
-<rect x="994.65" y="1602" width="11.35" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
+<rect x="234" y="1602" width="317.88" height="10" fill="#454b57" shape-rendering="crispEdges"/>
+<rect x="551.88" y="1602" width="420.06" height="10" fill="#2fa39e" shape-rendering="crispEdges"/>
+<rect x="971.94" y="1602" width="11.35" height="10" fill="#58b368" shape-rendering="crispEdges"/>
+<rect x="983.29" y="1602" width="22.71" height="10" fill="#eec84a" shape-rendering="crispEdges"/>
 <rect x="234" y="1602" width="772" height="10" fill="#00000000" stroke="#272c35" stroke-width="1" shape-rendering="crispEdges"/>
 <text x="1256" y="1611" font-size="10.5" fill="#98a1ac" text-anchor="end"><title>DllCommWait — 68 functions
-raw 29 · decompiled 37 · named 1 · verified 1
-raw 29 · decompiled 37 · named 1 · verified 1
+raw 28 · decompiled 37 · named 1 · verified 2
+raw 28 · decompiled 37 · named 1 · verified 2
 recomp-covered 100.0%
 armcc: 0 relaxed · 1 attempted (no match yet)
 imports from: Main</title>68 fns · covered 100.0% · decompiled 54.4%</text>
 <rect x="24" y="1602" width="1232" height="15" fill="#00000000" shape-rendering="crispEdges" data-module="DllCommWait">
   <title>DllCommWait — 68 functions
-raw 29 · decompiled 37 · named 1 · verified 1
-raw 29 · decompiled 37 · named 1 · verified 1
+raw 28 · decompiled 37 · named 1 · verified 2
+raw 28 · decompiled 37 · named 1 · verified 2
 recomp-covered 100.0%
 armcc: 0 relaxed · 1 attempted (no match yet)
 imports from: Main</title>
@@ -2364,16 +2366,16 @@ raw 5 · decompiled 0 · named 1 · verified 0
 recomp-covered 100.0%</title>
 </rect>
 <rect x="24" y="2382" width="11" height="11" fill="#454b57" shape-rendering="crispEdges"/>
-<text x="40" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">Raw 30,756</text>
+<text x="40" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">Raw 30,733</text>
 <rect x="120.9" y="2382" width="11" height="11" fill="#2fa39e" shape-rendering="crispEdges"/>
-<text x="136.9" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">Decompiled 37,664</text>
+<text x="136.9" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">Decompiled 37,642</text>
 <rect x="260.43" y="2382" width="11" height="11" fill="#58b368" shape-rendering="crispEdges"/>
 <text x="276.43" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">Named 569</text>
 <rect x="351.24" y="2382" width="11" height="11" fill="#eec84a" shape-rendering="crispEdges"/>
-<text x="367.24" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">Verified 1,263</text>
+<text x="367.24" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">Verified 1,309</text>
 <rect x="472.5" y="2382" width="11" height="11" fill="#1a1d24" stroke="#e05252" stroke-width="1.4" shape-rendering="crispEdges"/>
 <text x="488.5" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">relaxed 1</text>
 <rect x="563.31" y="2382" width="11" height="11" fill="#1a1d24" stroke="#8f7ff0" stroke-width="1.4" shape-rendering="crispEdges"/>
-<text x="579.31" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">attempted 76</text>
+<text x="579.31" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="start">attempted 77</text>
 <text x="1256" y="2391.5" font-size="10.5" fill="#98a1ac" text-anchor="end">color = highest stage reached</text>
 </svg>
