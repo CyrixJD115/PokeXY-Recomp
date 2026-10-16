@@ -14,12 +14,15 @@ to re-explain its process, just spawn it correctly and verify its output.
 ## Parameters (from `args`, all optional)
 
 - `cap=N` — max concurrent agents (default **5**).
-- `branch=<name>` — the shared integration branch (default: whatever branch
-  this repo is currently checked out to when you start — ask the user if
-  ambiguous and no default makes sense). As of 2026-10-15 this is **`dev`**,
-  a long-lived branch the orchestrator merges into; `main` is reached only
-  via a squash-merged PR from `dev` (see "Releasing to main" below), never written to
-  directly.
+- `branch=<name>` — the shared integration branch for THIS round. Default:
+  a fresh per-round branch **`swarm/<YYYY-MM-DD>-<letter>`** cut from the
+  current `origin/main` at the start of the round (`a` for the first round of
+  the day, `b` for the next, ...). Create it and push it before spawning
+  anyone: `git fetch origin && git checkout -b swarm/2026-10-16-a origin/main
+  && git push -u origin swarm/2026-10-16-a`. The orchestrator merges agents
+  into it; `main` is reached only via one squash-merged PR from it (see
+  "Releasing to main" below), never written to directly. (Until 2026-10-16
+  this was a single long-lived `dev` branch — retired, see below.)
 - `count=N` — how many agents to top up to THIS pass, overriding `cap` for a
   one-shot burst (rare; normally you just top up to `cap`).
 
@@ -167,41 +170,46 @@ is actively running; widen it once things quiet down. Mention in your
 visible update: how many agents are running, how many matched/attempted
 since the last pass, and the current true totals.
 
-### 5. Releasing to `main` — one `dev` → `main` PR, squash-merged
+### 5. Releasing to `main` — one PR per round, squash-merged
 
 `main` is never written to directly — not by agents, not by you, and a
-direct push/merge (e.g. `git push origin dev:main`) is blocked by this
+direct push/merge (e.g. `git push origin <branch>:main`) is blocked by this
 environment's own guardrails ("Merge Without Review"). Don't work around it.
 
-**2026-10-15: replaced the stacked `stack/NNN` chain** (it was more
-bookkeeping than it was worth) with a single long-lived `dev` and periodic
-squash-merged PRs. Never squash or force-push `dev` itself — every agent
-rebases onto `origin/dev`.
+**2026-10-16: replaced the long-lived `dev` branch with one branch per round.**
+`dev` forced a merge-back commit after every squash-merge, left `main..dev`
+listing every old commit, and drifted from `main` when other work landed on
+`main` directly (the heatmap rewrite collided exactly that way). A round-scoped
+branch has none of that: it starts from the current `main`, so there is nothing
+to merge back and the PR's commit list is exactly that round's work.
 
-**Cadence:** every ~25 commits on `dev` since the last release
-(`git rev-list --count origin/main..dev` overcounts after a squash-merge,
-see below — count since the last "sync after PR" merge commit instead), when
-the swarm pauses, or when the user asks. Treat the trigger as a prompt to
-check in with the user.
+**Round lifecycle**
+1. **Start:** cut `swarm/<date>-<letter>` from `origin/main` and push it (see
+   Parameters). Tell every agent this branch name — it replaces `dev` in their
+   prompts ("rebase onto `origin/<branch>`, push only your own branch").
+2. **Run:** normal passes (merge agent branches, verify, fold, refill) all on
+   that branch. Never squash or force-push it; agents rebase onto it.
+3. **Close:** when the swarm is idle (or ~50-100 commits have accumulated, or
+   the user asks), then:
+   ```sh
+   # refresh derived assets on the round branch first
+   (cd xy-heatmap && cargo run -- readme)   # Rust crate; auto-reads matched/, relaxed/, attempted.md
+   git add docs/assets/ && git commit -m "docs: regenerate README heatmap (...)" && git push origin <branch>
+   # one PR round-branch -> main (the user merges it; choose "Squash and merge")
+   gh pr create --base main --head <branch> --title "..." --body "..."
+   ```
+4. **After the user merges:** delete the round branch
+   (`git push origin --delete <branch>; git branch -D <branch>`) — it is
+   squash-merged, so nothing is lost. The next round starts from the new
+   `origin/main`. No merge-back step.
 
-```sh
-# 1. refresh derived assets on dev first
-python3 xy-heatmap/heatmap.py readme
-git add docs/assets/ && git commit -m "docs: regenerate README heatmap (...)" && git push origin dev
+If `main` moved while a round was running (other work merged), either merge
+`origin/main` into the round branch before opening the PR (resolve generated
+files like heatmap SVGs by taking main's), or let the PR show the conflicts.
+Don't rebase or force-push the round branch once agents are on it.
 
-# 2. open ONE PR dev -> main (the user merges it; choose "Squash and merge")
-gh pr create --base main --head dev --title "..." --body "..."
-
-# 3. after the user has merged it, sync main back into dev (no force-push)
-git fetch origin && git merge origin/main -m "Merge origin/main into dev (sync after PR #N)" && git push origin dev
-```
-
-You can't merge PRs yourself — that's the user's call. After a squash-merge
-the old commits remain reachable only from `dev`, so a GitHub PR's commit
-*list* stays long, but its *diff* is correct (merge base = main's tip after
-step 3). Don't "fix" that by rewriting `dev`.
-
-Never leave an old release PR open while `dev` keeps moving — mention it.
+You can't merge PRs yourself — that's the user's call. Never leave an old round
+PR open while starting the next round on top of it; mention it instead.
 
 ## Things that will bite you if you skip them
 
