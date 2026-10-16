@@ -23,6 +23,7 @@
  * other Dll modules) -- right after a big VFP vector-math function
  * (rotation/matrix build) ending at 0x1f74 plus its own literal pool
  * (0x1f78-0x1f8b).
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllBattle \

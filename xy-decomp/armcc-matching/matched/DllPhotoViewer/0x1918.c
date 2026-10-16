@@ -1,4 +1,5 @@
 /* DllPhotoViewer function @ CRO file offset 0x1918, size 0x8 — MATCHED (masked, 2/2). Trivial virtual-override stub: returns 1 (true), ignores `this`.
+ * Style: natural
  *
  * One of a run of seven near-identical 1-2 word leaf stubs at 0x1918-0x193b
  * (two "return 1" pairs at 0x1918/0x1920, five bare `bx lr` at

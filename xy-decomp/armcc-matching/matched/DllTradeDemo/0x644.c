@@ -5,6 +5,7 @@
 // else returns 4 (no store). Immediately follows DllTradeDemo@0x550's
 // literal pool (one word at 0x640) and precedes a push{r4,lr}-framed
 // conditional-free helper at 0x668.
+// Style: natural
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

@@ -6,6 +6,7 @@
  * unlike the AAPCS-padding-only variants).
  *
  * Verify: XY_ROMFS=.Data/Raw_Extracted/romfs python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllStaffRoll 0xe90 0x10 xy-decomp/armcc-matching/matched/DllStaffRoll/0xe90.c
+ * Style: natural
  */
 
 extern void helper90(void *this);

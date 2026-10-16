@@ -1,5 +1,5 @@
 /* DllStaffRoll function @ CRO file offset 0x2c44, size 0x38 — MATCHED
- * Style: trick(ordering-local) -- local(s) (e.g. `vt = VT`, hoisted member loads) only to fix load/pool-load order
+ * Style: trick(ordering-local) -- `vt = VT` local only to load the vtable literal before the member load (plain forms miss 3-4 words)
  * (masked, 14/14). Second match in this module. Same dtor idiom already
  * proven across many Dll modules (DllFatalErrorProc@0x284,
  * DllCommendation@0xc94, DllBattleHouseConnect@0x2fc, DllGameClearSave@0xd6c,

@@ -15,6 +15,7 @@
  * `bx lr` (the `bne` fallback target) as part of its body, making the
  * true size 0x18 -- the next function's own `bx lr` stub starts
  * immediately after, at 0x40c.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllUSGymFighting 0x3f4 0x18 xy-decomp/armcc-matching/matched/DllUSGymFighting/0x3f4.c

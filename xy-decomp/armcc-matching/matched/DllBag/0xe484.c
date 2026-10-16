@@ -1,5 +1,6 @@
 /* DllBag function @ CRO file offset 0xe484, size 0x24 -- MATCHED (masked, 9/9).
  * veneer(this); this->sub(+8).field_0x30 = fnB(this); returns 0
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllBag 0xe484 0x24 xy-decomp/armcc-matching/matched/DllBag/0xe484.c

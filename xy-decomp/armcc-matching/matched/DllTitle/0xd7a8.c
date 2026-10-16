@@ -3,6 +3,7 @@
  * same module: a trivial prologue-less int field getter, this time at
  * this+12, no calls. Part of a dense cluster of small getter/setter/
  * predicate functions between 0xd530 and 0xd8ac in this module's .text.
+ * Style: natural
  *
  * Verify:
  *   XY_ROMFS=.Data/Raw_Extracted/romfs python3 \

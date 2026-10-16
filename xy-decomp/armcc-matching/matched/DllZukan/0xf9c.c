@@ -9,6 +9,7 @@
  * already documented across every other Dll module mined by this swarm
  * (DllDialogCommon@0x2d8, DllFieldEventSlopeSlip@0x268, etc.). First real
  * function (a destructor/init helper) starts right after at 0xfd8.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllZukan 0xf9c 0x8 xy-decomp/armcc-matching/matched/DllZukan/0xf9c.c

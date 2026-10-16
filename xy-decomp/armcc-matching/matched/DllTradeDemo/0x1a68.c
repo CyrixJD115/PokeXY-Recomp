@@ -5,6 +5,7 @@
 // DllCaptureRegister@0x27b0/DllColosseum@0x46fc/DllFieldDemo@0x1edc/
 // DllIntro@0x9eb0: the same shared base/mixin-class method recurring
 // across unrelated modules.
+// Style: natural
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

@@ -1,5 +1,5 @@
 /*
- * Style: trick(ordering-local) -- local(s) (e.g. `vt = VT`, hoisted member loads) only to fix load/pool-load order
+ * Style: trick(ordering-local) -- locals (`f28`, `f550`) hoisting the two member loads in struct-offset order only to fix the load/`mov r4,r0` order (inline-call form misses 3 words)
  * DllGts @ 0x5be0, size 0x3c, masked match 15/15.
  *
  * Call+return helper: forwards `this->field28` and `this->field550` to an

@@ -8,6 +8,7 @@
 // This is the module's first real function, right after the import-veneer
 // table (0x180-0x61f) and a run of trivial return-1/bare-bx-lr stubs
 // (0x620-0x64f).
+// Style: natural
 //
 // Verify:
 //   XY_ROMFS=.Data/Raw_Extracted/romfs python3 \

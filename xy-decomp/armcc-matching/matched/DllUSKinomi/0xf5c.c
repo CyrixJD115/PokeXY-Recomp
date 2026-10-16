@@ -6,6 +6,7 @@
  * cluster layout. Right after this one, at 0xf64, is one more bare
  * `bx lr` no-op stub (untried), then the module's next real function
  * starts at 0xf68.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllUSKinomi 0xf5c 0x8 xy-decomp/armcc-matching/matched/DllUSKinomi/0xf5c.c

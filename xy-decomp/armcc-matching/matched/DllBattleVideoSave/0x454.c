@@ -1,4 +1,5 @@
 /* DllBattleVideoSave @0x454, size 0x4 -- 1/1 masked match.
+ * Style: natural
  *
  * Prologue-less tail-call forwarder: the entire function body is a single
  * `b <import veneer>` instruction (no push/pop, no other work), sitting

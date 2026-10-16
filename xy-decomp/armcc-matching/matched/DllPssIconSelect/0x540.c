@@ -1,4 +1,5 @@
 /* DllPssIconSelect function @ CRO file offset 0x540, size 0x8 — MATCHED (masked, 2/2).
+ * Style: natural
  * Trivial virtual-override stub: returns 1 (true), ignores `this`.
  *
  * Sits right after the module's import-veneer table (0x180-0x53f, 120

@@ -1,4 +1,5 @@
 /* DllStartMenu @ 0x480, size 0x40 — masked match 16/16.
+ * Style: natural
  *
  * One-line: init helper — calls an import veneer on this->f24 with arg 0,
  * sets this->f34 = 1 and this->f4->f2 = 1, then tail-calls a second veneer

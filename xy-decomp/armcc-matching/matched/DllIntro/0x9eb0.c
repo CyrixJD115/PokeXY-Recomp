@@ -10,6 +10,7 @@
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllIntro 0x9eb0 0x8 \
  *     xy-decomp/armcc-matching/matched/DllIntro/0x9eb0.c
+ * Style: natural
  */
 
 typedef struct System { unsigned char pad[217]; unsigned char is_call_draw; } System;

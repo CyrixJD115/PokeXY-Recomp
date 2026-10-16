@@ -7,6 +7,7 @@
 // `mov r0,#0; bx lr` stubs at 0x314/0x31c/0x324 (only 0x314 claimed
 // here), then one more lone `bx lr` at 0x32c, then a real function at
 // 0x330.
+// Style: natural
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

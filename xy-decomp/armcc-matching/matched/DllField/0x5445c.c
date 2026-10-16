@@ -12,6 +12,7 @@
 // body -- the real function ends at the `pop {r3,r4,r5,pc}` at 0x54490,
 // size 0x38 (not 0x34 as a naive single-bl guess would suggest, and not
 // 0x40 either).
+// Style: natural
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField 0x5445c 0x38 \

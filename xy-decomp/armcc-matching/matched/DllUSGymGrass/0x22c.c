@@ -9,6 +9,7 @@
  * lr` stubs at 0x22c/0x234/0x23c (only 0x22c claimed here), then three
  * more lone `bx lr` stubs at 0x244/0x248/0x24c before the real code
  * starts at 0x250.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllUSGymGrass 0x22c 0x8 xy-decomp/armcc-matching/matched/DllUSGymGrass/0x22c.c

@@ -5,6 +5,7 @@
  *
  * Sits right between the known-bad member-load-first dtor sibling at
  * 0xc3c (skipped) and the large 0xc74 dispatcher.
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllTradelist \

@@ -1,4 +1,5 @@
 /* DllBattleVideoPlayer @0xb14, size 0x4 -- 1/1 masked match.
+ * Style: natural
  *
  * Prologue-less tail-call forwarder: the entire function body is a single
  * `b <import veneer>` instruction. Sits in a run of 8 near-identical

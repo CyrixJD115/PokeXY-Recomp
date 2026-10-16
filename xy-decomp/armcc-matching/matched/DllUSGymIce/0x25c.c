@@ -8,6 +8,7 @@
  * 0x268/0x26c/0x270/0x274, then a two-level-indirection sign-extended
  * byte-field getter at 0x278, before the module's first real function
  * (a 6-register-push loop/destructor-shaped helper) at 0x288.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllUSGymIce 0x25c 0x8 xy-decomp/armcc-matching/matched/DllUSGymIce/0x25c.c

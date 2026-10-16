@@ -1,4 +1,5 @@
 /* DllDendouDemo @0x798 (Hall of Fame demo Dll) — 7/7 masked match.
+ * Style: natural
  *
  * The module's first real function, right after the import-veneer table
  * (0x180-0x797). Calls an import veneer with `this` unchanged, and on a

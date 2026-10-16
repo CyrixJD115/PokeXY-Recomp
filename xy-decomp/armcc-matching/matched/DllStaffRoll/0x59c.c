@@ -9,6 +9,7 @@
  * jump-table/NOP-hint residue class — not attempted).
  *
  * Verify: XY_ROMFS=.Data/Raw_Extracted/romfs python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllStaffRoll 0x59c 0x8 xy-decomp/armcc-matching/matched/DllStaffRoll/0x59c.c
+ * Style: natural
  */
 
 long func(void *this) {

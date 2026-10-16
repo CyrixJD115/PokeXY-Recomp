@@ -6,6 +6,7 @@
  * into a bare `b` instead of `bl`+`pop {..,pc}`. Sits right after a small destructor-stage
  * helper's own literal-pool word (0x1074) and right before a bare `bx lr` no-op stub
  * (0x107c).
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllUSPassage 0x1078 0x4 xy-decomp/armcc-matching/matched/DllUSPassage/0x1078.c

@@ -1,4 +1,5 @@
 /* DllBattleMatch @0xd90, size 0x4 -- 1/1 masked match.
+ * Style: natural
  *
  * Prologue-less tail-call forwarder: the entire function body is a single
  * `b <import veneer>` instruction, sandwiched between two bare `bx lr`

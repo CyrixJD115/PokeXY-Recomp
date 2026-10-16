@@ -7,6 +7,7 @@
  * -- real size is 0x1c. Discovered right after a larger `push`/`pop{...,pc}`
  * function ending with a dead literal pool at 0x11b4 (the "..." objdump
  * gap).
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllUSGymFighting 0x11c0 0x1c xy-decomp/armcc-matching/matched/DllUSGymFighting/0x11c0.c

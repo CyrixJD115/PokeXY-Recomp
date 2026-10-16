@@ -1,0 +1,12 @@
+/*
+ * DllBattle @ 0xa6610, size 0x20 -- forwarder: fnX(a, b, c, d, 15, 0) (r0-r3 passed through, two constants on the stack).
+ * Masked match 8/8. Constant-tweak sibling of the 0xa6120 family; callee is a veneer (bl masked).
+ * Style: trick(redundant-local) -- the 5th stack arg goes through a named local only to make armcc emit retail's `mov r4,#X; mov ip,#Y` order (audit 2026-10-16: the plain literal `fnX(a,b,c,d,X,Y)` emits `mov ip,#Y` first and fails)
+ * Verify:
+ *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllBattle 0xa6610 0x20 xy-decomp/armcc-matching/matched/DllBattle/0xa6610.c
+ */
+extern void fnX(int, int, int, int, int, int);
+void fn(int a, int b, int c, int d) {
+    int e = 15;
+    fnX(a, b, c, d, e, 0);
+}

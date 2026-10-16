@@ -1,4 +1,5 @@
 /*
+ * Style: natural
  * DllStatus @ 0xbc8 (size 0x8) -- masked match 2/2.
  * Trivial virtual-override stub: unconditionally returns 1, ignores `this`.
  * Same recurring idiom seen across nearly every Dll module in this swarm

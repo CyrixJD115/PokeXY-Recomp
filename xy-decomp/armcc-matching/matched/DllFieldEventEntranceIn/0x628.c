@@ -11,6 +11,7 @@
  * runs 0x180-0x2df, 44 entries, before the module's first real function
  * at 0x2e0).
  *
+ * Style: natural -- trivial stub/setter (weak evidence: any function of this shape compiles identically)
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllFieldEventEntranceIn 0x628 0x8 xy-decomp/armcc-matching/matched/DllFieldEventEntranceIn/0x628.c
  */

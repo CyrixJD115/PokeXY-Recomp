@@ -2,8 +2,9 @@
  * DllBattle @ 0x30a4, size 0x68 -- destructor: install vtable, release owned obj at +0xc
  * (vcall slot 4, then slot 1 if still set, zero), free +0x38, call sub-object dtor at +0x18,
  * return result-0x18. RELAXED match 26/26 (one relaxation nop elided).
+ * Style: natural
  * Verify:
- *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllBattle 0x30a4 0x68 xy-decomp/armcc-matching/matched/DllBattle/0x30a4.c --relax-nops
+ *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllBattle 0x30a4 0x68 xy-decomp/armcc-matching/relaxed/DllBattle/0x30a4.c --relax-nops
  */
 typedef struct O { void **vt; } O;
 extern void *vtbl[];

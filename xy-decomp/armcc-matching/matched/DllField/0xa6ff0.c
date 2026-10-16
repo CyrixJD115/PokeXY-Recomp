@@ -5,6 +5,7 @@
 // Sibling of DllField@0xa714c (same two fields, hardcoded-1/swapped-copy
 // variant right below it in .text).
 //
+// Style: trick(ordering-local) -- the copied word is loaded into a local before the flag store so the order is ldr, strb, str; the plain `flag = c; dst = src;` and `dst = src; flag = c;` forms both fail (tested)
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField 0xa6ff0 0x14 \
 //       xy-decomp/armcc-matching/matched/DllField/0xa6ff0.c

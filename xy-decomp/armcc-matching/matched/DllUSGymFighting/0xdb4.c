@@ -16,6 +16,7 @@
  * Sits right after another small boolean-predicate function ending at
  * 0xdb0 (same vtbl-slot-0xdc idiom, two variants, unattempted) and right
  * before a larger `push {r4,r5,r6,r7,r8,r9,lr}` dispatcher at 0xddc.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllUSGymFighting 0xdb4 0x28 xy-decomp/armcc-matching/matched/DllUSGymFighting/0xdb4.c

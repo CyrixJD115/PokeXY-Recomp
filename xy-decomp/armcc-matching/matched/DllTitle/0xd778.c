@@ -3,6 +3,7 @@
  * this+44 (the same field 0xd770 reads), returns 1 unconditionally.
  * Sits three instructions after 0xd770 in the same dense getter/setter
  * cluster (0xd530-0xd8ac).
+ * Style: natural
  *
  * Verify:
  *   XY_ROMFS=.Data/Raw_Extracted/romfs python3 \

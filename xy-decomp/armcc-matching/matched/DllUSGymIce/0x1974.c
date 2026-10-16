@@ -4,7 +4,7 @@
  * Note: the first global must be `volatile long long` to get the retail
  * `strd r0,[r2]` (plain/__align(8)/unsigned long long all give stm);
  * the second is a plain long long (stm {r1,r2}).
- * Verify: python3 tools/fingerprint_fn.py DllUSGymIce 0x180 0x2c matched/DllUSGymIce/0x180.c
+ * Verify: python3 tools/fingerprint_fn.py DllUSGymIce 0x1974 0x2c matched/DllUSGymIce/0x1974.c
  */
 extern volatile long long g_a;
 extern long long g_b;

@@ -5,6 +5,7 @@
  * DllPssConfig@0x1c20, DllCaptureRegister@0x27b0, DllColosseum@0x46fc,
  * DllFieldDemo@0x1edc, DllIntro@0x9eb0, DllGts@0x1b7e4. Module's named
  * export table confirms: _ZN9xy_system2bg6System13SetIsCallDrawEb.
+ * Style: natural
  * Verify: python3 tools/fingerprint_fn.py DllTestPGL 0x180 0x8 matched/DllTestPGL/0x180.c
  */
 void SetIsCallDraw(unsigned char *this, int v) {

@@ -1,4 +1,5 @@
 /* DllBattleMatch @0xde8, size 0x4 -- 1/1 masked match.
+ * Style: natural
  *
  * Trivial no-op void stub (single `bx lr`), right after the `0xde4`
  * thin forwarder. Weak-evidence match: any void function with no

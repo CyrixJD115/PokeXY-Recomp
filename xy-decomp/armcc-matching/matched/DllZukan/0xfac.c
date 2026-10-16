@@ -5,6 +5,7 @@
  * (0xf9c/0xfa4/0xfac) in the same tail-of-import-veneer-table leaf-stub
  * cluster (0xf98-0xfd7). Immediately followed by two bare `bx lr`
  * weak-evidence stubs at 0xfb4/0xfb8.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllZukan 0xfac 0x8 xy-decomp/armcc-matching/matched/DllZukan/0xfac.c

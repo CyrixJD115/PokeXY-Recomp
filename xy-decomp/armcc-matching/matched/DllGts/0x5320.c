@@ -1,4 +1,5 @@
 /*
+ * Style: natural
  * DllGts @ 0x5320, size 0x10, masked match 4/4.
  * Stores 0x1d into this->word@0x1c, returns 6.
  * Verify:

@@ -2,7 +2,7 @@
  * Table getter: returns the u16 at byte +10 of 12-byte entry [i] of the table passed as 4th arg
  * (r3; r0 = index).
  * Family: same body with a different final ldrh offset: 0x7f628 (+22), 0x7f65c (+8), 0x7f678 (+20)
- * (the +20/+22 ones imply a base offset or a second table half; not yet tried).
+ * (the +20/+22 ones address past the 12-byte entry; see their files).
  * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

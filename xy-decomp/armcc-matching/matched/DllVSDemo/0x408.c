@@ -5,6 +5,7 @@
  * right after the five `return 1` stubs at 0x3e0-0x400 (0x3e0 already
  * matched). Weakest-evidence match in the set: any no-op void body with
  * no observable side effect compiles to the same single word.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllVSDemo 0x408 0x4 xy-decomp/armcc-matching/matched/DllVSDemo/0x408.c

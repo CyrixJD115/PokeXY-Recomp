@@ -4,6 +4,7 @@
  * owned object at a direct offset (this+0x38) instead of nested through
  * a sub-object. Loads o = this->p38, then calls o->vtbl[9](o) as a true
  * tail call (bx r1, r0 already holds o from the member load).
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

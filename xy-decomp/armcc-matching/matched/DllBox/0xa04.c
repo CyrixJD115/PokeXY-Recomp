@@ -1,5 +1,6 @@
 /* DllBox function @ CRO file offset 0xa04, size 0x8 — MATCHED (masked, 2/2).
  * Trivial virtual-override stub: returns 1 (true), ignores `this`.
+ * Style: natural
  *
  * A fourth `return 1` stub, interleaved among the bare `bx lr` stubs
  * (0xa00/0xa08/0xa0c/0xa10) right before the module's first real function

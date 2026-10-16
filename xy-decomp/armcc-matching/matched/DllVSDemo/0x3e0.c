@@ -7,6 +7,7 @@
  * weak-evidence stubs (0x408/0x40c/0x410), then a real dispatcher at
  * 0x414 — the standard tail-of-import-veneer-table leaf-stub cluster
  * shape documented for every other Dll module mined so far.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllVSDemo 0x3e0 0x8 xy-decomp/armcc-matching/matched/DllVSDemo/0x3e0.c

@@ -1,4 +1,5 @@
 /*
+ * Style: natural
  * DllGts @ 0x11a24, size 0x70, masked match (full words). tick counter f44; at 0x50 sets f50=0x58, calls fn, deletes ctx->f9c via vtable slot 1; returns 0x18/0x19.
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

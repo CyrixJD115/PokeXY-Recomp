@@ -1,4 +1,5 @@
 /* DllSalon@0x380 — field-accessor + boolean predicate.
+ * Style: natural
  * Body: push {r4,lr}; r0 = r0->f48; r0 += 4; r0 = fn_aa0(r0);
  *        return r0 == 0 ? 1 : 0;  pop {r4,pc}.
  * Internal call to 0xaa0 is masked (link-time fact).

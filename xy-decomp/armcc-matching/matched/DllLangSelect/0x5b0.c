@@ -1,4 +1,5 @@
 /* DllLangSelect function @ CRO file offset 0x5b0, size 0x1c.
+ * Style: natural
  *
  * FIRST MATCHED FUNCTION in DllLangSelect (2026-10-15), proving the
  * technique generalizes to a fifth module. Compiled with armcc 5.04u5,

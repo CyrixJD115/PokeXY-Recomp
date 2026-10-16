@@ -7,6 +7,7 @@
  * `0x3cd0` +28, `0x3cd8` +8 — untried), right after a thin tail-call
  * forwarder (`0x3cb8`, `b <import>`) and a bare `bx lr` stub (`0x3cbc`),
  * both also untried.
+ * Style: natural
  *
  * Verify: XY_ROMFS=.Data/Raw_Extracted/romfs python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllTrainerCase 0x3cc0 0x8 xy-decomp/armcc-matching/matched/DllTrainerCase/0x3cc0.c
  */

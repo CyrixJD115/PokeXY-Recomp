@@ -1,4 +1,5 @@
 /* DllBattleMatch @0xe38, size 0x10 -- 4/4 masked match.
+ * Style: natural
  *
  * Two-call helper with a tail-call on the second: `push {r4,lr}; bl
  * <import A>(o); pop {r4,lr}; b <import B>` -- the `r4` push/pop is

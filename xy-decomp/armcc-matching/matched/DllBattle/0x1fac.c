@@ -8,6 +8,7 @@
  * where source phrasing of the comparison changes instruction order).
  *
  * Immediately follows the zero-init helper at 0x1f8c (same module).
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllBattle \

@@ -5,6 +5,7 @@
  * the 2nd argument (r1), returns 1. Sits right after the 0x7ec-0x824 leaf
  * stub run, right before a real function at 0x838 (push {r4-r8,lr}; vpush
  * {d8} — a constructor-shaped function, not attempted).
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllWazaOboe \

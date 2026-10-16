@@ -1,0 +1,3 @@
+# Style audit 2026-10-16
+
+Eight auditors read every file under `matched/` (+ `poolpad/`, `relaxed/`), checked the `Style:` tag against the code, tested whether each trick is really needed (no-trick variant compiled and run through `fingerprint_fn.py`), and removed/retagged accordingly. Per-slice reports (counts, every changed file with the reason, tricks that must stay, lessons): `slice-1.md` … `slice-8.md`. The summary and the kinds table are in the main `README.md` ("Match style: natural vs. trick"). After merging all slices every one of the 1,274 files was re-verified from its own `Verify:` line (0 failures).

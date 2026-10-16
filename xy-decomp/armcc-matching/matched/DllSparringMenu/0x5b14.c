@@ -1,4 +1,5 @@
 /*
+ * Style: natural
  * DllSparringMenu @ 0x5b14, size 0x8 — masked match 2/2.
  *
  * Trivial virtual-override stub, `return 1`, ignores `this`. Sits right

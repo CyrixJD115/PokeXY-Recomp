@@ -1,5 +1,5 @@
 /* DllFatalErrorProc function @ CRO file offset 0x284, size 0x38 — MATCHED (masked, 14/14). Second match in this module, the "0x284 easy lead" flagged alongside 0xcdc/0x2bc: same vptr-install/free-member dtor idiom, but it tail-calls a second import (b, no bl) instead of returning via pop{r4,pc} — a destructor whose caller already takes care of returning `this`-equivalent via the tail-called function.
- * Style: trick(ordering-local) -- local(s) (e.g. `vt = VT`, hoisted member loads) only to fix load/pool-load order
+ * Style: trick(ordering-local) -- local(s) (e.g. `vt = VT`, hoisted member loads) only to fix load/pool-load order (audit 2026-10-16: plain `void *p = o->buf; o->vptr = VT;` form fails to match)
  *
  * Non-obvious part: register/instruction order. The retail binary loads
  * the vtable literal into r1 FIRST, then o->buf into r0, and only then

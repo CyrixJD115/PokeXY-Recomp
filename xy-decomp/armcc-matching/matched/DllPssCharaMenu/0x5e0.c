@@ -1,4 +1,5 @@
 /* DllPssCharaMenu function @ CRO file offset 0x5e0, size 0x8 — MATCHED (masked, 2/2).
+ * Style: natural
  * Trivial virtual-override stub: returns 1 (true), ignores `this`.
  *
  * Right after the import-veneer table (0x180-0x5df): an identical twin

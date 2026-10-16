@@ -3,6 +3,7 @@
  * to it in the same tail-of-import-veneer-table leaf-stub cluster.
  *
  * Match: 2/2 masked words.
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

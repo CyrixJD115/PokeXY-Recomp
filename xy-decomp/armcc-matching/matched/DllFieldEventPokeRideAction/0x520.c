@@ -9,6 +9,7 @@
  * other Dll module mined so far (DllBox@0x9e8, DllFieldEventEntranceIn@
  * 0x628, DllFieldEventPlayer@0x624, ...).
  *
+ * Style: natural -- trivial stub/setter (weak evidence: any function of this shape compiles identically)
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllFieldEventPokeRideAction 0x520 0x8 \
  *     xy-decomp/armcc-matching/matched/DllFieldEventPokeRideAction/0x520.c

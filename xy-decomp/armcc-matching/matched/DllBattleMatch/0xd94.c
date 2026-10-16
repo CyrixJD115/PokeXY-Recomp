@@ -1,4 +1,5 @@
 /* DllBattleMatch @0xd94, size 0x4 -- 1/1 masked match.
+ * Style: natural
  *
  * Trivial no-op void stub (single `bx lr`), immediately following the
  * `0xd90` thin forwarder in the same already-matched run at the tail of

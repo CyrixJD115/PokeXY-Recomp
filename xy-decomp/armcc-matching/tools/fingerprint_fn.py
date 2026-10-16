@@ -17,7 +17,9 @@ Example (the project's first matched function, ported from the sibling
   python3 fingerprint_fn.py DllDialogCommon 0x8d0 0x2c \\
       ../matched/DllDialogCommon/0x8d0.c
 
-Exit status: 0 on a full masked match, 1 otherwise.
+Exit status: 0 on a full masked match, 1 otherwise, 2 on compile/setup
+error, 3 on a POOL-PAD match (--pool-pad only; deliberately NOT 0, so
+scripts that treat 0 as "masked match" never count one by accident).
 
 CAVEAT on --mask-ranges (jump-table data): masking a jump table's data
 words only proves the function has the right number of case-body blocks,
@@ -45,6 +47,7 @@ Setup (see docs/decomp/armcc-toolchain.md for the full writeup):
 from __future__ import annotations
 
 import argparse
+import itertools
 import os
 import struct
 import subprocess
@@ -125,6 +128,82 @@ def masked_words(data: bytes, relax: bool = False) -> list[int]:
     return words
 
 
+def _ret_like(w: int) -> bool:
+    """Words that end straight-line code: bx lr, ldm/pop with pc, b, ldr pc."""
+    return (w == 0xE12FFF1E
+            or (w & 0x0E108000) == 0x08108000      # ldm{..} {.., pc}
+            or (w & 0x0F000000) == 0x0A000000      # b (any cond)
+            or (w & 0x0F7FF000) == 0x051FF000      # ldr pc,[pc,#..]
+            or (w & 0x0F70F000) == 0x0510F000)     # ldr pc,[rn,#..]
+
+
+def _lit_target(w: int, i: int) -> int | None:
+    """Word index a pc-relative literal ldr/vldr at word index i reads, else None."""
+    if (w & 0x0F7F0000) == 0x051F0000:             # ldr/ldrb rd,[pc,#+-imm12]
+        d = w & 0xFFF
+    elif (w & 0x0F3F0F00) == 0x0D1F0A00 or (w & 0x0F3F0F00) == 0x0D1F0B00:
+        d = (w & 0xFF) * 4                         # vldr s/d,[pc,#+-imm8*4]
+    else:
+        return None
+    up = bool(w & 0x00800000)
+    a = i * 4 + 8 + (d if up else -d)
+    return a // 4 if a % 4 == 0 else None
+
+
+def _lit_mask(w: int) -> int:
+    """Mask the displacement field of a pc-relative literal ldr/vldr."""
+    if (w & 0x0F7F0000) == 0x051F0000:
+        return w & 0xFFFFF000
+    if (w & 0x0F3F0F00) in (0x0D1F0A00, 0x0D1F0B00):
+        return w & 0xFFFFFF00
+    return w
+
+
+def pool_pad_match(tw: list[int], cw: list[int]):
+    """Pool-alignment-tolerant comparison (--pool-pad).
+
+    Target `tw` may carry k = len(tw)-len(cw) (1 or 2) extra all-zero words
+    that the candidate lacks, only at: the very start, the code/pool boundary
+    (right after the candidate's last straight-line-ending word), or the very
+    end.  With those words removed, the two must be word-identical once the
+    literal-load displacement fields are masked, AND every pc-relative literal
+    load must read the same pool word (same index in the compacted layout)
+    on both sides -- so the same constants, in the same order, are required.
+    Returns (deleted_target_indices, None) on success, (None, reason) otherwise.
+    """
+    k = len(tw) - len(cw)
+    if k < 1 or k > 2:
+        return None, f"target has {len(tw)} words, candidate {len(cw)}: pad count {k} not in 1..2"
+    code_end = 0
+    for i, w in enumerate(cw):
+        if _ret_like(w):
+            code_end = i + 1
+    # allowed pad positions in target index space: very first/last word, or at
+    # the code/pool boundary (a leading pad shifts it by up to k)
+    allowed = {0, len(tw) - 1} | {code_end + j for j in range(k + 1)}
+    best = None
+    for dels in itertools.combinations(
+            sorted(i for i in allowed if 0 <= i < len(tw) and tw[i] == 0), k):
+        keep = [i for i in range(len(tw)) if i not in dels]
+        if [_lit_mask(tw[i]) for i in keep] != [_lit_mask(w) for w in cw]:
+            continue
+        pos = {t: n for n, t in enumerate(keep)}
+        ok = True
+        for n, t in enumerate(keep):
+            lt_t = _lit_target(tw[t], t)
+            lt_c = _lit_target(cw[n], n)
+            if (lt_t is None) != (lt_c is None):
+                ok = False
+                break
+            if lt_t is not None and pos.get(lt_t, -1) != lt_c:
+                ok = False
+                break
+        if ok:
+            return list(dels), None
+        best = "literal loads read different pool words"
+    return None, best or "no placement of zero pad words makes the code words agree"
+
+
 def disasm_word(w: int) -> str:
     """Best-effort one-word disassembly via objdump, for diff readability."""
     try:
@@ -171,7 +250,21 @@ def main() -> int:
                              "the right order, NOT which case value selects which "
                              "body -- that mapping is exactly what's masked out, "
                              "so it's a hypothesis (see module docstring)")
+    parser.add_argument("--pool-pad", action="store_true",
+                        help="if the default masked compare fails, retry tolerating "
+                             "1-2 extra all-zero target words at the very start, at "
+                             "the code/literal-pool boundary, or at the very end "
+                             "(alignment pad: the retail function starts at 4 mod 8 "
+                             "and its pool is 8-aligned), masking ONLY the "
+                             "displacement of pc-relative ldr/vldr literal loads and "
+                             "still requiring each to read the same pool word, in "
+                             "the same order. A success prints '*** POOL-PAD MATCH "
+                             "***' (never 'MASKED MATCH') and exits 3. Default "
+                             "behaviour is unchanged without this flag; cannot be "
+                             "combined with --relax-nops/--mask-ranges")
     args = parser.parse_args()
+    if args.pool_pad and (args.relax_nops or args.mask_ranges):
+        parser.error("--pool-pad cannot be combined with --relax-nops/--mask-ranges")
 
     cro = _romfs_dir() / f"{args.module}.cro"
     if not cro.is_file():
@@ -237,6 +330,24 @@ def main() -> int:
               "that mapping is masked out along with the table, so any "
               "case-number assignment in the candidate is a hypothesis.")
     status = 0 if (same == len(tw) and len(tw) == len(cw)) else 1
+    if status == 1 and args.pool_pad:
+        dels, why = pool_pad_match(tw, cw)
+        if dels is not None:
+            print(f"\nPOOL-PAD: target carries {len(dels)} extra all-zero alignment "
+                  f"word(s) at "
+                  + ", ".join(f"0x{args.offset + d * 4:05x}" for d in dels)
+                  + "; the rest of the target matches the candidate word-for-word "
+                    "with only literal-load displacements masked, and every literal "
+                    "load reads the same pool word.")
+            for i in range(len(tw)):
+                mark = "pad" if i in dels else "  "
+                print(f"{mark} 0x{args.offset + i * 4:05x}  {tw[i]:08x} {disasm_word(tw[i])}")
+            print("\n*** POOL-PAD MATCH *** NOT a masked match: it differs from the "
+                  "candidate's standalone layout by alignment pad word(s) and "
+                  "pool-load displacements (link-layout facts). Keep it out of "
+                  "matched/ unless the header says 'Verify: ... --pool-pad'.")
+            return 3
+        print(f"\n(--pool-pad tried and rejected: {why})")
     for i in range(max(len(tw), len(cw))):
         t = tw[i] if i < len(tw) else None
         c = cw[i] if i < len(cw) else None

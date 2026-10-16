@@ -1,4 +1,5 @@
 /* DllPokeList function @ CRO file offset 0x8ec, size 0x8 -- MATCHED (masked, 2/2).
+ * Style: natural
  * Trivial virtual-override stub: returns 1 (true), ignores `this`.
  * Sibling of the 0x8dc stub in the same leaf-stub cluster.
  *

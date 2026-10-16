@@ -5,6 +5,7 @@
  * four near-identical copies of this forwarder (0x1078, 0x1610, 0x1c80, 0x20c4) — all land
  * right after a small destructor-stage helper's own literal-pool word and right before a
  * run of bare `bx lr` no-op stubs.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllUSPassage 0x1610 0x4 xy-decomp/armcc-matching/matched/DllUSPassage/0x1610.c

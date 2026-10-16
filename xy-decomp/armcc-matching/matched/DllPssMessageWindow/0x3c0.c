@@ -1,4 +1,5 @@
 // DllPssMessageWindow @0x3c0, size 0x8 -- trivial virtual-override stub, return 1.
+// Style: natural
 // Match: 2/2 masked words (mov r0,#1 / bx lr).
 // One of a run of five tiny leaf stubs right at the end of the module's
 // import-veneer table (which runs 0x180-0x3bf): two identical return-1

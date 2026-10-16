@@ -1,4 +1,5 @@
 /* DllStartMenu @ 0x1b74, size 0x8 — masked match 2/2.
+ * Style: natural
  *
  * One-line: trivial virtual-override stub, `return 1`.
  *

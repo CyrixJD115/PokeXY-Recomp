@@ -6,6 +6,7 @@
  * Right after the trivial `return 1` stub at 0x10f10 (same module, same
  * cluster); the next function (a `push {r4,r5,r6,r7,lr}` dispatcher)
  * starts immediately after at 0x10f24.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllField 0x10f18 0xc xy-decomp/armcc-matching/matched/DllField/0x10f18.c

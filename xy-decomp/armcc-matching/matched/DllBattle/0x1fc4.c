@@ -4,6 +4,7 @@
  * Trivial pointer-offset accessor: `return (char*)this + 2912;` -- adds a
  * fixed byte offset to `this` and returns it, no dereference (likely
  * returns the address of an embedded sub-object member).
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllBattle \

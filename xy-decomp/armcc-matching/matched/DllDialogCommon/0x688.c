@@ -1,4 +1,5 @@
 /* DllDialogCommon function @ CRO file offset 0x688, size 0x3c — MATCHED (masked, 15/15). Calls local fn @0x300 on member +0x24, virtual call slot 8, returns r==0 as if/return-0/return-1.
+ * Style: natural
  *
  * Verify: python3 tools/fingerprint_fn.py DllDialogCommon 0x688 0x3c test/fingerprint/dialog_common_0x688.c
  */

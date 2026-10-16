@@ -8,6 +8,7 @@
 // `mov r0,#0; bx lr` stub, then two more identical `return 0` stubs at
 // 0x34c/0x354 (unclaimed), two more lone `bx lr` at 0x35c/0x360, then a
 // real function (VFP-heavy dispatcher) at 0x364.
+// Style: natural
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

@@ -5,6 +5,7 @@
  * table (0x180-0x218) and a run of four bare `bx lr` single-word stubs
  * (0x218/0x21c/0x220/0x224), with two more identical return-0 stubs
  * immediately following at 0x230 and 0x238.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllUSBadgeCheckGate 0x228 0x8 xy-decomp/armcc-matching/matched/DllUSBadgeCheckGate/0x228.c

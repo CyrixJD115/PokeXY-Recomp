@@ -3,6 +3,7 @@
  * Shape: trivial int field setter. Stores the 2nd argument into the
  * object at +0xec, void return. Same idiom as DllFieldEventPlayer@0x624
  * / DllFieldEventTakinobori@0x11d4.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllTownmap 0x24dc 0x8 xy-decomp/armcc-matching/matched/DllTownmap/0x24dc.c

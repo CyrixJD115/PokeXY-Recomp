@@ -1,4 +1,5 @@
 /* DllPCMenu @0x6b8 — PC-menu Dll conditional accessor, 7/7 masked match.
+ * Style: natural
  *
  * Same idiom already proven in DllLangSelect@0x5b0 / DllDendouDemo@0x798 /
  * DllBoxSearch@0x5b8 / DllDendouPC@0x650 / DllEggDemo@0x568: call an import

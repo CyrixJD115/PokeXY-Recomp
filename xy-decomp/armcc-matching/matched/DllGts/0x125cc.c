@@ -1,4 +1,5 @@
 /*
+ * Style: natural
  * DllGts @ 0x125cc, size 0x8, masked match 2/2.
  * Returns constant 0x1b.
  * Verify:

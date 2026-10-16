@@ -1,5 +1,6 @@
 /* DllBag function @ CRO file offset 0x7330, size 0x50 -- MATCHED (masked, 20/20).
  * same as DllBag@0xc508 with q->b at +1 and test b==0
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllBag 0x7330 0x50 xy-decomp/armcc-matching/matched/DllBag/0x7330.c

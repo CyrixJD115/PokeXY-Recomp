@@ -5,6 +5,7 @@
  * `push {r4, lr}` is AAPCS stack-alignment padding (r4 is never
  * otherwise touched), same idiom already documented for
  * DllDialogCommon@0x6c4.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllTownmap 0x488 0x10 xy-decomp/armcc-matching/matched/DllTownmap/0x488.c

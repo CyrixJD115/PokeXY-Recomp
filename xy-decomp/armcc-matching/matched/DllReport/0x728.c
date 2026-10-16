@@ -1,4 +1,5 @@
 /* DllReport @0x728 (report/record Dll) — 7/7 masked match.
+ * Style: natural
  *
  * Module's first real function right after the import-veneer table
  * (0x180-0x727). Same conditional-accessor idiom already proven in

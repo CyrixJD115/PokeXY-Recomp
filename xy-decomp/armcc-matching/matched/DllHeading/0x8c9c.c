@@ -10,7 +10,6 @@ typedef struct X { void *vptr; unsigned char sub[0x8]; Q *q; int fa; int fb; } X
 extern void fn1e0(void *h, int a);
 extern void fn1e8(void *h, int a);
 extern void *fn1f0(void *s);
-extern void *fn1f8(void *s);
 void *Fn(X *o)
 {
     void *h;

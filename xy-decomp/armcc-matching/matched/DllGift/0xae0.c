@@ -9,6 +9,7 @@
  * `b 0x188`) — same recurring tail-of-import-veneer-table leaf-stub
  * cluster shape documented for every other Dll module mined so far.
  *
+ * Style: natural -- trivial stub/setter (weak evidence: any function of this shape compiles identically)
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllGift 0xae0 0x8 xy-decomp/armcc-matching/matched/DllGift/0xae0.c
  */

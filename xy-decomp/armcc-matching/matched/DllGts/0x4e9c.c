@@ -1,4 +1,5 @@
 /*
+ * Style: natural
  * DllGts @ 0x4e9c size 0x10: set field 0x1c=8 ret 6
  *
  * Verify:

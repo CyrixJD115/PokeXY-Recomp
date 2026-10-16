@@ -1,6 +1,7 @@
 /*
  * DllBattle @ 0x2c3c, size 0x24 -- virtual call through this->+0x24 (vtbl slot 3); returns 1 if result==0 else 0.
  * Written as if/return (the `!x` form emits movne/moveq in swapped order).
+ * Style: natural
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllBattle 0x2c3c 0x24 xy-decomp/armcc-matching/matched/DllBattle/0x2c3c.c
  */

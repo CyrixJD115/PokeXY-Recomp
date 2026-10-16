@@ -8,6 +8,7 @@
  * by this swarm (DllDialogCommon@0x2d8 etc.) — likely a default
  * virtual-method override (IsXxx() == true) on a shared base class.
  *
+ * Style: natural -- trivial stub/setter (weak evidence: any function of this shape compiles identically)
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllFieldEventSlopeSlip 0x268 0x8 xy-decomp/armcc-matching/matched/DllFieldEventSlopeSlip/0x268.c
  */

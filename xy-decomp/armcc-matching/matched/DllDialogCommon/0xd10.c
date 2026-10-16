@@ -1,4 +1,5 @@
 /* DllDialogCommon function @ CRO file offset 0xd10, size 0x8 — MATCHED (masked, 2/2). Trivial virtual-override stub: returns 0 (false), ignores `this`.
+ * Style: natural
  *
  * First of a pair of trivial stubs at 0xd10-0xd1f, sandwiched between
  * the destructor @0xcdc and the message-dispatch function @0xd20.

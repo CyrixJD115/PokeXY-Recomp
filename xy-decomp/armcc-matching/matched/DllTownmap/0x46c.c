@@ -4,6 +4,7 @@
  * armcc 5.04u5, --cpu=MPCore --arm --apcs=/interwork -O2 -Otime: every
  * instruction matches the original byte-for-byte modulo the single b/bl
  * branch immediate (a link-layout fact).
+ * Style: natural
  *
  * Verify with:
  *   python3 tools/fingerprint_fn.py DllTownmap 0x46c 0x1c \

@@ -4,6 +4,7 @@
  * this+44, no calls. Sits in a run of small accessor/getter functions right
  * after the module's large import-veneer table and its first few real
  * functions.
+ * Style: natural
  *
  * Verify:
  *   XY_ROMFS=.Data/Raw_Extracted/romfs python3 \

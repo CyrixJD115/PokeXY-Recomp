@@ -6,6 +6,7 @@
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllSparringMenu 0x5ad8 0x34 \
  *     xy-decomp/armcc-matching/matched/DllSparringMenu/0x5ad8.c
+ * Style: natural
  */
 typedef struct X {
     void *vptr;              /* +0x00 */

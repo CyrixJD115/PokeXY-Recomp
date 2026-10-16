@@ -14,6 +14,7 @@
 // roles swapped (armcc materializes into r2 first, copies into r3),
 // while retail materializes into r3 first and copies into r2. The bare
 // literal form reproduces retail's choice exactly on the first try.
+// Style: natural
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllField 0x54d84 0x38 \

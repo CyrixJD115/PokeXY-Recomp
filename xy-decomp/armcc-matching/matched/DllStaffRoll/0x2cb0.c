@@ -9,6 +9,7 @@
  * stub immediately follows at 0x2cb8.
  *
  * Verify: XY_ROMFS=.Data/Raw_Extracted/romfs python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllStaffRoll 0x2cb0 0x8 xy-decomp/armcc-matching/matched/DllStaffRoll/0x2cb0.c
+ * Style: natural
  */
 
 typedef struct System { unsigned char pad[217]; unsigned char is_call_draw; } System;

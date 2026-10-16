@@ -7,6 +7,7 @@
  * Immediately follows 0x288c0 in the same leaf-stub cluster; the next
  * instruction after this function (0x288d4) is a lone `bx lr` weak-
  * evidence stub, unclaimed.
+ * Style: natural
  *
  * Verify: python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \
  *     DllField 0x288c8 0xc xy-decomp/armcc-matching/matched/DllField/0x288c8.c

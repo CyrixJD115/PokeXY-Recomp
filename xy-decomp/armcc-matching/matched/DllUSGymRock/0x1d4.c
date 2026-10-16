@@ -7,6 +7,7 @@
 // at 0x1ec/0x1f0, then a real constructor-shaped function with VFP math
 // at 0x1f4 -- the same cluster shape already documented for
 // DllUSDynamo/DllUSBadgeCheckGate/DllUS3DDun etc. in README.md.
+// Style: natural
 //
 // Verify:
 //   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

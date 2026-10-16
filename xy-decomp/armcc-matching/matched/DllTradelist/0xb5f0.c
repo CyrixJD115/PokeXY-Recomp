@@ -4,6 +4,7 @@
  * Sits right after a larger prologue'd dispatcher (push {r4,lr}...pop
  * {r4,pc}) ending at 0xb5ec, and right before a call-setup helper at
  * 0xb5f8 that sets up args and tail-calls a shared routine.
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllTradelist \

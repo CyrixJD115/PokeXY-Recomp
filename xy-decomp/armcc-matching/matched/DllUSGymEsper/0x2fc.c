@@ -5,6 +5,7 @@
  * table leaf-stub cluster (import veneers 0x180-0x2f7, four lone `bx lr`
  * stubs at 0x2f8/0x30c/0x320/0x324, a twin `return 0` stub at 0x304
  * unclaimed) seen in every Dll module mined so far.
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

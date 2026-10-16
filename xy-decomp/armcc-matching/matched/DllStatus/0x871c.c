@@ -4,6 +4,7 @@
  * veneer>` instruction -- same idiom as DllStatus@0x6f6c (this module)
  * and DllBattleVideoSave@0x454/DllBattleMatch@0xd90/
  * DllBattleVideoPlayer@0xb14/DllIntro@0x868.
+ * Style: natural
  *
  * Verify:
  *   python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py \

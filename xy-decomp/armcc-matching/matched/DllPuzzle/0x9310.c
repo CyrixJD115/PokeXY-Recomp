@@ -1,4 +1,5 @@
 /* DllPuzzle @ 0x9310 size 0x2c MATCHED (masked 11/11): dtor stage: install vtable, call fn(o->p12, o->p4->f34), return this.
+ * Style: natural
  * 
  * Verify: XY_ROMFS=.Data/Raw_Extracted/romfs python3 xy-decomp/armcc-matching/tools/fingerprint_fn.py DllPuzzle 0x9310 0x2c xy-decomp/armcc-matching/matched/DllPuzzle/0x9310.c
  */
