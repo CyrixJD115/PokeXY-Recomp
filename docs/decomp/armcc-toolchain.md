@@ -296,3 +296,8 @@ The earlier framing — "compiler parity (matching **GCC** version/flags)"
 byte-match the original compiler); it's specifically **matching-decomp's
 byte-identical goal** that needs armcc, not GCC. `docs/general/findings.md`
 has been updated to point here instead of repeating the GCC assumption.
+
+### Jump-table case mapping from CRO relocations — `jumptable_relocs.py` (2026-10-16)
+
+`--mask-ranges` masks the zero jump-table words in the unlinked CRO, so on its own it only proves the case *bodies* and their order, not which case value selects which body. The mapping is recoverable from the CRO itself: each table word is covered by an internal relocation (CRO header `0x128`, 12-byte entries `{u32 patched segment-tag, u8 type, u8 last, u8 src-seg, u8 pad, u32 addend}`; target = `segment[src].offset + addend`). `xy-decomp/armcc-matching/tools/jumptable_relocs.py <Module> <tbl_lo> <tbl_hi>` prints `slot N @file-offset -> target body address` for a table's file-offset range. Used to label four small dispatchers (DllBattle `0x60e00`, DllField `0x79dc4`, `0x94d48`; `0x11298` needed no mask) as *relocation-derived, not compiler-proven*. Dead ends found with it: DllBattle `0x4b82c` (retail bytes contain `bl; nop; nop; b` relaxation nops, and armcc folds the `+0x100+N` adds retail keeps separate), `0x71250` and its getter sibling `0x743a8` (retail keeps `this` in r3 across a `bl`, as if the callee's register use were known), `0x6de1c` (30/32; only the order of two prologue moves differs).
+

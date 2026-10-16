@@ -1695,13 +1695,16 @@ Kinds (find them all with
 |---|---|---|
 | `volatile-strd` | `volatile` on a 64-bit global only to get `strd` | 10 (globals-init family, incl. DllSalon@0xdd0) |
 | `volatile-load` | `volatile` field only to keep armcc from narrowing/dropping a load | DllUSGymIce@0x278, DllSequence@0x10a80 |
-| `redundant-local` | named literal/temp local only to steer armcc's constant-register choice | DllKisekae@0xb6f0, DllBattle@0x39c0, DllGts@0x8850, DllUSGymEsper@0x480, DllPoke3Select@0x63c, DllWazaOmoidashi@0x924, DllField@0x10c34, 0x10c54 |
+| `redundant-local` | named literal/temp local only to steer armcc's constant-register choice | DllKisekae@0xb6f0, DllBattle@0x39c0, DllGts@0x8850, DllUSGymEsper@0x480, DllPoke3Select@0x63c, DllWazaOmoidashi@0x924, DllField@0x10c34, 0x10c54, DllBattle@0x2b9dc, 0x75050, 0x74ff8, 0x750a4 |
 | `split-expression` | one expression split across statements only to stop armcc fusing a load (`ldrsh`) | DllTitle@0xd534 |
 | `extra-arg` | unused pass-through int arg(s) to shift register allocation (1 arg -> vtable in r2, 2 -> r3) | DllTownmap@0xb10, 0x3554, 0x35f4, 0xd68, DllBattle@0x7a780 |
 | `static-helper` | one-use static helper to pin an argument register / reproduce r0 reuse | DllEshop@0x1b10, DllHologramMail@0xe970 |
 | `void-ptr-passthrough` | callee declared `void*`, result offset `(char*)fn(p) - N`, to avoid a spare `mov r4,r0` | DllPuzzle@0x1e90, 0x4ba0, DllSalon@0x790, DllHeading@0x868, 0x16f4, 0x8ac, 0x1738 |
 | `pointer-walk` | sequential pointer-cursor moves only to reproduce retail's immediate splits / pre-indexed stores | DllSequence@0x1140, DllNumberInput@0x18fc |
 | `live-r1-passthrough` | return type widened (`long long` built from `this` and the incoming 2nd arg) only to keep r1 live so a shared zero lands in r2 — least natural form; true signature unknown | DllField@0xae58, 0xe3fc, 0xe380 |
+| `volatile-store` | the vptr store goes through a `volatile` pointer purely to pin a register copy (`mov r4,r0`) ahead of the store — used with the C++ inline-member `Reset()` form (needs a `.cpp` file; the verifier switches to C++ mode from the suffix) | DllField@0xb1bb8 and its 23 byte-identical sites |
+| `wider-callee-return` | callee declared `long long` and the caller returns `(int)` of it, only to stop armcc tail-calling (r0 is the low word, the cast costs no code) | DllField@0xe1c4c, 0xe1fe8 |
+| `cpp-inline-member` | pointee-side logic written as an inline C++ member called on the loaded pointer (needs a `.cpp` file) | DllField@0x2948c |
 | `ordering-local` | locals (`vt = VT`, hoisted member loads) only to fix load / pool-load order | the `vt`-local destructor family (15: DllBattleHouseConnect@0x2fc, DllCommendation@0xc94, DllEshop@0x554, DllFatalErrorProc@0x284, DllFriendEntry@0x4c4, DllGameClearSave@0xd6c, DllGameSync@0x5e0, DllLiveCup@0x764, DllRandomTrade@0x8b4, DllStaffRoll@0x2c44, DllSubScreenTutorial@0x12cc, DllTrainerCase@0x37e4, DllTrialDownload@0x728, DllTrialHouseResult@0x2648, DllTradelist@0xc04) + DllGts@0x5be0, 0x53e4, 0x5ba8, 0x5bc4, 0x5ad4, DllSalon@0xd5c, DllBag@0x13848, DllPuzzle@0xbf80, DllTownmap@0x31d4, DllPhotoViewer@0x193c, DllStatus@0xa304, DllKisekae@0xb674, 0xb6ac |
 
 **Audit (2026-10-15):** all 377 matched files were screened — a script flagged
@@ -2089,6 +2092,544 @@ Push-less leaf scan (`armcc-decomp-55`): few leaves in DllBox (1), DllBag (1), D
 
 - `DllField@0xae58` (this+20/+24), `0xe3fc` (this+20/+24) and `0xe380` (this+24/+28) (each 0x10, 4/4, **trick(live-r1-passthrough)**): zero two adjacent ints, retail zeroes through r2. Mechanism: armcc puts the shared zero in the lowest free scratch register after r0 (`this`); retail had r1 live (an incoming arg handed back). An unused extra parameter does NOT keep r1 live; declaring `long long f(T *t, int x)` and returning `((long long)x << 32) | (unsigned)t` does, with zero extra code. **The real signature is unknown — this is the least natural trick form in the tree**; rewrite when the true signature is found.
 - The dtor variant of this class (`DllPuzzle@0xb3fc`, `DllHeading@0x87e4`/`0x881c`, `DllBox@0x1dfac`/`0x1df3c`, `DllGts@0x9824`) is still open, but its instruction ordering is solved (`void **vt = VT; void *m = o->f14; o->vptr = vt; if (m) {...}`); only the zero register differs. See `attempted.md`.
+
+## 2026-10-16 round a — batch 1 (DllBattle getters, all natural)
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllBattle` | `0x1cc04` (0xc, 3/3) | natural | returns the address of the embedded sub-object at this+0xca4 (add 0xc00; add 0xa4) |
+| `DllBattle` | `0x4c278` (0xc, 3/3) | natural | getter: returns the u16 field at this+0x162 |
+| `DllBattle` | `0x4c7fc` (0xc, 3/3) | natural | getter: returns the u16 field at this+0x160 |
+| `DllBattle` | `0xc86c8` (0xc, 3/3) | natural | getter: returns the u16 field at this+0x15c |
+| `DllBattle` | `0xc8754` (0xc, 3/3) | natural | getter: returns the u16 field at this+0x150 |
+
+## 2026-10-16 round a — batch 2 (DllBattle + DllField families)
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllBattle` | `0x2984` (0x40, 16/16) | natural | lazy-member creator: n = new(12, this->@0x20); if (n) { n->@4 = n->@8 = 0; n->vt = <vtable> } this->@0x14 = n; n->@4 = this (back-pointer). Pool word is a relocation. Masked match 16/16. |
+| `DllBattle` | `0xc074` (0x30, 12/12) | natural | virtual-override: ctx = *this; sets ctx bytes @0x7d8/@0x7d9 = 1 and ctx->@0x7e0 = ctx->@0x10->@0x40, calls import(10), returns 1. Masked match 12/12. |
+| `DllBattle` | `0xea24` (0x18, 6/6) | natural | virtual-override wrapper: calls import(this->@0x40, 0) and returns 1 (true). Masked match 6/6. |
+| `DllBattle` | `0x16aa0` (0x14, 5/5) | natural | virtual-override wrapper: calls import(this, this->@0x10) and returns 1 (true). Masked match 5/5. |
+| `DllBattle` | `0x16bf0` (0x34, 13/13) | natural | virtual-override: calls import(this+0x88, this, 0) then import(this+0x428, this, 1) (two embedded sub-objects bound to this), returns 1. Masked match 13/13. |
+| `DllBattle` | `0x44d4c` (0x18, 6/6) | natural | calls a helper and returns its logical negation (1 if it returned 0). |
+| `DllBattle` | `0x4d348` (0x1c, 7/7) | natural | looks up an object via this->[2], returns its byte field at +25, or 31 if none. |
+| `DllBattle` | `0x5f848` (0x18, 6/6) | natural | calls a helper and returns true if it returned 0. |
+| `DllBattle` | `0x71840` (0x10, 4/4) | natural | zero-inits a 6-byte struct: u32 at +0, u16 at +4 |
+| `DllBattle` | `0x742b0` (0x10, 4/4) | natural | calls a helper (result discarded) and returns 0. |
+| `DllBattle` | `0x76384` (0x14, 5/5) | natural | counted u32 array getter, i < p[24] ? ((u32*)p)[i] : 0 (twin of 0x5daf8) |
+| `DllBattle` | `0xc5c18` (0x28, 10/10) | natural | clears a 26-byte struct: zero byte at +24 and +25, then six zero u32 stores (+0..+20) |
+| `DllBattle` | `0xc87a0` (0x14, 5/5) | natural | counted byte array getter, i < p[25] ? p[i] : 6 |
+| `DllBattle` | `0xc9e30` (0x14, 5/5) | natural | zero-inits a 10-byte struct: u32 at +0, u32 at +4, u16 at +8 |
+| `DllBattle` | `0xc9e44` (0x14, 5/5) | natural | zero-inits a 12-byte struct: three zero u32 stores (+0,+4,+8) |
+| `DllBattle` | `0xc9e58` (0x10, 4/4) | natural | zero-inits a 5-byte struct: u32 at +0, u8 at +4 |
+| `DllField` | `0x7f40` (0x1c, 7/7) | natural | zeroes four floats at this+4..+16 (vldr s0 from the pool word, 4x vstr); size includes the literal-pool word. |
+| `DllField` | `0x9888` (0xc, full (masked)) | natural | setter: stores arg1/arg2 into the adjacent int pair at this+28/this+32 (add r0,#28; stm). |
+| `DllField` | `0x132b8` (0x1c, 7/7) | natural | Predicate: passes this->field@0x24 to a callee and returns its logical negation (1 if result is 0). |
+| `DllField` | `0x14c60` (0x1c, 7/7) | natural | Predicate: passes this->field@0x24 to a callee and returns its logical negation (1 if result is 0). |
+| `DllField` | `0x1959c` (0xc, full (masked)) | natural | setter: stores arg1/arg2 into the adjacent int pair at this+28/this+32 (add r0,#28; stm). |
+| `DllField` | `0x1bd34` (0x14, 5/5) | natural | Call+return helper: calls an import veneer with this, returns this. |
+| `DllField` | `0x28b28` (0x10, 4/4) | natural | vptr setter: stores a class vtable address (pool word, relocated at link) into this[0]; size includes the pool word. |
+| `DllField` | `0x28dc4` (0x10, 4/4) | natural | vptr setter: stores a class vtable address (pool word, relocated at link) into this[0]; size includes the pool word. |
+| `DllField` | `0x29060` (0x10, 4/4) | natural | vptr setter: stores a class vtable address (pool word, relocated at link) into this[0]; size includes the pool word. |
+| `DllField` | `0x29080` (0x10, 4/4) | natural | vptr setter: stores a class vtable address (pool word, relocated at link) into this[0]; size includes the pool word. |
+| `DllField` | `0x29420` (0x10, 4/4) | natural | vptr setter: stores a class vtable address (pool word, relocated at link) into this[0]; size includes the pool word. |
+| `DllField` | `0x29ac0` (0x10, 4/4) | natural | vptr setter: stores a class vtable address (pool word, relocated at link) into this[0]; size includes the pool word. |
+| `DllField` | `0x29e20` (0x10, 4/4) | natural | vptr setter: stores a class vtable address (pool word, relocated at link) into this[0]; size includes the pool word. |
+| `DllField` | `0x2aec4` (0x10, full (masked)) | natural | init: stores the owner pointer arg at this+24 and caches owner->field(+408) at this+28. |
+| `DllField` | `0x334d8` (0x20, 8/8) | natural | Destructor stage: calls an import veneer (this, 1), then another on the sub-object at this+108, returns this. |
+| `DllField` | `0x3424c` (0x10, full (masked)) | natural | init: stores the owner pointer arg at this+24 and caches owner->field(+408) at this+36. |
+| `DllField` | `0x343b4` (0x10, full (masked)) | natural | init: stores the owner pointer arg at this+24 and caches owner->field(+408) at this+28. |
+| `DllField` | `0x387c0` (0x10, full (masked)) | natural | init: stores the owner pointer arg at this+24 and caches owner->field(+408) at this+32. |
+| `DllField` | `0x3e5c8` (0x10, full (masked)) | natural | init: stores the owner pointer arg at this+24 and caches owner->field(+408) at this+32. |
+| `DllField` | `0x417f8` (0xc, full (masked)) | natural | setter: stores arg1/arg2 into the adjacent int pair at this+44/this+48 (add r0,#44; stm). |
+| `DllField` | `0x41f24` (0xc, full (masked)) | natural | setter: stores arg1/arg2 into the adjacent int pair at this+28/this+32 (add r0,#28; stm). |
+| `DllField` | `0x42f7c` (0xc, full (masked)) | natural | setter: stores arg1/arg2 into the adjacent int pair at this+28/this+32 (add r0,#28; stm). |
+| `DllField` | `0x4344c` (0xc, full (masked)) | natural | setter: stores arg1/arg2 into the adjacent int pair at this+28/this+32 (add r0,#28; stm). |
+| `DllField` | `0x444f0` (0xc, full (masked)) | natural | setter: stores arg1/arg2 into the adjacent int pair at this+28/this+32 (add r0,#28; stm). |
+| `DllField` | `0x4a408` (0x18, 6/6) | natural | range predicate: returns (this->field4 - 6) <= 3 unsigned, i.e. field4 in 6..9. |
+| `DllField` | `0x57d1c` (0x18, 6/6) | natural | range predicate: returns (this->field4 - 4) <= 3 unsigned, i.e. field4 in 4..7. |
+| `DllField` | `0x57d54` (0x14, 5/5) | natural | predicate: returns this->field4 == 7. |
+| `DllField` | `0x5ee58` (0x14, 5/5) | natural | Virtual-override stub: ignores this, calls an import veneer with arg2->f4 (the second argument's field at offset 4) and returns 0. |
+| `DllField` | `0x74dd8` (0x10, 4/4) | natural | kind setter (=2), returns sub-record at arg1+276 |
+| `DllField` | `0x74de8` (0x10, 4/4) | natural | kind setter (=3), returns sub-record at arg1+296 |
+| `DllField` | `0x74df8` (0x10, 4/4) | natural | kind setter (=3), returns sub-record at arg1+308 |
+| `DllField` | `0x74e08` (0x10, 4/4) | natural | kind setter (=3), returns sub-record at arg1+320 |
+| `DllField` | `0x74e18` (0x10, 4/4) | natural | kind setter (=4), returns sub-record at arg1+332 |
+| `DllField` | `0x7f628` (0x10, 4/4) | natural | table getter: u16 at +22 from 12-byte entry [i] of r3 table |
+| `DllField` | `0x7f65c` (0x10, 4/4) | natural | table getter: u16 at +8 from 12-byte entry [i] |
+| `DllField` | `0x7f678` (0x10, 4/4) | natural | table getter: u16 at +20 from 12-byte entry [i] |
+| `DllField` | `0x7fb78` (0x5c, 23/23) | natural | initializer: zeroes two u16, 11 floats at +4..+0x2c, int +0x30, float +0x34, sets int +0x38 = 15, zeroes +0x3c/+0x40; size includes the pool word. |
+| `DllField` | `0x84e54` (0x18, 6/6) | natural | Bool getter: returns (Import(this->f12) != 0), i.e. loads the pointer at offset 12, passes it to an import veneer and normalises the result to 0/1 (cmp/movne). |
+| `DllField` | `0x948d8` (0x18, 6/6) | natural | Field-chain getter: loads this->f68 (0x44), calls a no-arg import veneer for its side effect (result unused), then returns the byte at ((f68)->f144)+330. |
+| `DllField` | `0x98bf0` (0x10, 4/4) | natural | Negated predicate: calls an import veneer with this unchanged and returns its result XOR 1 (logical not of a boolean getter). |
+| `DllField` | `0xa0024` (0xc, 3/3) | natural | getter this->inner(+68)->u8(+160) |
+| `DllField` | `0xa0bdc` (0xc, 3/3) | natural | getter this->inner(+68)->int(+152) |
+| `DllField` | `0xe4878` (0x10, 4/4) | natural | Call+return helper: forwards this to an import veneer (void result discarded) and returns the constant 12. |
+
+Notes:
+- **DllField vptr setters** (`extern char VT[]; *p = VT;`, 0x10 incl. the pool word): the offsets in the earlier list were the *preceding pool word*; the functions start 4 bytes later — `0x28b28`, `0x28dc4`, `0x29060`, `0x29080`, `0x29420`, `0x29ac0`, `0x29e20`.
+- **DllField table getters at +20/+22** reach past the 12-byte stride into the next entry, so the `t[i].k` form of `0x7f60c` can't express them: use `struct E { char pad[12]; }` and `*(unsigned short *)((char *)&t[i] + N)`.
+- Open DllField: tail-call thunks to `0x16c0`/`0x6d64c` (e.g. `0x9d9d4`, `0x92318`, `0x9e904`, `0x9ea4c`, `0x9ea64`, `0x9ea7c`, `0x9ecd8`, `0x9ecf0`); the `bl; mov r0,#0/#1` family (`0x945d4`, `0x97ce0`, `0x9e594`, `0x95454`, `0xa50c4`); `push {lr}` leaf stubs `0x4a564`, `0x4ebd8`. ~25 push-with-lr+call candidates below `0x40000` were outside `matched/`.
+- Open DllBattle: `0x2f34` (same shape as `0x2984`, `this->@0x1c`/`@0x10`), `0x2da0`/`0x2dd8` (dtor-style, free member +0x14), `0x5faa0` (u32+u8 copy; same residue expected), `0x4ca4c` (bitset test).
+
+## 2026-10-16 round a — batch 3 (DllField GetMgr chains, DllBattle forwarders/comparisons/leaves)
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllBattle` | `0x224c` (0x30, 12/12) | natural | teardown step: if (this->@0x24) vcall slot 1; fn(this->@0x20); return 1 |
+| `DllBattle` | `0x2f34` (0x40, 16/16) | natural | lazy-member creator: n = new(12, this->@0x1c); init n (owner/b/vt) if non-null; this->@0x10 = n; n->owner = this |
+| `DllBattle` | `0x12fcc` (0x40, 16/16) | **trick(ordering-local)** | dtor stage: install vtable, vcall slot 1 on member @8 if non-null, free member @0xc if non-null (no zero), return this |
+| `DllBattle` | `0x4b81c` (0x10, 4/4) | natural | getter: loads this->+4 -> +16 (object pointer chain) then returns the u8 at +16 (3-deep ldr/ldr/ldrb chain). Family: 0x4bf14 (u8 at +1), 0x544ec (u8 at +0), identical chain. |
+| `DllBattle` | `0x4b8d4` (0xc, 3/3) | natural | getter: returns the u8 at +9 of the object pointed to by this->+28 (ldr; ldrb). Family: 0xc7580 (+16 -> +72). |
+| `DllBattle` | `0x4bf14` (0x10, 4/4) | natural | getter: this->+4->+16 pointer chain, returns the u8 at +1 of the final object. Sibling of 0x4b81c (field +16) and 0x544ec (field +0). |
+| `DllBattle` | `0x544ec` (0x10, 4/4) | natural | getter: this->+4->+16 pointer chain, returns the u8 at +0 of the final object. Sibling of 0x4b81c / 0x4bf14. |
+| `DllBattle` | `0x704ac` (0x20, 8/8) | **trick(redundant-local)** | bit-pack builder + store: *p = (a<<4 & 0x70) \| 3 \| (b<<7 & 0x380) (two fields, constant tag 3). |
+| `DllBattle` | `0x76e20` (0x10, 4/4) | natural | bit-pack builder: ((a << 3) & 0x1f8) \| 3 -- 6-bit field at bit 3 with a constant low tag 3. Identical bytes at 0x9e638 (also matched here). |
+| `DllBattle` | `0x78668` (0x24, all (masked)) | natural | returns fn(0x100) > *p (unsigned compare of a helper result against a word read through p). |
+| `DllBattle` | `0x78c70` (0x24, all (masked)) | natural | returns fn(0x100) == *p (helper result compared for equality with a word read through p). |
+| `DllBattle` | `0x78c94` (0x24, all (masked)) | natural | returns fn(0x100) < *p (unsigned compare of a helper result against a word read through p). |
+| `DllBattle` | `0x79624` (0x24, all (masked)) | natural | returns fn(0x100) != *p (helper result compared for inequality with a word read through p). |
+| `DllBattle` | `0x797b0` (0x1c, 7/7) | **trick(redundant-local)** | bit-pack builder: (b<<3 & 0x1f8) \| 4 \| (a<<9 & 0x7e00) -- two fields plus constant tag 4. Retail hoists both mask constants before the shifts/ands; plain expression loads them interleaved. |
+| `DllBattle` | `0x80124` (0x1c, all (masked)) | natural | returns whether fn(u16 at +198, 3) is non-zero (bool wrapper over a helper call). |
+| `DllBattle` | `0x82324` (0x14, all (masked)) | natural | returns !fn(o, p->a, p->b): calls a predicate with a two-word pair unpacked from p, then flips the boolean (eor #1). |
+| `DllBattle` | `0x9e638` (0x10, 4/4) | natural | bit-pack builder: ((a << 3) & 0x1f8) \| 3 -- byte-identical sibling of 0x76e20. |
+| `DllBattle` | `0xa6a50` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (4) to shared worker 0x4c5e0 |
+| `DllBattle` | `0xa6d3c` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (1) to shared worker 0x4c5e0 |
+| `DllBattle` | `0xa7584` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (0) to shared worker 0x4c5e0 |
+| `DllBattle` | `0xa782c` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (2) to shared worker 0x4c5e0 |
+| `DllBattle` | `0xa7d34` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (3) to shared worker 0x4c5e0 |
+| `DllBattle` | `0xa7e94` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (4) to shared worker 0x4c5e0 |
+| `DllBattle` | `0xa82a4` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (1) to shared worker 0x4c5e0 |
+| `DllBattle` | `0xa8e48` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (0) to shared worker 0x4c5e0 |
+| `DllBattle` | `0xa91d8` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (2) to shared worker 0x4c5e0 |
+| `DllBattle` | `0xa958c` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (16) to shared worker 0x4c284 |
+| `DllBattle` | `0xa95ac` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (3) to shared worker 0x4c5e0 |
+| `DllBattle` | `0xa9684` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (13) to shared worker 0x4c284 |
+| `DllBattle` | `0xa9698` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (7) to shared worker 0x4c284 |
+| `DllBattle` | `0xa97fc` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (5) to shared worker 0x4c284 |
+| `DllBattle` | `0xa9de8` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (3) to shared worker 0x4c284 |
+| `DllBattle` | `0xaa048` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (11) to shared worker 0x4c284 |
+| `DllBattle` | `0xaa120` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (10) to shared worker 0x4c284 |
+| `DllBattle` | `0xaa134` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (6) to shared worker 0x4c284 |
+| `DllBattle` | `0xaa148` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (0) to shared worker 0x4c284 |
+| `DllBattle` | `0xaa1f4` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (17) to shared worker 0x4c284 |
+| `DllBattle` | `0xaa46c` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (12) to shared worker 0x4c284 |
+| `DllBattle` | `0xaa480` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (2) to shared worker 0x4c284 |
+| `DllBattle` | `0xaa510` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (9) to shared worker 0x4c284 |
+| `DllBattle` | `0xaa550` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (4) to shared worker 0x4c284 |
+| `DllBattle` | `0xaa564` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (1) to shared worker 0x4c284 |
+| `DllBattle` | `0xaa668` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (14) to shared worker 0x4c284 |
+| `DllBattle` | `0xaa948` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (15) to shared worker 0x4c284 |
+| `DllBattle` | `0xaa95c` (0x14, 5/5) | natural | void wrapper forwarding 4 int args plus a constant fifth stack arg (8) to shared worker 0x4c284 |
+| `DllBattle` | `0xc7580` (0xc, 3/3) | natural | getter: returns the u8 at +72 of the object pointed to by this->+16 (ldr; ldrb). Sibling of 0x4b8d4. |
+| `DllField` | `0x4a49c` (0x1c, masked match (all words, b/bl masked)) | natural | Calls an import veneer (this, 2, 34, this->byte@10) and returns 1. |
+| `DllField` | `0x58b88` (0x18, 6/6) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28, and tail-calls a helper with the loaded value (`pop {r4,lr}; b`). |
+| `DllField` | `0x59c98` (0x1c, masked match (all words, b/bl masked)) | natural | Calls H(G(a), b[1]) -- second arg is loaded from the second param before the first call -- and returns 0. |
+| `DllField` | `0x5aa14` (0x1c, masked match (all words, b/bl masked)) | natural | Getter: G(a)->+12->+28 chain, then reads the u16 at +292 (sub-struct at +288, field at +4). |
+| `DllField` | `0x5b29c` (0x1c, masked match (all words, b/bl masked)) | natural | Getter: G(a)->+12->+28, then ptr@+384, returns signed byte ptr[1]. |
+| `DllField` | `0x5c470` (0x20, 8/8) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +240, passes the loaded value to a void helper and returns 0. |
+| `DllField` | `0x5c4bc` (0x20, 8/8) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +20, passes the loaded value to a void helper and returns 0. |
+| `DllField` | `0x5c9dc` (0x20, 8/8) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +240, passes the loaded value to a void helper and returns 0. |
+| `DllField` | `0x5d898` (0x20, 8/8) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +240, passes the loaded value to a void helper and returns 0. |
+| `DllField` | `0x5d9cc` (0x20, 8/8) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +240, passes the loaded value to a void helper and returns 0. |
+| `DllField` | `0x5eb24` (0x20, 8/8) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +36, passes the loaded value to a void helper and returns 0. |
+| `DllField` | `0x5f504` (0x1c, masked match (all words, b/bl masked)) | natural | Loads t=a->@68 first, calls G(a), then H(t->@144) and returns 0. |
+| `DllField` | `0x91ddc` (0x20, 8/8) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +44 -> +20, passes the loaded value to a void helper and returns 0. |
+| `DllField` | `0x92318` (0x18, 6/6) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +64, and tail-calls a helper with the loaded value (`pop {r4,lr}; b`). |
+| `DllField` | `0x945d4` (0x10, 4/4) | natural | Forwards this to an import veneer (result discarded) and returns 0. |
+| `DllField` | `0x95454` (0x14, 5/5) | natural | Calls two no-arg import veneers in sequence and returns 0. |
+| `DllField` | `0x9619c` (0x20, 8/8) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +316, passes the loaded value to a void helper and returns 0. |
+| `DllField` | `0x97ce0` (0x10, 4/4) | natural | Forwards this to an import veneer (result discarded) and returns 1. |
+| `DllField` | `0x98c4c` (0x20, 8/8) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +52, passes the loaded value to a void helper and returns 0. |
+| `DllField` | `0x98cd0` (0x1c, 7/7) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +56 -> +4 and returns the loaded word. |
+| `DllField` | `0x9921c` (0x1c, 7/7) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +52, and tail-calls a helper with the loaded value (`pop {r4,lr}; b`). |
+| `DllField` | `0x995e4` (0x20, 8/8) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +52, passes the loaded value to a void helper and returns 0. |
+| `DllField` | `0x9a04c` (0x1c, 7/7) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +52 -> +1596 and returns the loaded word. |
+| `DllField` | `0x9ad74` (0x1c, 7/7) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +56 -> +8 and returns the loaded word. |
+| `DllField` | `0x9adc4` (0x1c, 7/7) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +56 -> +0 and returns the loaded word. |
+| `DllField` | `0x9bb0c` (0x1c, 7/7) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +408, and tail-calls a helper with the loaded value (`pop {r4,lr}; b`). |
+| `DllField` | `0x9bb4c` (0x20, 8/8) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +408, passes the loaded value to a void helper and returns 0. |
+| `DllField` | `0x9bccc` (0x1c, 7/7) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +408, and tail-calls a helper with the loaded value (`pop {r4,lr}; b`). |
+| `DllField` | `0x9be30` (0x20, 8/8) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +408, passes the loaded value to a void helper and returns 0. |
+| `DllField` | `0x9c088` (0x1c, 7/7) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +408, and tail-calls a helper with the loaded value (`pop {r4,lr}; b`). |
+| `DllField` | `0x9c2ec` (0x20, 8/8) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +408, passes the loaded value to a void helper and returns 0. |
+| `DllField` | `0x9c30c` (0x20, 8/8) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +408, passes the loaded value to a void helper and returns 0. |
+| `DllField` | `0x9d66c` (0x1c, 7/7) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +20, and tail-calls a helper with the loaded value (`pop {r4,lr}; b`). |
+| `DllField` | `0x9d9d4` (0x18, 6/6) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28, and tail-calls a helper with the loaded value (`pop {r4,lr}; b`). |
+| `DllField` | `0x9e344` (0x1c, 7/7) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +100, passes the loaded value to a void helper and returns 0. |
+| `DllField` | `0x9e594` (0x10, 4/4) | natural | Calls a no-arg import veneer (result discarded) and returns 0. |
+| `DllField` | `0x9e708` (0x1c, 7/7) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +100, passes the loaded value to a void helper and returns 0. |
+| `DllField` | `0x9e904` (0x18, 6/6) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +100, and tail-calls a helper with the loaded value (`pop {r4,lr}; b`). |
+| `DllField` | `0x9ea4c` (0x18, 6/6) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12, passes the loaded value to a void helper and returns 0. |
+| `DllField` | `0x9ea64` (0x18, 6/6) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12, passes the loaded value to a void helper and returns 0. |
+| `DllField` | `0x9ea7c` (0x18, 6/6) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +100 -> +2712 and returns the loaded word. |
+| `DllField` | `0x9ecd8` (0x18, 6/6) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +100, and tail-calls a helper with the loaded value (`pop {r4,lr}; b`). |
+| `DllField` | `0x9ecf0` (0x18, 6/6) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +100, and tail-calls a helper with the loaded value (`pop {r4,lr}; b`). |
+| `DllField` | `0x9efe0` (0x1c, 7/7) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +100, passes the loaded value to a void helper and returns 0. |
+| `DllField` | `0x9f170` (0x18, 6/6) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +100, and tail-calls a helper with the loaded value (`pop {r4,lr}; b`). |
+| `DllField` | `0x9f1b0` (0x18, 6/6) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +100, and tail-calls a helper with the loaded value (`pop {r4,lr}; b`). |
+| `DllField` | `0x9f1c8` (0x18, 6/6) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +100, and tail-calls a helper with the loaded value (`pop {r4,lr}; b`). |
+| `DllField` | `0xa50c4` (0x14, 5/5) | natural | Passes the pointer field at this+344 to an import veneer and returns 0. |
+
+**Families and leads from this batch**
+- **DllField `GetMgr()` accessor chains (38 matches, `armcc-r2-f6`):** `p = GetMgr();` (`bl 0x16c0`) followed by a chain of `*(int*)(...)` loads, one per `ldr` (`push {r4,lr}; bl 0x16c0; ldr r0,[r0,#12]; ...`), in three tail shapes — 14 tail-call thunks (`Tail(chain)`, `pop {r4,lr}; b`: chains `12,28` / `12,64` / `12,28,52` / `12,72,408` / `12,28,20` / `12,100`), 5 return-chain getters (`pop {r4,pc}`: `0x98cd0`, `0x9a04c`, `0x9ad74`, `0x9adc4`, `0x9ea7c`) and 19 void-call-then-`return 0` (`Sink(chain); return 0;`). Chains with `ldrb`/`ldrh`/other loads or extra args were not tried; many other `0x16c0` callers (e.g. `0x5de80`, `0x92d6c`, `0x94824`) have a different shape; none called `0x6d64c` with this shape.
+- **DllBattle forwarding family (28 matches, `armcc-r2-b9`):** `push {r3,lr}; mov ip,#N; str ip,[sp]; bl worker; pop {r3,pc}` — `void fn(int a,int b,int c,int d){ fn_X(a,b,c,d,N); }`: worker `0x4c5e0` (`0xa6a50` N=4, `0xa6d3c` 1, `0xa7584` 0, `0xa782c` 2, `0xa7d34` 3, `0xa7e94` 4, `0xa82a4` 1, `0xa8e48` 0, `0xa91d8` 2, `0xa95ac` 3) and worker `0x4c284` (`0xa958c` 16, `0xa9684` 13, `0xa9698` 7, `0xa97fc` 5, `0xa9de8` 3, `0xaa048` 11, `0xaa120` 10, `0xaa134` 6, `0xaa148` 0, `0xaa1f4` 17, `0xaa46c` 12, `0xaa480` 2, `0xaa510` 9, `0xaa550` 4, `0xaa564` 1, `0xaa668` 14, `0xaa948` 15, `0xaa95c` 8). Not tried: `0xa9e08` (calls a local function), the this-adjusting thunks `0xc9c4c`/`0xc9c60`/`0xc9c74`/`0xc9c88`/`0xc9c9c`, `0xc8f80` (`uint16 f(o){ return g(o->x_0xc); }`), the ctor stages `0xc6d24`/`0xc6d38` (base ctor, then `this->[0x48] = this`).
+- **DllBattle comparison wrappers (`armcc-r2-b8`):** `0x78c70` (`fn(0x100) == *p`), `0x78c94` (`<`, unsigned, `movcc`/`movcs`), `0x78668` (`>`, `movhi`/`movls`), `0x79624` (`!=`). ~128 candidates (push, 0x14-0x60 bytes) remain in `0x60000`-`0x90000`; small ones not yet tried: `0x71a2c`, `0x89aac`, `0x7b234`.
+- **DllBattle push-less leaf scan (`armcc-r2-b10`):** 884 chunks, ~590 are `<pool junk>; mov r1,#N; str r1,[r0]; ldr r0,[pc]; bx lr` singleton stubs near `0xa4xxx`-`0xa8xxx` (not tried); untried families are listed in `attempted.md` (float vec3 setters, vec3/8-byte copies, `==N` boolean getters, conditional-store chains, indexed `(i&1)` getters, `ldrsb` getters, orr-shift setters, `vldr/vstmia` pair copies).
+- **DllBattle `0x12fcc`** (0x40, 16/16, **trick(ordering-local)**): size must include the trailing pool word (0x3c fails by one word).
+- **DllField `0x5aa14`** needs a sub-struct at +288 `{int; u16}` — a flat +292 offset makes armcc emit `add #256` plus `ldrh #36`. **Bit-pack builders** `0x797b0` / `0x704ac` need named mask locals `m1`, `m2` plus a separate `v |= tag` statement (retail loads both mask constants before the shifts); tagged `trick(redundant-local)`.
+- **DllField open:** ~70 candidates at 0x1c-0x2c bytes in `0x40000`-`0x90000`; not yet tried: `0x4a478`, `0x543b4`, `0x547a8`, `0x552b0`, `0x552d0`, `0x552f0`, `0x55310`, `0x58ba0` (`0x4368c`/`0x44f6c` are `push {r4,lr}; bl; pop {r4,lr}; b` tail-call shapes, skipped).
+
+## 2026-10-16 round a — batch 4 (DllBattle 0x30000 range, DllField 0x90000+)
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllBattle` | `0x3f444` (0x28, 10/10) | natural | teardown stage: if member at +0x840 non-null, fnB(fnA(member)); then clear member |
+| `DllBattle` | `0x4af00` (0x30, 12/12) | natural | range-check assert (x>=2 -> fnA(0,0,0)) then return x==0 |
+| `DllBattle` | `0x4c948` (0x24, 9/9) | natural | tail-call fnB(this, fnA(this+0x437c)) |
+| `DllBattle` | `0x4d2f4` (0x24, 9/9) | natural | r = fnB(fnA(this,14), p); returns r, or 1 if r==0 |
+| `DllField` | `0xc2b64` (0x20, 8/8) | natural | this->[152] non-null && import() != 0 bool getter (null returns the 0 loaded) |
+| `DllField` | `0xc74c4` (0x28, 10/10) | natural | if import check(this) true: clear words +164/+168, return byte +188; else 0 |
+| `DllField` | `0xcac98` (0x28, 10/10) | natural | sibling of 0xc74c4 -- if import check(this) true: clear words +164/+168, return byte +188; else 0 |
+| `DllField` | `0xe1208` (0x1c, 7/7) | natural | calls a void import, then returns (import() == 3) |
+| `DllField` | `0xe4588` (0x20, 8/8) | natural | returns (import(this->[8]->[20]) < 6) as an unsigned compare |
+
+Notes: DllBattle `0x30000`-`0x60000` has ~55 more candidates (0x14-0x60 bytes); the six attempts below are logged in `attempted.md`. DllField `0x90000`+ skipped `0xca330`/`0xca494` (save r4-r8, body looks like the `0xc74c4` shape) and `0xe2160` (zero lands in r2 instead of r1). **Two high-value unmatched families:** `DllField@0xde620` (~11 byte-identical sites) and `DllField@0xb1bb8` (24 byte-identical sites) — see `attempted.md`.
+
+## 2026-10-16 round a — batch 5 (DllField 0x0-0x40000 families)
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllField` | `0x5740` (0x28, 10/10) | natural | wrapper Imp(this,0,0,0,1,0) with 2 stack args |
+| `DllField` | `0x5784` (0x28, 10/10) | natural | wrapper Imp(this,0,0,0,1,0) with 2 stack args |
+| `DllField` | `0x9acc` (0x10, 4/4) | natural | two-stage call chain B(A(this)) (A result forwarded as tail-call arg) |
+| `DllField` | `0x12b84` (0x34, 13/13) | natural | Imp(0x6002f,0,-1,0); this->o@32 byte89=1; this[37]=1 |
+| `DllField` | `0x130e0` (0x2c, 11/11) | natural | if (this->p@0x7c && id==20) p->vt[0](p); return 1 |
+| `DllField` | `0x1980c` (0x28, 10/10) | natural | constructor: base ctor call, vtable install, field clears, returns this |
+| `DllField` | `0x1acd4` (0x28, 10/10) | natural | calls child(this+0x2c) virtual slot 16 with v, then stores byte v at this+200 |
+| `DllField` | `0x243d4` (0x2c, 10/10) | natural | constructor: base ctor call, vtable install, field clears, returns this |
+| `DllField` | `0x2aa40` (0x1c, 7/7) | natural | Imp(8); this[32]=0; returns that zero (char return of assignment) |
+| `DllField` | `0x2aee0` (0x1c, 7/7) | natural | Imp(8); this[32]=0; returns that zero (char return of assignment) |
+| `DllField` | `0x2b0d4` (0x10, 4/4) | natural | two-stage call chain B(A(this)) (A result forwarded as tail-call arg) |
+| `DllField` | `0x2b380` (0x2c, 11/11) | natural | if (this->p@32) { p->vt[1](p); this->p = 0; } |
+| `DllField` | `0x2b8d0` (0x30, 12/12) | natural | if (Chk(h=this[24])) Act(h,1,1) tail call |
+| `DllField` | `0x31b40` (0x2c, 11/11) | natural | if (this->p@48) { p->vt[1](p); this->p = 0; } |
+| `DllField` | `0x320e8` (0x10, 4/4) | natural | two-stage call chain B(A(this)) (A result forwarded as tail-call arg) |
+| `DllField` | `0x33ef4` (0x2c, 11/11) | natural | if (this->p@48) { p->vt[1](p); this->p = 0; } |
+| `DllField` | `0x343d0` (0x1c, 7/7) | natural | Imp(8); this[32]=0; returns that zero (char return of assignment) |
+| `DllField` | `0x36bfc` (0x2c, 11/11) | natural | if (this->p@48) { p->vt[1](p); this->p = 0; } |
+| `DllField` | `0x37054` (0x2c, 11/11) | **trick(redundant-local)** | constructor: base ctor call, vtable install, field clears, returns this |
+| `DllField` | `0x37080` (0x10, 4/4) | natural | two-stage call chain B(A(this)) (A result forwarded as tail-call arg) |
+| `DllField` | `0x3728c` (0x10, 4/4) | natural | two-stage call chain B(A(this)) (A result forwarded as tail-call arg) |
+| `DllField` | `0x387d8` (0x2c, 11/11) | natural | if (this->p@40) { p->vt[1](p); this->p = 0; } |
+| `DllField` | `0x38a80` (0x10, 4/4) | natural | two-stage call chain B(A(this)) (A result forwarded as tail-call arg) |
+| `DllField` | `0x397b0` (0x10, 4/4) | natural | two-stage call chain B(A(this)) (A result forwarded as tail-call arg) |
+| `DllField` | `0x39864` (0x10, 4/4) | natural | two-stage call chain B(A(this)) (A result forwarded as tail-call arg) |
+| `DllField` | `0x399e8` (0x10, 4/4) | natural | two-stage call chain B(A(this)) (A result forwarded as tail-call arg) |
+| `DllField` | `0x3c474` (0x10, 4/4) | natural | two-stage call chain B(A(this)) (A result forwarded as tail-call arg) |
+| `DllField` | `0x3c53c` (0x10, 4/4) | natural | two-stage call chain B(A(this)) (A result forwarded as tail-call arg) |
+| `DllField` | `0x3f034` (0x2c, 11/11) | natural | if (this->p@40) { p->vt[6](p); this->p = 0; } |
+| `DllField` | `0x3fba0` (0x10, 4/4) | natural | two-stage call chain B(A(this)) (A result forwarded as tail-call arg) |
+
+**Families from this batch (`armcc-r2-f8`, DllField `0x00000`-`0x40000`):** two-stage chain `B(A(this))` at 0x10 bytes (12 sites: `0x9acc`, `0x2b0d4`, `0x320e8`, `0x37080`, `0x3728c`, `0x38a80`, `0x397b0`, `0x39864`, `0x399e8`, `0x3c474`, `0x3c53c`, `0x3fba0`); `Imp(8); return this[32] = 0;` with a `char` return (`0x2aa40`, `0x2aee0`, `0x343d0` — these were thought to be the zero-register residue but match with the `char` return); release helper `if (this->p) { p->vt[slot](p); this->p = 0; }` (`0x2b380`, `0x31b40`, `0x33ef4`, `0x36bfc`, `0x387d8` slot 1; `0x3f034` slot 6); base constructors `0x1980c` (0x28), `0x243d4` (0x2c) and `0x37054` (0x2c, **trick(redundant-local)**: a shared `char z = 0` makes armcc load the vtable into r2 and the zero into r1); wrappers `0x5740`/`0x5784` (`Imp(this,0,0,0,1,0)`, two stack args), `0x1acd4` (virtual call through slot 16 of the child at +0x2c, then a byte store), `0x130e0` (event handler, `vt[0]` when id == 20, returns 1), `0x12b84` (state step; the pool word is the constant `0x6002f`, not an address), `0x2b8d0` (`if (Chk(h)) Act(h,1,1)`). The scan script misreads the 0x10 chain stubs; use it only as a first pass.
+- **Unmatched / not counted:** DllField `0x37714`, `0x37760` (dtor shape; retail loads the vtable into r0 after `mov r4,r0`, every form hoists the `ldr` above the `push`, best 5/9), `0x32988` (8/11; retail loads the member into r0 before the compare), `0x2948c` (branch-vs-conditional-execution), `0x7490`/`0x964c` (contain a `nop` — relaxed-only at best).
+
+## 2026-10-16 round a — batch 6 (DllBattle thunks / ctor stages, all natural)
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllBattle` | `0xa9e08` (0x14, all words (masked)) | natural | forwarder: calls local function 0xa9e1c with the 4 incoming args plus a constant 5th stack arg 1. |
+| `DllBattle` | `0xc6d24` (0x14, all words (masked)) | natural | ctor stage: call base ctor, then this->[0x48] = this (self pointer). |
+| `DllBattle` | `0xc6d38` (0x14, all words (masked)) | natural | ctor stage: call a different base ctor, then this->[0x48] = this. |
+| `DllBattle` | `0xc8f80` (0x14, all words (masked)) | natural | return (uint16)g(this->+0xc). |
+| `DllBattle` | `0xc9c48` (0x14, all words (masked)) | natural | deleting-dtor thunk for a secondary base: this-=0xdc, call the base dtor, then tail-call delete on the returned pointer. |
+| `DllBattle` | `0xc9c5c` (0x14, all words (masked)) | natural | deleting-dtor thunk for a secondary base: this-=0xdc, call the base dtor, then tail-call delete on the returned pointer. |
+| `DllBattle` | `0xc9c70` (0x14, all words (masked)) | natural | deleting-dtor thunk for a secondary base: this-=0xdc, call the base dtor, then tail-call delete on the returned pointer. |
+| `DllBattle` | `0xc9c84` (0x14, all words (masked)) | natural | deleting-dtor thunk for a secondary base: this-=0xe8, call the base dtor, then tail-call delete on the returned pointer. |
+| `DllBattle` | `0xc9c98` (0x14, all words (masked)) | natural | deleting-dtor thunk for a secondary base: this-=0xe8, call the base dtor, then tail-call delete on the returned pointer. |
+| `DllBattle` | `0xc9cac` (0x14, all words (masked)) | natural | deleting-dtor thunk for a secondary base: this-=0xe8, call the base dtor, then tail-call delete on the returned pointer. |
+
+Note: the this-adjusting dtor thunks start at `0xc9c48`, `0xc9c5c`, `0xc9c70` (this-0xdc), `0xc9c84`, `0xc9c98`, `0xc9cac` (this-0xe8) — the `sub r0,#N` is the first instruction of each thunk (the earlier lead offsets were +4 each); each is `del(dtor(p - N))`. `0xa9e08` is a sibling of the 28 forwarders but passes a constant stack arg 1 to the local function `0xa9e1c`. `0xc8f80` is `uint16 f(o){ return g(o->x_0xc); }`; `0xc6d24`/`0xc6d38` are ctor stages (base ctor, then `this[0x48] = this`). The tail of the module past `0xc0000` was not scanned further.
+
+## 2026-10-16 round a — batch 7 (DllBattle 0x8b2e8 family, DllField state handlers)
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllBattle` | `0x8b2e8` (0x28, 10/10) | natural | if member at this+232 is non-null: fa(member) then tail-call fb(arg2); else return |
+| `DllBattle` | `0x8bcb8` (0x28, 10/10) | natural | if member at this+236 is non-null: fa(member) then tail-call fb(arg2); else return |
+| `DllBattle` | `0x8db3c` (0x28, 10/10) | natural | if member at this+216 is non-null: fa(member) then tail-call fb(arg2); else return |
+| `DllBattle` | `0x8e858` (0x28, 10/10) | natural | if member at this+232 is non-null: fa(member) then tail-call fb(arg2); else return |
+| `DllBattle` | `0x8f210` (0x28, 10/10) | natural | if member at this+224 is non-null: fa(member) then tail-call fb(arg2); else return |
+| `DllBattle` | `0x8fa38` (0x28, 10/10) | natural | if member at this+224 is non-null: fa(member) then tail-call fb(arg2); else return |
+| `DllField` | `0xc9060` (0x30, 12/12) | natural | Calls two imports (second returns a flag); if the flag is 0 and the pointer at this+68 is non-null, tail-calls an import on that pointer, else returns. Identical bytes to 0xca54c. |
+| `DllField` | `0xca54c` (0x30, 12/12) | natural | Calls two imports (second returns a flag); if the flag is 0 and the pointer at this+68 is non-null, tail-calls an import on that pointer, else returns. Identical bytes to 0xc9060. |
+| `DllField` | `0xcbc60` (0x3c, 15/15) | natural | State-handler step: calls an import on this->[68] (arg 1), then reads the state id of the object at this->[68]+184; if not 103 returns 36, else calls an import on this and returns 1. |
+| `DllField` | `0xcc474` (0x58, 22/22) | natural | State-handler step: calls an import on this->[68] (arg 1); if byte +145 is set and the state id at this->[68]+184 is 104, sets bit 0x80000 in flags +168, clears +148 and returns 1; otherwise returns 38. |
+
+Notes: **DllBattle `0x8b2e8` family** (0x28 incl. the trailing `pop {r4,pc}`; a 0x24 compile shows 9/9 and misses that last word): `if (this->member@N) { fa(member); } return fb(arg2)`-style member-gated tail call; N = +232 (`0x8b2e8`, `0x8e858`), +236 (`0x8bcb8`), +216 (`0x8db3c`), +224 (`0x8f210`, `0x8fa38`). **Same-bytes siblings not yet compiled** (member offset in brackets; same source with a different `pad[]` should match): `0x90590` [224], `0x910d4` [244], `0x92874` [228], `0x935cc` [228], `0x949f0` [228], `0x954a0` [244], `0x96744` [244], `0x97960` [216], `0x98a04` [232], `0x993b8` [232], `0x99ff4` [220], `0x9a9b0` [280], `0x9c5dc` [224]. **DllField `0xc9060`/`0xca54c`** (0x30): two imports, if the second returns 0 and `this->[68]` is non-null tail-calls an import on it. `0xcbc60` / `0xcc474`: state-handler steps (id 103 / 104). The "getter via 0x5dc68/0x707d4" cluster (DllBattle `0x7b20c`, `0x835f8`, `0x7b2e4`, `0x7bec4`, `0x81544`, `0x81568`, `0x81594`, tail forms `0x7a11c`, `0x7b320`, `0x78488`, `0x7957c`) failed — see `attempted.md`. DllField `0xcf000`-`0xd0000` and `0xe1c00`-`0xe2000` tiers look untried; ~374 candidates at 0x2c-0x70 bytes remain above `0x90000`.
+
+## 2026-10-16 round a — batch 8 (DllField call veneers, DllBattle misc)
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllBattle` | `0x3342c` (0x2c, 11/11) | natural | ctor stage: base ctor, install vtable, zero four ints at +56..+68, return this |
+| `DllBattle` | `0x36d64` (0x10, 4/4) | natural | chained call `fnB(fnA(o))`, second call a tail call |
+| `DllBattle` | `0x38678` (0x1c, 7/7) | natural | `b = a ? a->b : fnA(a); return b->v` with a = o->+12 |
+| `DllBattle` | `0x4c124` (0x1c, 7/7) | natural | tail-call wrapper `return fnB(fnA(o, 14), p)` |
+| `DllBattle` | `0x4c374` (0x3c, 15/15) | natural | range-checked (i<11) getter `o->p->v[i] != 0` with assert stub on out-of-range |
+| `DllField` | `0x543b4` (0x18, 6/6) | natural | calls import veneer (*arg0, 16) and returns 3 |
+| `DllField` | `0x543d4` (0x1c, 7/7) | natural | calls import veneer (*arg0, 8, 1) and returns 3 |
+| `DllField` | `0x5449c` (0x1c, 7/7) | natural | calls import veneer (this, 2, 21, this->byte@10) and returns 1 |
+| `DllField` | `0x544c0` (0x1c, 7/7) | natural | calls import veneer (this, 4, 19, this->byte@10) and returns 1 |
+| `DllField` | `0x544e4` (0x1c, 7/7) | natural | calls import veneer (this, 8, 15, this->byte@10) and returns 1 |
+| `DllField` | `0x547a8` (0x18, 6/6) | natural | calls import veneer (arg1->field@16, arg2) and returns 1 |
+| `DllField` | `0x54de4` (0x1c, 7/7) | natural | calls import veneer (*arg0, 8, 0) and returns 3 |
+| `DllField` | `0x54e48` (0x1c, 7/7) | natural | calls import veneer (this, 16, 10, this->byte@10) and returns 1 |
+| `DllField` | `0x54e6c` (0x1c, 7/7) | natural | calls import veneer (this, 32, 5, this->byte@10) and returns 1 |
+| `DllField` | `0x552b0` (0x18, 6/6) | natural | calls import veneer (this, this->byte@10, 12) and returns 1 |
+| `DllField` | `0x552d0` (0x18, 6/6) | natural | calls import veneer (this, this->byte@10, 14) and returns 1 |
+| `DllField` | `0x552f0` (0x18, 6/6) | natural | calls import veneer (this, this->byte@10, 16) and returns 1 |
+| `DllField` | `0x55310` (0x18, 6/6) | natural | calls import veneer (this, this->byte@10, 32) and returns 1 |
+
+Notes: **DllField call-veneer families (`armcc-r3-f1`):** `(this, this->byte@10, 12/14/16/32)` returns 1 (`0x552b0`/`0x552d0`/`0x552f0`/`0x55310`); `(this, a, b, this->byte@10)` returns 1 with literals (2,21), (4,19), (8,15), (16,10), (32,5) (`0x5449c`, `0x544c0`, `0x544e4`, `0x54e48`, `0x54e6c` — literal-only siblings of `0x4a49c`); `(*arg0, 16)`/`(*arg0, 8, 1)`/`(*arg0, 8, 0)` returning 3 (`0x543b4`/`0x543d4`/`0x54de4`); `0x547a8` (`arg0` unused). **DllBattle `0x4c124`** (`return fnB(fnA(o, 14), p)`), **`0x36d64`** (0x10; the trailing `b` belongs to the next function), **`0x4c374`** (range-checked getter, write the in-range case first — the `if (i >= 11)` form flips the branch and block order), **`0x3342c`** (0x2c incl. the vtable pool word: base ctor, vtable, zero four ints at +56..+68), **`0x38678`**. DllBattle `0x30f1c` and `0x4b82c` are switch prologues; most remaining `0x30000`-`0x60000` candidates are switch / jump-table functions. DllField dtor-style siblings `0x4a458`, `0x530ec`, `0x4009c` look residue-prone.
+
+## 2026-10-16 round a — batch 9 (DllField GetMgr caller shapes x46)
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllField` | `0x58d2c` (0x24, 9/9) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +13328, adds a constant field offset to the loaded base pointer and tail-calls a helper with the resulting address (`pop {r4,lr}; b`). |
+| `DllField` | `0x591a0` (0x10, 4/4) | natural | Calls the shared manager accessor (0x16c0), discards the result, returns 0. |
+| `DllField` | `0x593f0` (0x24, 9/9) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +76200, adds a constant field offset to the loaded base pointer and tail-calls a helper with the resulting address (`pop {r4,lr}; b`). |
+| `DllField` | `0x597b0` (0x24, 9/9) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +13328, adds a constant field offset to the loaded base pointer and tail-calls a helper with the resulting address (`pop {r4,lr}; b`). |
+| `DllField` | `0x59db8` (0x30, 12/12) | natural | Reads the event argument word a[1] first, gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0, adds a field offset and calls a helper with (address, a[1]), returning 0. |
+| `DllField` | `0x59de8` (0x24, 9/9) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +13328, adds a constant field offset to the loaded base pointer and tail-calls a helper with the resulting address (`pop {r4,lr}; b`). |
+| `DllField` | `0x59e0c` (0x30, 12/12) | natural | Reads the event argument word a[1] first, gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0, adds a field offset and calls a helper with (address, a[1]), returning 0. |
+| `DllField` | `0x59e3c` (0x30, 12/12) | natural | Reads the event argument word a[1] first, gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0, adds a field offset and calls a helper with (address, a[1]), returning 0. |
+| `DllField` | `0x5a650` (0x24, 9/9) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +3816, adds a constant field offset to the loaded base pointer and tail-calls a helper with the resulting address (`pop {r4,lr}; b`). |
+| `DllField` | `0x5a674` (0x24, 9/9) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +3816, adds a constant field offset to the loaded base pointer and tail-calls a helper with the resulting address (`pop {r4,lr}; b`). |
+| `DllField` | `0x5b5bc` (0x24, 9/9) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +83012, adds a constant field offset to the loaded base pointer and tail-calls a helper with the resulting address (`pop {r4,lr}; b`). |
+| `DllField` | `0x5c2c8` (0x24, 9/9) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +101552, adds a constant field offset to the loaded base pointer and tail-calls a helper with the resulting address (`pop {r4,lr}; b`). |
+| `DllField` | `0x5e650` (0x28, 10/10) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +240 -> +2740 -> +420, adds a field offset to the loaded pointer and passes the address to a void helper, returning 0. |
+| `DllField` | `0x5eef4` (0x24, 9/9) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +404; if the loaded pointer is non-null calls a helper with it (conditional `blne`), returns 0. |
+| `DllField` | `0x9170c` (0x24, 9/9) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +404; if the loaded pointer is non-null calls a helper with it (conditional `blne`), returns 0. |
+| `DllField` | `0x9257c` (0x24, 9/9) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +404; if the loaded pointer is non-null calls a helper with it (conditional `blne`), returns 0. |
+| `DllField` | `0x92d6c` (0x1c, 7/7) | natural | Gets the manager object from the shared accessor (0x16c0), loads its +12 sub-object and calls a helper with a constant bool flag argument, returning 0. |
+| `DllField` | `0x93d3c` (0x24, 9/9) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +404; if the loaded pointer is non-null calls a helper with it (conditional `blne`), returns 0. |
+| `DllField` | `0x97a4c` (0x28, 10/10) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +85200, adds a constant field offset and passes the resulting address to a void helper, returning 0. |
+| `DllField` | `0x97ec0` (0x24, 9/9) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +90024, adds a constant field offset to the loaded base pointer and tail-calls a helper with the resulting address (`pop {r4,lr}; b`). |
+| `DllField` | `0x9876c` (0x28, 10/10) | natural | Reads the event argument word a[1] first, gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +36 and calls a helper with (loaded object, a[1]), returning 0. |
+| `DllField` | `0x98d14` (0x28, 10/10) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +85200, adds a constant field offset and passes the resulting address to a void helper, returning 0. |
+| `DllField` | `0x98df8` (0x30, 12/12) | natural | Reads the event argument word a[1] first, gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0, adds a field offset and calls a helper with (address, a[1]), returning 0. |
+| `DllField` | `0x98e28` (0x28, 10/10) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +85200, adds a constant field offset and passes the resulting address to a void helper, returning 0. |
+| `DllField` | `0x98ef8` (0x1c, 7/7) | natural | Gets the manager object from the shared accessor (0x16c0), loads its +12 sub-object and calls a helper with a constant bool flag argument, returning 0. |
+| `DllField` | `0x98f14` (0x1c, 7/7) | natural | Gets the manager object from the shared accessor (0x16c0), loads its +12 sub-object and calls a helper with a constant bool flag argument, returning 0. |
+| `DllField` | `0x99238` (0x28, 10/10) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +4184, adds a constant field offset and passes the resulting address to a void helper, returning 0. |
+| `DllField` | `0x99260` (0x24, 9/9) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +4184, adds a constant field offset to the loaded base pointer and tail-calls a helper with the resulting address (`pop {r4,lr}; b`). |
+| `DllField` | `0x99284` (0x24, 9/9) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +4184, adds a constant field offset to the loaded base pointer and tail-calls a helper with the resulting address (`pop {r4,lr}; b`). |
+| `DllField` | `0x993a4` (0x1c, 7/7) | natural | Gets the manager object from the shared accessor (0x16c0), loads its +12 sub-object and calls a helper with a constant bool flag argument, returning 0. |
+| `DllField` | `0x993c0` (0x1c, 7/7) | natural | Gets the manager object from the shared accessor (0x16c0), loads its +12 sub-object and calls a helper with a constant bool flag argument, returning 0. |
+| `DllField` | `0x99440` (0x24, 9/9) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +76200, adds a constant field offset to the loaded base pointer and tail-calls a helper with the resulting address (`pop {r4,lr}; b`). |
+| `DllField` | `0x99464` (0x24, 9/9) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +76200, adds a constant field offset to the loaded base pointer and tail-calls a helper with the resulting address (`pop {r4,lr}; b`). |
+| `DllField` | `0x9a7a8` (0x24, 9/9) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +4184, adds a constant field offset to the loaded base pointer and tail-calls a helper with the resulting address (`pop {r4,lr}; b`). |
+| `DllField` | `0x9a9f0` (0x24, 9/9) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +85200, adds a constant field offset to the loaded base pointer and tail-calls a helper with the resulting address (`pop {r4,lr}; b`). |
+| `DllField` | `0x9b98c` (0x28, 10/10) | natural | Reads the event argument word a[1] first, gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +408 and calls a helper with (loaded object, a[1]), returning 0. |
+| `DllField` | `0x9dcdc` (0x28, 10/10) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +101552, adds a constant field offset and passes the resulting address to a void helper, returning 0. |
+| `DllField` | `0x9dd04` (0x28, 10/10) | natural | Reads the event argument word a[1] first, gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +248 and calls a helper with (loaded object, a[1]), returning 0. |
+| `DllField` | `0x9dd2c` (0x24, 9/9) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +101552, adds a constant field offset to the loaded base pointer and tail-calls a helper with the resulting address (`pop {r4,lr}; b`). |
+| `DllField` | `0x9de18` (0x28, 10/10) | natural | Reads the event argument word a[1] first, gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +248 and calls a helper with (loaded object, a[1]), returning 0. |
+| `DllField` | `0x9e724` (0x28, 10/10) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +28 -> +0 -> +101048, adds a constant field offset and passes the resulting address to a void helper, returning 0. |
+| `DllField` | `0x9e87c` (0x1c, 7/7) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +100 -> +2761, adds a field offset and returns the signed byte (`ldrsb`) found there. |
+| `DllField` | `0x9ea30` (0x1c, 7/7) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +100 -> +2916, adds a field offset and returns the signed byte (`ldrsb`) found there. |
+| `DllField` | `0x9f1e0` (0x1c, 7/7) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +100 -> +2084, adds a field offset and returns the signed byte (`ldrsb`) found there. |
+| `DllField` | `0x9feb4` (0x28, 10/10) | natural | Gets the manager object from the shared accessor (0x16c0), walks the pointer chain +12 -> +72 -> +240 -> +2740 -> +724, adds a field offset to the loaded pointer and passes the address to a void helper, returning 0. |
+| `DllField` | `0xbbb54` (0x10, 4/4) | natural | Deleting-destructor thunk: calls 0x6d64c (dtor body, returns this) then tail-calls free helper 0x1c8. |
+
+Notes — **DllField GetMgr (`0x16c0`) caller scan (`armcc-r3-f2`):** 626 `bl 0x16c0` callers were outside `matched/` at scan time; only callers up to 0x38 bytes were shaped, so ~470 larger callers are untouched. Shapes matched: tail-call with constant add (`Tail(**(chain) + C)`, 16 fns, 0x24), void-call with constant add + `return 0` (7 fns), call with a flag arg `mov r1,#0/#1` (5 fns, 0x1c), null-check `blne` (4 fns, 0x24), `ldrsb` signed byte getters (3 fns), event arg `a[1]` loaded before `GetMgr` (8 fns, 0x28/0x30), bare `GetMgr()` + `return 0` (`0x591a0`), and `0xbbb54` (`Free(Dtor(t))`, `Dtor` = `0x6d64c`, the only `bl 0x6d64c` caller; `Free` = `0x1c8`). Some saved files carry an unused `extern` (e.g. `Sink`) — harmless.
+Not matched (see `attempted.md`): nested `0x865cc` call + conditional tail (`0x59270` and five siblings), `ldrd`/`uxth` arg pairs, jump-table dispatchers on `ldrb [..,#460]` (`0x94d48`, `0x957fc`, `0x930ac`; need `--mask-ranges`), float getters `0x92330`/`0x92370`, struct-by-stack arg `0x5ef18`, `self`-in-r4 multi-call functions (`0x945e4`, `0x95190`, `0x9752c`, `0x91330`, `0x91364`).
+
+## 2026-10-16 round a — batch 10 (DllBattle push-less families x21)
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllBattle` | `0x12704` (0x14, 5/5) | natural | vec3 setter: this->+4 = (x,y,z) float triple by value; this->+0x4c (u8) = 1 (dirty flag). |
+| `DllBattle` | `0x12a30` (0x14, 5/5) | natural | vec3 setter: this->+52 = (x,y,z) float triple by value; this->+0x4c (u8) = 1 (dirty flag). |
+| `DllBattle` | `0x12af8` (0x14, 5/5) | natural | vec3 setter: this->+16 = (x,y,z) float triple by value; this->+0x4c (u8) = 1 (dirty flag). |
+| `DllBattle` | `0x12b24` (0x14, 5/5) | natural | vec3 setter: this->+28 = (x,y,z) float triple by value; this->+0x4c (u8) = 1 (dirty flag). |
+| `DllBattle` | `0x29abc` (0x14, 5/5) | natural | splat setter: this->+0x40/+0x44/+0x48 = v (float); this->+0x4c (u8) = flag (3rd arg). |
+| `DllBattle` | `0x2b9dc` (0x18, 6/6) | **trick(redundant-local)** | writes constant pair (-94.0f, -54.0f) to arg2->{x,y}; arg1 unused (default position/offset reset). |
+| `DllBattle` | `0x3357c` (0x14, 5/5) | natural | splat setter: this->+0x40/+0x44/+0x48 = v (float); this->+0x4c (u8) = flag (3rd arg). |
+| `DllBattle` | `0x3c10c` (0x18, 6/6) | natural | copy 8 bytes from arg3->+164 (two ints) into this->+0x730; this->+0x72c (u8) = arg4. |
+| `DllBattle` | `0x3c124` (0x18, 6/6) | natural | copy 8 bytes from arg3->+172 (two ints) into this->+0x730; this->+0x72c (u8) = arg4. |
+| `DllBattle` | `0x3c13c` (0x18, 6/6) | natural | copy 8 bytes from arg3->+180 (two ints) into this->+0x730; this->+0x72c (u8) = arg4. |
+| `DllBattle` | `0x3c154` (0x18, 6/6) | natural | copy 8 bytes from arg3->+188 (two ints) into this->+0x730; this->+0x72c (u8) = arg4. |
+| `DllBattle` | `0x3c16c` (0x18, 6/6) | natural | copy 8 bytes from arg3->+196 (two ints) into this->+0x730; this->+0x72c (u8) = arg4. |
+| `DllBattle` | `0x3c184` (0x18, 6/6) | natural | copy 8 bytes from arg3->+204 (two ints) into this->+0x730; this->+0x72c (u8) = arg4. |
+| `DllBattle` | `0x3d21c` (0x14, 5/5) | natural | boolean getter: returns this->+7 (u8) != 1. |
+| `DllBattle` | `0x762f4` (0x14, 5/5) | natural | boolean getter: returns this->+0x694 (u8) == 3. |
+| `DllBattle` | `0x81638` (0x14, 5/5) | natural | boolean getter: returns this->+0x10 (u8) == 6. |
+| `DllBattle` | `0xc5dd8` (0x14, 5/5) | natural | splat setter: this->+0x40/+0x44/+0x48 = v (float); this->+0x4c (u8) = flag (3rd arg). |
+| `DllBattle` | `0xc7304` (0x10, 4/4) | natural | indexed getter: returns this->+0xb18[arg & 1] (int array). |
+| `DllBattle` | `0xc73f4` (0x10, 4/4) | natural | indexed getter: returns this->+0xb1c[arg & 1] (int array). |
+| `DllBattle` | `0xc8fec` (0xc, 3/3) | natural | signed byte getter: returns (signed char) this->+0x874. |
+| `DllBattle` | `0xc900c` (0xc, 3/3) | natural | signed byte getter: returns (signed char) this->+0x875. |
+
+Notes — **DllBattle push-less leaf families (`armcc-r3-b4`):** float splat setters `x=y=z=v`, `+0x4c (u8) = flag` (`0x29abc`, `0x3357c`, `0xc5dd8`); vec3-by-value setters with `+0x4c = 1` (`0x12704` +4, `0x12af8` +16, `0x12b24` +28, `0x12a30` +52); 8-byte struct copy from `arg3->+N` into `this->+0x730`, `+0x72c (u8) = arg4` (`0x3c10c`..`0x3c184`, N = 164..204 step 8); `==N` boolean getters (`0x762f4` `+0x694 == 3`, `0x81638` `+0x10 == 6`, `0x3d21c` `+7 != 1` — matches only as `if (v == 1) return 0; return 1;`, a spelling choice); `o->v[i & 1]` indexed getters (`0xc7304`, `0xc73f4`); `ldrsb` getters (`0xc8fec`, `0xc900c`); `0x2b9dc` writes (-94.0f, -54.0f) to `arg2->{x,y}` (**trick(redundant-local)**: named locals `a`, `b` get armcc to emit one `vstmia` instead of two `vstr`).
+Not matched: conditional-store chain (`0x41f94`, `0x434ec`, `0x439d4`, `0x3c960`, `0x43958`; best 5/8), ldm/strd vec3 copies (`0x126ec`, `0x12864`, `0x128d4`, `0x12a00`, `0x12ae0`, `0x12b0c`; 2/6, field-copy residue). `0x4b9cc`, `0x76ce8`, `0x56a10`, `0x56a38`, `0x569fc`, `0x56a48`, `0x56a58` are tail blocks / case arms of larger functions, not standalone — the enclosing functions are the real candidates.
+
+## 2026-10-16 round a — batch 11 (DllBattle 0x60000 range, 3 tricks)
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllBattle` | `0x74ff8` (0x58, 22/22) | **trick(redundant-local)** | if f18e4(h,0,1) then f18ec(h,0,1,0); f34c(h,0,0,0); return 1 else 0, h = this+0xd38 handle. |
+| `DllBattle` | `0x75050` (0x54, 21/21) | **trick(redundant-local)** | three calls on the handle at this+0xd38 (18ec(h,0,0,0); 34c(h,0,0,1); 18f4(h,0,1,1,1)), handle reloaded each call. |
+| `DllBattle` | `0x750a4` (0x84, 33/33) | **trick(redundant-local)** | handle (this+0xd38) call pair, then converts an 8-byte {int,int} table entry [i] to a float vec (3-float array) and passes it to a third call. |
+
+Notes — **DllBattle `0x60000`-`0x78000` (`armcc-r3-b1`):** all three are **trick(redundant-local)**: a local `void **pp = &o->fld` reproduces retail's cached field address (using `o->fld` directly gave 2/21 on `0x75050`); `0x750a4` (0x84 incl. the trailing pool word) converts entry [i] of an 8-byte `{int,int}` global table to floats in a `float v[3]` (z unused, lands at sp+4). **Verifier limitation found:** `DllBattle@0x71a2c` matches all 8 code words, but retail has a 0 pad word before the pool constant (function starts at 4 mod 8, pool 8-aligned) which a standalone compile can't reproduce — it would match if `fingerprint_fn.py` tolerated pool-alignment padding (a tool improvement worth making).
+
+## 2026-10-16 round a — batch 12 (DllBattle 0x8b2e8 family siblings x14, all natural)
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllBattle` | `0x90590` (0x28, 10/10) | natural | if member at this+224 is non-null, fa(member) then tail-call fb(a) with the 2nd arg; else no-op (void) |
+| `DllBattle` | `0x910d4` (0x28, 10/10) | natural | if member at this+244 is non-null, fa(member) then tail-call fb(a) with the 2nd arg; else no-op (void) |
+| `DllBattle` | `0x92874` (0x28, 10/10) | natural | if member at this+228 is non-null, fa(member) then tail-call fb(a) with the 2nd arg; else no-op (void) |
+| `DllBattle` | `0x935cc` (0x28, 10/10) | natural | if member at this+228 is non-null, fa(member) then tail-call fb(a) with the 2nd arg; else no-op (void) |
+| `DllBattle` | `0x949f0` (0x28, 10/10) | natural | if member at this+228 is non-null, fa(member) then tail-call fb(a) with the 2nd arg; else no-op (void) |
+| `DllBattle` | `0x954a0` (0x28, 10/10) | natural | if member at this+244 is non-null, fa(member) then tail-call fb(a) with the 2nd arg; else no-op (void) |
+| `DllBattle` | `0x96744` (0x28, 10/10) | natural | if member at this+244 is non-null, fa(member) then tail-call fb(a) with the 2nd arg; else no-op (void) |
+| `DllBattle` | `0x97960` (0x28, 10/10) | natural | if member at this+216 is non-null, fa(member) then tail-call fb(a) with the 2nd arg; else no-op (void) |
+| `DllBattle` | `0x98a04` (0x28, 10/10) | natural | if member at this+232 is non-null, fa(member) then tail-call fb(a) with the 2nd arg; else no-op (void) |
+| `DllBattle` | `0x993b8` (0x28, 10/10) | natural | if member at this+232 is non-null, fa(member) then tail-call fb(a) with the 2nd arg; else no-op (void) |
+| `DllBattle` | `0x99ff4` (0x28, 10/10) | natural | if member at this+220 is non-null, fa(member) then tail-call fb(a) with the 2nd arg; else no-op (void) |
+| `DllBattle` | `0x9a9b0` (0x28, 10/10) | natural | if member at this+280 is non-null, fa(member) then tail-call fb(a) with the 2nd arg; else no-op (void) |
+| `DllBattle` | `0x9b87c` (0x24, 9/9) | natural | if member at this+224 is non-null, fa(member) then tail-call fb(0); else no-op (void) |
+| `DllBattle` | `0x9c5dc` (0x28, 10/10) | natural | if member at this+224 is non-null, fa(member) then tail-call fb(a) with the 2nd arg; else no-op (void) |
+
+Notes — the 13 listed siblings of the `0x8b2e8` family all match (`pad[]` / member offset 216-280, 10/10 at 0x28); `0x9b87c` (0x24, 9/9) is the same shape with no second argument (`if (o->m) { fa(o->m); fb(0); }`, member +224). A scan of the whole DllBattle `.text` for the exact masked pattern found 19 sites, all now matched.
+
+## 2026-10-16 round a — batch 13 (DllBattle comparison-wrapper family x32, all natural)
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllBattle` | `0xa5db4` (0x2c, 11/11) | natural | guarded report helper: if (getter(2) == c) reportA(54, 2048) (tail call, no return value) |
+| `DllBattle` | `0xa7fd4` (0x2c, 11/11) | natural | guarded report helper: if (getter(2) == c) reportA(54, 6144) (tail call, no return value) |
+| `DllBattle` | `0xa8000` (0x2c, 11/11) | natural | guarded report helper: if (getter(2) == c) reportB(17, 0) (tail call, no return value) |
+| `DllBattle` | `0xa802c` (0x2c, 11/11) | natural | guarded report helper: if (getter(2) == c) reportA(54, 2048) (tail call, no return value) |
+| `DllBattle` | `0xaa524` (0x2c, 11/11) | natural | guarded report helper: if (getter(2) == c) reportB(83, 1) (tail call, no return value) |
+| `DllBattle` | `0xab0d4` (0x2c, 11/11) | natural | guarded report helper: if (getter(2) == c) reportA(54, 2048) (tail call, no return value) |
+| `DllBattle` | `0xab168` (0x2c, 11/11) | natural | guarded report helper: if (getter(2) == c) reportA(54, 2048) (tail call, no return value) |
+| `DllBattle` | `0xab408` (0x2c, 11/11) | natural | guarded report helper: if (getter(2) == c) reportB(66, 1) (tail call, no return value) |
+| `DllBattle` | `0xaf540` (0x2c, 11/11) | natural | guarded report helper: if (getter(3) == c) reportB(83, 1) (tail call, no return value) |
+| `DllBattle` | `0xb2e8c` (0x2c, 11/11) | natural | guarded report helper: if (getter(3) == c) reportB(56, 20) (tail call, no return value) |
+| `DllBattle` | `0xb4cdc` (0x2c, 11/11) | natural | guarded report helper: if (getter(3) == c) reportB(23, 2) (tail call, no return value) |
+| `DllBattle` | `0xb5414` (0x2c, 11/11) | natural | guarded report helper: if (getter(3) == c) reportB(56, 40) (tail call, no return value) |
+| `DllBattle` | `0xb7850` (0x2c, 11/11) | natural | guarded report helper: if (getter(3) == c) reportA(50, 6144) (tail call, no return value) |
+| `DllBattle` | `0xb8340` (0x2c, 11/11) | natural | guarded report helper: if (getter(3) == c) reportB(84, 1) (tail call, no return value) |
+| `DllBattle` | `0xb8b58` (0x2c, 11/11) | natural | guarded report helper: if (getter(3) == c) reportB(83, 1) (tail call, no return value) |
+| `DllBattle` | `0xb9b44` (0x2c, 11/11) | natural | guarded report helper: if (getter(3) == c) reportB(83, 1) (tail call, no return value) |
+| `DllBattle` | `0xb9cb0` (0x2c, 11/11) | natural | guarded report helper: if (getter(3) == c) reportB(80, 0) (tail call, no return value) |
+| `DllBattle` | `0xb9d64` (0x2c, 11/11) | natural | guarded report helper: if (getter(3) == c) reportB(67, 0) (tail call, no return value) |
+| `DllBattle` | `0xb9d90` (0x2c, 11/11) | natural | guarded report helper: if (getter(3) == c) reportB(83, 1) (tail call, no return value) |
+| `DllBattle` | `0xb9de8` (0x2c, 11/11) | natural | guarded report helper: if (getter(3) == c) reportB(83, 1) (tail call, no return value) |
+| `DllBattle` | `0xba544` (0x2c, 11/11) | natural | guarded report helper: if (getter(3) == c) reportB(76, 1) (tail call, no return value) |
+| `DllBattle` | `0xba7f8` (0x2c, 11/11) | natural | guarded report helper: if (getter(3) == c) reportB(67, 1) (tail call, no return value) |
+| `DllBattle` | `0xba824` (0x2c, 11/11) | natural | guarded report helper: if (getter(2) == c) reportB(76, 1) (tail call, no return value) |
+| `DllBattle` | `0xbb87c` (0x2c, 11/11) | natural | guarded report helper: if (getter(3) == c) reportB(83, 1) (tail call, no return value) |
+| `DllBattle` | `0xbbccc` (0x2c, 11/11) | natural | guarded report helper: if (getter(3) == c) reportB(66, 1) (tail call, no return value) |
+| `DllBattle` | `0xbbdf4` (0x2c, 11/11) | natural | guarded report helper: if (getter(3) == c) reportB(83, 1) (tail call, no return value) |
+| `DllBattle` | `0xbd6b4` (0x2c, 11/11) | natural | guarded report helper: if (getter(2) == c) reportB(17, 0) (tail call, no return value) |
+| `DllBattle` | `0xbe4ec` (0x2c, 11/11) | natural | guarded report helper: if (getter(3) == c) reportB(66, 1) (tail call, no return value) |
+| `DllBattle` | `0xbf8cc` (0x2c, 11/11) | natural | guarded report helper: if (getter(3) == c) reportB(83, 1) (tail call, no return value) |
+| `DllBattle` | `0xbfde4` (0x2c, 11/11) | natural | guarded report helper: if (getter(2) == c) reportA(54, 8192) (tail call, no return value) |
+| `DllBattle` | `0xbfed8` (0x2c, 11/11) | natural | guarded report helper: if (getter(2) == c) reportA(54, 2048) (tail call, no return value) |
+| `DllBattle` | `0xbff04` (0x2c, 11/11) | natural | guarded report helper: if (getter(4) == c) reportB(83, 0) (tail call, no return value) |
+
+Notes — **DllBattle comparison-wrapper family (32 sites, all size 0x2c, 11/11):** `void fn(int a,int b,int c){ if (g(N) == c) fnX(A, B); }` where `g` is the `0x6b91c` getter (argument N = 2, 3 or 4) and `fnX` is the `0x4ce84` veneer when `B` is `0x800`/`0x1800`/`0x2000`, else `0x658d4`; only `N`, `A`, `B` change. Getter 2: `0xa5db4`, `0xa7fd4`, `0xa8000`, `0xa802c`, `0xaa524`, `0xab0d4`, `0xab168`, `0xab408`, `0xba824`, `0xbd6b4`, `0xbfde4`, `0xbfed8`. Getter 3: `0xaf540`, `0xb2e8c`, `0xb4cdc`, `0xb5414`, `0xb7850`, `0xb8340`, `0xb8b58`, `0xb9b44`, `0xb9cb0`, `0xb9d64`, `0xb9d90`, `0xb9de8`, `0xba544`, `0xba7f8`, `0xbb87c`, `0xbbccc`, `0xbbdf4`, `0xbe4ec`, `0xbf8cc`. Getter 4: `0xbff04`. Of 480 candidates, only this shape was a mechanical family. Leads not attempted: `mov r4,r0; ldr r0,[r0,#off]; bl 0x19f4; mov r0,r4; pop` (`0x902c8`, `0x97688`, `0x99d44`, `0x9b5e8`, `0x9c2f4`; dtor-like), the same getter shape with `cmp r0,#K` against a constant and `mov r0,#22` as the getter argument in `0xa5de0`..`0xa92b0` (`push {r4-r6,lr}`).
+
+## 2026-10-16 round a — batch 14 (DllField 0xd0000-0xe4000 tier x5, all natural)
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllField` | `0xd50b8` (0x34, 13/13) | natural | float getter: 0.0f if Lookup(this->[12]) null else GetValue(Lookup(this->[12])) |
+| `DllField` | `0xd7964` (0x2c, 11/11) | natural | if this->[184] non-null, ImportB(arg, ImportA(this->[184])) (tail call) |
+| `DllField` | `0xd90cc` (0x30, 12/12) | natural | 7-arg wrapper reordering to Import(a0,a6,a5,a4,a3,a1); a2 unused |
+| `DllField` | `0xe248c` (0x24, 9/9) | natural | o = arg->[4]; return o->vtable[55](o, 0) != 0 |
+| `DllField` | `0xe31f4` (0x30, 12/12) | natural | returns 1 if o=arg->[0] has byte[0x87f] set and Check(o,0x800000) true, else 2 |
+
+Notes — **DllField `0xd000`-`0xe400` tier (`armcc-r4-f3`):** `0xe248c` is 0x24 (a size enumeration said 0x2c): the trailing `mov r0,#12; bx lr` at `0xe24b0` is a separate return-12 stub nobody has claimed. `0xd50b8` size 0x34 includes the 0.0f literal word.
+
+## 2026-10-16 round a — batch 15 (residues cracked: DllField 0xb1bb8 x24 via C++ Reset(); DllField 0x90000-0xd0000 tiers)
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllBattle` | `0x4344c` (0x2c, 11/11) | natural | vt[0x80](this,a) result compared, returns r==103\|\|r==104 (early-return spelling gives retail beq/moveq/beq shape) |
+| `DllField` | `0x91364` (0x30, 12/12) | natural | Calls H1(mgr->+12->+72), H2(), H3(mgr->+28, 2); returns 0. |
+| `DllField` | `0x916dc` (0x30, 12/12) | natural | If mgr->+28 has a non-null pointer at +148, calls H() and clears the word at (mgr->+28)+124+24; returns 0. |
+| `DllField` | `0x92688` (0x2c, 11/11) | natural | Reads args[1], fetches the manager and calls Helper(mgr->+12->+28->+36, args[1], 10); returns 0. |
+| `DllField` | `0x9af9c` (0x30, 12/12) | natural | Calls H(q) on the sub-object at mgr->+12->+28->[0] + 0x1aeec, then returns bits 4+ of its u16 field at +4. |
+| `DllField` | `0xb0378` (0x3c, 15/15) | natural | boolean query: import(this) nonzero, or this->[0x5a4] non-null and import on it nonzero -> 1, else 0 |
+| `DllField` | `0xb1a10` (0x50, 20/20) | natural | dtor stage: install vtable, virtual-delete member +0x430 and free handle +4 (each if set, zeroed), return this |
+| `DllField` | `0xb1bb8` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xb1ccc` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xb231c` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xb253c` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xb2864` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xb29ac` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xb2e3c` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xb3320` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xb3704` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xb5a00` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xb5ab4` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xb7bbc` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xb7ec8` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xb8180` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xb86ec` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xb8778` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xb8e28` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xba914` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xbc390` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xbc5dc` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xc0060` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xc0ebc` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xc1f28` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xc2618` (0x2c, 11/11) | **trick(volatile-store)** | secondary-base dtor stage -- store vtable arg, `if (this[32]) Free(this, this+32)`, return Base(this+8)-8 (one of 24 identical sites) |
+| `DllField` | `0xc2a7c` (0x44, 17/17) | natural | release helper: this[168] -> fb(fa(x)) + zero; this[156] -> virtual delete (vt slot 1) + zero |
+| `DllField` | `0xc2ac0` (0x40, 16/16) | natural | argument-marshalling thunk forwarding seven values (derefs of 4 args, 0, plus a stack arg) to an import |
+| `DllField` | `0xc8f88` (0x3c, 15/15) | **trick(ordering-local)** | state-handler step: import(this[100],this[180]) == 0 -> 50; else second import, state[180]=13, returns byte this[189] |
+| `DllPuzzle` | `0x1014` (0x1c, 7/7) | natural | if (p->f4->f2c->f60 == 1) p->f8 = 2 leaf (moveq/strbeq) |
+
+**Mechanism cracked — C++ inline-member `Reset()` (DllField `0xb1bb8` family, 24 identical sites, each 11/11, `.cpp` files, `trick(volatile-store)`):** armcc if-converts a call arm (`addne r1,r0,#32; blne`) only when the arm is ≤ 2 instructions. In plain C the null-test load lands in r0 (r0 looks dead once `this` is copied to r4), so the arm needs `mov r0,r4` and armcc emits a `beq` branch instead (4/11). Written as an inline C++ member (`void Reset() { if (m) fr(this, &m); }`) the test load goes to r1 and r0 stays `this`, giving retail's form (8/11); the vptr store through a `volatile` pointer then pins the `mov r4,r0` ahead of it (11/11). Sites: `0xb1bb8`, `0xb1ccc`, `0xb231c`, `0xb253c`, `0xb2864`, `0xb29ac`, `0xb2e3c`, `0xb3320`, `0xb3704`, `0xb5a00`, `0xb5ab4`, `0xb7bbc`, `0xb7ec8`, `0xb8180`, `0xb86ec`, `0xb8778`, `0xb8e28`, `0xba914`, `0xbc390`, `0xbc5dc`, `0xc0060`, `0xc0ebc`, `0xc1f28`, `0xc2618` (a byte-pattern scan of every `.cro` found the pattern only in DllField). **This C++ trick may unlock other branch-vs-conditional-execution cases** (DllField `0xcae50` / `0xcb41c`, DllBattle `0x7198c` / `0x73524`, the `0xb6844` / `0xb76c8` secondary-base dtor pair).
+Notes: `DllBattle@0x4344c` matched (natural; `if (r == 103) return 0; return r == 104;`). `DllPuzzle@0x1014` matched (plain C: `if (p->f4->f2c->f60 == 1) p->f8 = 2`; the old `DllPuzzle@0x100c` entry was a mis-offset — 0x100c..0x1013 are two zero words). `DllField@0xde620` (11 sites) is still not cracked (best 7/11; the Reset() trick doesn't carry over). Other DllField batch notes: `0xc8f88` needs the byte read in a local before the state store (else the `ldrb` lands after the `str`, 12/15); `0xb1a10` (0x50) includes the trailing vtable pool word (0x4c is 19/19); `0xcff28`, `0xcaf30`, `0xc2b00`, `0xcc4d8` and ~44 candidates in `0xb0000`-`0xd0000` untried (many are 0x64-byte 4-call functions). `armcc-r4-f1` stuck handlers: `0x93d10`, `0x948f0`, `0x93b30`, `0x94d18`, `0x9aeb8` (arg-load width) and `0x98bc0`, `0x9d8f4`, `0x9a618` (see `attempted.md`); `0x95130` (11/11, sibling of `0x92688`) was dropped at the ceiling — a quick pickup.
+
+## 2026-10-16 round a — batch 16 (small jump-table dispatchers x4)
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllBattle` | `0x60e00` (0x74, 29/29 (with --mask-ranges 0x14:0x18)) | natural | switch(k) 6-slot jump table: selectors 1,3,4,5 return 1; selector 2 returns 2\|(((calc(global.f54,3)+2)<<3)&0x1f8); selector 0 / >=6 call err(0,0,0) and return 0. Pool word = address of a global OBJECT (not pointer): needs `extern S g;` (g.f) not `S *g` or armcc emits an extra ldr. |
+| `DllField` | `0x11298` (0x6c, 27/27) | natural | event dispatch -- if this->f7c non-null and k in {0x21,0x27,0x3c} call that object's vtable slot 0/1/2 and return 0, else return 1 (compare-chain switch, no mask-ranges). NOTE: task named 0x112a8, which is the mid-function switch; real function start is 0x11298 (push {r4,lr}; ldr r0,[r0,#0x7c]). |
+| `DllField` | `0x79dc4` (0x60, 24/24 (with --mask-ranges 0x10:0x40; mapping recovered from relocations via tools/jumptable_relocs.py)) | natural | leaf bool predicate: true for ids 4-7 and 12-19, false for 8-11 / out of range (sub #4; cmp #16 jump table). |
+| `DllField` | `0x94d48` (0x6c, 27/27 (with --mask-ranges 0x20:0x24; mapping recovered from relocations via tools/jumptable_relocs.py)) | natural | classifies mode byte inst()->+12->+28->+460: 0 for {0,2,6}, 1 for 8, 2 for {1,3}, err(0,0,0) then 2 for the rest. Note: cases that skip the error call and reach the shared `return 2` are written as `break` with `return 2` after the switch. |
+
+**New tool — `tools/jumptable_relocs.py <Module> <tbl_lo> <tbl_hi>`:** prints the real jump-table targets from the CRO's internal relocations (header `0x128`, 12-byte entries), i.e. the case-value→body mapping that `--mask-ranges` cannot prove. Matches made with `--mask-ranges` carry the exact Verify flags in their header and are labelled *relocation-derived, not compiler-proven* (details in `docs/decomp/armcc-toolchain.md`). `DllField@0x11298` (0x6c, 27/27, **no mask**) is the real start of the function whose mid-function switch is at `0x112a8` — if `this+0x7c` is non-null and k is 0x21/0x27/0x3c it calls that object's vtable slot 0/1/2 and returns 0, else 1 (the earlier `0x112c8`/`0x112dc`/`0x112f0` "functions" are its case bodies). `DllBattle@0x60e00` needs the global declared `extern S g;` (an object, not a pointer). Dead ends (`attempted.md`): `0x4b82c`, `0x6de1c`, `0x71250` / `0x743a8`; `0x30f1c` is too large (~0x180); `DllField@0x12840` is a destructor/constructor pair, not a switch; `bl; nop; nop; b` shapes (`DllBattle@0x4f158`, `0x4f5b0`, `0x52db0`) have the same relaxation-nop problem.
+
+## 2026-10-16 round a — batch 17 (non-tail-call blocker cracked: DllField 0xe1c4c twins)
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllField` | `0xe1c4c` (0x2c, 11/11) | **trick(wider-callee-return)** | f11(a->first); return f79(a, a->sub.y /*+17*/, 0, 5) as a NON-tail call returning the callee r0 (twin of 0xe1fe8) |
+| `DllField` | `0xe1fe8` (0x2c, 11/11) | **trick(wider-callee-return)** | f11(a->first); return f79(a, a->sub.y /*+17*/, 0, 5) as a NON-tail call returning the callee r0 (twin of 0xe1c4c) |
+
+**`DllField@0xe1c4c` / `0xe1fe8` (0x2c, 11/11, `trick(wider-callee-return)`)** — `f11(a->first); return f79(a, a->sub.y /*+17*/, 0, 5)` as a NON-tail call returning the callee's r0. Mechanism: declare the callee as returning `long long` and have the caller return `(int)` of it — r0 is the low word, so the cast costs no code, but armcc stops tail-calling (matching int/int types give `pop {..,lr}; b f79`, 6/11). A struct, `unsigned char`, pointer, float or varargs return, or a static wrapper, did not block the tail call. A scan of every `.cro` for this prologue found only these two sites. The 20+ C++ forms tried on the zero-register destructor class did not help (see `attempted.md`).
+
+## 2026-10-16 round a — batch 18 (C++ inline-member sweep: DllField 0x2948c)
+
+| Module | Offset (size, match) | Style | What |
+|---|---|---|---|
+| `DllField` | `0x2948c` (0x44, 17/17) | **trick(cpp-inline-member)** | guarded release: `t = this->t; if (t) { if (t->x) { fa(arg, t->x); t->st = -1; } else fb(0,0,0) }` (else arm is a tail call) |
+
+**`DllField@0x2948c` (0x44, 17/17, `trick(cpp-inline-member)`, `.cpp`)** — `t = this->t; if (t) { if (t->x) { fa(arg, t->x); t->st = -1; } else fb(0,0,0) /* tail call */ }`: the pointee-side logic written as an inline member `U::Go()` called on the loaded pointer (`if (s->t) ((U*)s->t)->Go(a);`); the plain-C form is 5/17. The mechanism generalises ("write the pointee-side logic as an inline member called on the loaded pointer") but only flipped this one of ~12 branch-vs-conditional-execution / scheduling failures swept (`attempted.md`). No byte-identical siblings exist in the corpus.
+**Verifier limitation, now confirmed twice:** `DllBattle@0x71a2c` and `DllField@0xb6844` / `0xb76c8` start at 4 mod 8, so retail has a zero pad word before its 8-aligned literal pool (ldr displacement 40 vs our 36), which a standalone compile starting at offset 0 can never emit — they need a `fingerprint_fn.py` option that tolerates pool-alignment padding. **Proposed tool improvement.**
 
 ## What this does *not* do yet
 
